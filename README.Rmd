@@ -22,6 +22,9 @@ options(tibble.print_min = 5, tibble.print_max = 5)
 
 ### A. Cleaning and selection
 
+* `a1_extract-reef-aca.js` Export [Allen Coral Atlas](https://developers.google.com/earth-engine/datasets/catalog/ACA_reef_habitat_v2_0) coral reef distribution data as .shp at a 500 m resolution from Google Earth Engine (GEE)
+* `a2_clean-reefs.R` Add GCRMN region to coral reef distribution and create 100 km coral reef buffer
+
 ### B. Extraction
 
 ### C. Models
