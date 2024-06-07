@@ -1,0 +1,27 @@
+# Base #
+########
+
+.Rproj.user
+.Rproj
+.Rhistory
+.RData
+.Ruserdata
+*.html
+*.pdf
+*.aux
+*.bbl
+*.blg
+*.lof
+*.log
+*.lot
+*.out
+*.gz
+*.toc
+
+# folder #
+##########
+
+data/
+doc/
+misc/
+figs/

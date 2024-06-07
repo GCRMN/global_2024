@@ -1,0 +1,46 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "",
+  out.width = "100%"
+)
+options(tibble.print_min = 5, tibble.print_max = 5)
+```
+
+# **Status of coral reefs of the world: 2025**
+
+
+## 1. Introduction
+
+## 2. Code
+
+### A. Cleaning and selection
+
+### B. Extraction
+
+### C. Models
+
+### D. Figures and tables
+
+### E. Functions
+
+* `data_descriptors.R` Get number of sites, surveys, datasets, first and last year of monitoring.
+* `graphical_par.R` Graphical parameters, including colors and fonts.
+* `theme_graph.R` Main ggplot theme for the plots of the reports.
+* `theme_map.R` Main ggplot theme for the maps of the reports.
+
+## 3. Reproducibility parameters
+
+```{r echo=FALSE, message=FALSE}
+
+# 1. Print session info ----
+
+devtools::session_info(c("sf", "tidyverse", "tidymodels"))
+
+```
