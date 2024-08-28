@@ -33,7 +33,51 @@ data_benthic_sites <- data_benthic %>%
 
 # 4. Global map ----
 
+## 4.1 Transform data ----
 
+target_crs <- st_crs("+proj=eqc +x_0=0 +y_0=0 +lat_0=0 +lon_0=160")
+
+offset <- 180 - 160
+
+polygon <- st_polygon(x = list(rbind(
+  c(-0.0001 - offset, 90),
+  c(0 - offset, 90),
+  c(0 - offset, -90),
+  c(-0.0001 - offset, -90),
+  c(-0.0001 - offset, 90)))) %>%
+  st_sfc() %>%
+  st_set_crs(4326)
+
+data_land <- st_crop(x = data_land, 
+                     y = st_as_sfc(st_bbox(c(xmin = -180, ymin = -48, xmax = 180, ymax = 48), crs = 4326))) %>%
+  st_difference(polygon) %>%
+  st_transform(crs = target_crs)
+
+data_region <- data_region %>% 
+  st_difference(polygon) %>% 
+  st_transform(crs = target_crs)
+
+data_benthic_sites <- data_benthic_sites %>% 
+  st_transform(crs = target_crs)
+
+## 4.2 Make the map ----
+
+ggplot() +
+  geom_sf(data = data_region, fill = NA) +
+  geom_sf(data = data_land) +
+  geom_sf(data = data_benthic_sites, aes(color = interval_class)) +
+  coord_sf(expand = FALSE) +
+  scale_color_manual(values = palette_second,
+                     breaks = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"),
+                     labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
+                     drop = FALSE,
+                     name = "Number of years with data") +
+  guides(color = guide_legend(override.aes = list(size = 3.5))) +
+  theme_map()
+  
+## 4.3 Save the map ----
+
+ggsave("figs/01_part-1/fig-1.png", dpi = 600, height = 5, width = 12)
 
 # 5. Regional maps ----
 
