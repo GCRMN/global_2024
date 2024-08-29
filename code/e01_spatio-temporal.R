@@ -35,7 +35,9 @@ data_benthic_sites <- data_benthic %>%
 
 ## 4.1 Transform data ----
 
-target_crs <- st_crs("+proj=eqc +x_0=0 +y_0=0 +lat_0=0 +lon_0=160")
+### 4.1.1 Define parameters to center map on the Pacific ----
+
+crs_selected <- st_crs("+proj=eqc +x_0=0 +y_0=0 +lat_0=0 +lon_0=160")
 
 offset <- 180 - 160
 
@@ -48,24 +50,54 @@ polygon <- st_polygon(x = list(rbind(
   st_sfc() %>%
   st_set_crs(4326)
 
+### 4.1.2 Transform land ----
+
 data_land <- st_crop(x = data_land, 
                      y = st_as_sfc(st_bbox(c(xmin = -180, ymin = -48, xmax = 180, ymax = 48), crs = 4326))) %>%
   st_difference(polygon) %>%
-  st_transform(crs = target_crs)
+  st_transform(crs = crs_selected)
+
+### 4.1.3 Transform region ----
+
+data_region_pac <- data_region %>% 
+  filter(region == "Pacific") %>% 
+  st_difference(polygon) %>% 
+  st_transform(crs = crs_selected)
+
+data_region_pac %<>% # Special pipe from magrittr
+  st_buffer(10) %>% # To join polygon (remove vertical line)
+  nngeo::st_remove_holes(.)
 
 data_region <- data_region %>% 
+  filter(region != "Pacific") %>% 
   st_difference(polygon) %>% 
-  st_transform(crs = target_crs)
+  st_transform(crs = crs_selected) %>% 
+  bind_rows(., data_region_pac)
+
+### 4.1.4 Transform benthic sites ----
 
 data_benthic_sites <- data_benthic_sites %>% 
-  st_transform(crs = target_crs)
+  st_transform(crs = crs_selected)
+
+### 4.1.5 Create the tropics ----
+
+data_tropics <- tibble(tropic = c("Cancer", "Cancer", "Equator", "Equator", "Capricorn", "Capricorn"),
+                       lat = c(23.4366, 23.4366, 0, 0, -23.4366, -23.4366),
+                       long = c(-180, 180, -180, 180, -180, 180)) %>% 
+  st_as_sf(coords = c("long", "lat"), crs = 4326) %>%
+  group_by(tropic) %>%
+  dplyr::summarize(do_union = FALSE) %>%
+  st_cast("LINESTRING") %>% 
+  st_difference(polygon) %>%
+  st_transform(crs = crs_selected)
 
 ## 4.2 Make the map ----
 
 ggplot() +
+  geom_sf(data = data_tropics, linetype = "dashed", col = "lightgrey") +
   geom_sf(data = data_region, fill = NA) +
   geom_sf(data = data_land) +
-  geom_sf(data = data_benthic_sites, aes(color = interval_class)) +
+  geom_sf(data = data_benthic_sites %>% arrange(interval_class), aes(color = interval_class)) +
   coord_sf(expand = FALSE) +
   scale_color_manual(values = palette_second,
                      breaks = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"),
@@ -77,7 +109,9 @@ ggplot() +
   
 ## 4.3 Save the map ----
 
-ggsave("figs/01_part-1/fig-1.png", dpi = 600, height = 5, width = 12)
+ggsave("figs/01_part-1/fig-1.png", dpi = 600, height = 4.5, width = 12)
+
+rm(data_region_pac, polygon)
 
 # 5. Regional maps ----
 
@@ -105,10 +139,10 @@ plot_region <- function(gcrmn_region){
     
     data_land <- data_land %>% 
       st_transform(crs_selected)
-    
+
     plot_i <- ggplot() +
       geom_sf(data = data_region, fill = NA, color = "grey") +
-      geom_sf(data = data_benthic_sites_i,
+      geom_sf(data = data_benthic_sites_i %>% arrange(interval_class),
               aes(color = interval_class), show.legend = TRUE) +
       scale_color_manual(values = palette_second,
                          breaks = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"),
@@ -129,11 +163,12 @@ plot_region <- function(gcrmn_region){
   data_bbox <- st_bbox(data_region)
   
   data_benthic_sites_i <- data_benthic_sites %>% 
-    filter(region == gcrmn_region)
-  
+    filter(region == gcrmn_region) %>% 
+    st_transform(crs = 4326)
+
   plot_i <- ggplot() +
     geom_sf(data = data_region, fill = NA, color = "grey") +
-    geom_sf(data = data_benthic_sites_i,
+    geom_sf(data = data_benthic_sites_i %>% arrange(interval_class),
             aes(color = interval_class), show.legend = TRUE) +
     scale_color_manual(values = palette_second,
                        breaks = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"),
