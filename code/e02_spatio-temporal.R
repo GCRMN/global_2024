@@ -95,7 +95,7 @@ data_tropics <- tibble(tropic = c("Cancer", "Cancer", "Equator", "Equator", "Cap
 
 ggplot() +
   geom_sf(data = data_tropics, linetype = "dashed", col = "lightgrey") +
-  geom_sf(data = data_region, fill = NA) +
+  geom_sf(data = data_region, fill = "grey99") +
   geom_sf(data = data_land) +
   geom_sf(data = data_benthic_sites %>% arrange(interval_class), aes(color = interval_class)) +
   coord_sf(expand = FALSE) +
@@ -193,7 +193,18 @@ map(unique(data_region$region), ~plot_region(gcrmn_region = .))
 
 # 6. Monitoring descriptors ----
 
-## 6.1 Make the function to export the descriptors ----
+## 6.1 By region ----
+
+data_benthic %>% 
+  group_by(region) %>% 
+  data_descriptors() %>% 
+  bind_rows(., data_descriptors(data_benthic) %>% mutate(region = "Global")) %>% 
+  write.csv(., file = paste0("figs/01_part-1/tbl-1.csv"),
+            row.names = FALSE)
+
+## 6.2 By subregion ----
+
+### 6.2.1 Make the function to export the descriptors ----
 
 export_descriptors <- function(gcrmn_region){
   
@@ -226,6 +237,6 @@ export_descriptors <- function(gcrmn_region){
   
 }
 
-## 6.2 Map over the function ----
+### 6.2.2 Map over the function ----
 
 map(unique(data_region$region), ~export_descriptors(gcrmn_region = .))
