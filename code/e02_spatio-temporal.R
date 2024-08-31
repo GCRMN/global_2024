@@ -198,6 +198,8 @@ map(unique(data_region$region), ~plot_region(gcrmn_region = .))
 data_benthic %>% 
   group_by(region) %>% 
   data_descriptors() %>% 
+  # Add locale to avoid having uppercase first (reverse PERSGA and Pacific)
+  arrange(region, .locale = "en") %>% 
   bind_rows(., data_descriptors(data_benthic) %>% mutate(region = "Global")) %>% 
   write.csv(., file = paste0("figs/01_part-1/tbl-1.csv"),
             row.names = FALSE)
