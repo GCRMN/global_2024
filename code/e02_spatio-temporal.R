@@ -309,7 +309,64 @@ map(unique(data_region$region), ~plot_surveys_depth(gcrmn_region = .))
 
 # 9. Monitoring duration ----
 
-## 9.1 Create the function ----
+## 9.1 By region ----
+
+data_benthic_sites %>% 
+  st_drop_geometry() %>% 
+  group_by(region, interval_class) %>% 
+  count() %>% 
+  ungroup() %>% 
+  bind_rows(., data_benthic_sites %>% 
+              st_drop_geometry() %>% 
+              mutate(region = "Global") %>% 
+              group_by(region, interval_class) %>% 
+              count() %>% 
+              ungroup()) %>% 
+  complete(region = data_region %>% 
+             st_drop_geometry() %>% 
+             distinct() %>% 
+             pull(),
+           interval_class = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"),
+           fill = list(n = 0)) %>% 
+  complete(region, interval_class, fill = list(n = 0)) %>% 
+  group_by(region) %>% 
+  mutate(total = sum(n)) %>% 
+  ungroup() %>% 
+  mutate(interval_class = factor(interval_class,
+                                 c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years")),
+         perc = (n*100)/total,
+         y_label = ifelse(str_detect(region, "Global"), 
+                          paste0("**", region, "**<br/><span style='color:grey'>(_n_ = ",
+                                 format(total, big.mark = ",", scientific = FALSE), ")</span>"),
+                          paste0(region, "<br/><span style='color:grey'>(_n_ = ",
+                                 format(total, big.mark = ",", scientific = FALSE), ")</span>")),
+         perc_label = round(perc, 0),
+         perc_label = if_else(perc_label < 8, "", paste0(as.character(perc_label), "%")),
+         text_color = ifelse(interval_class %in% c("11-15 years", ">15 years"), "white", "black")) %>% 
+  ggplot(data = ., aes(x = y_label, y = perc, fill = interval_class, label = perc_label, color = text_color)) +
+  geom_bar(stat = "identity", position = position_stack(reverse = TRUE), width = 0.7, color = NA) +
+  geom_text(position = position_stack(vjust = 0.5, reverse = TRUE),
+            family = font_choose_graph, size = 3) + 
+  coord_flip() +
+  theme_graph() +
+  labs(x = NULL, y = "Percentage of sites") +
+  scale_color_identity() +
+  scale_fill_manual(values = palette_second,
+                    breaks = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"),
+                    labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
+                    drop = FALSE,
+                    name = "Number of years with data") +
+  theme(legend.title.position = "top",
+        legend.title = element_text(hjust = 0.5),
+        axis.text = element_markdown()) +
+  scale_x_discrete(limits = rev)
+
+ggsave(paste0("figs/06_additional/01_benthic-data_explo/monitoring-duration_global.png"),
+       width = 8, height = 9, dpi = fig_resolution)
+
+## 9.2 By subregion ----
+
+### 9.2.1 Create the function ----
 
 plot_sites_interval <- function(gcrmn_region){
   
@@ -378,6 +435,6 @@ plot_sites_interval <- function(gcrmn_region){
   
 }
 
-## 9.2 Map over the function ----
+### 9.2.2 Map over the function ----
 
 map(unique(data_region$region), ~plot_sites_interval(gcrmn_region = .))
