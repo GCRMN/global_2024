@@ -4,6 +4,7 @@ library(tidyverse)
 library(sf)
 sf_use_s2(FALSE)
 library(magrittr) # To use the pipe %<>%
+library(ggtext)
 
 # 2. Source functions ----
 
@@ -305,3 +306,78 @@ plot_surveys_depth <- function(gcrmn_region){
 ## 8.2 Map over the function ----
 
 map(unique(data_region$region), ~plot_surveys_depth(gcrmn_region = .))
+
+# 9. Monitoring duration ----
+
+## 9.1 Create the function ----
+
+plot_sites_interval <- function(gcrmn_region){
+  
+  data_benthic_sites %>% 
+    filter(region == gcrmn_region) %>% 
+    st_drop_geometry() %>% 
+    group_by(region, subregion, interval_class) %>% 
+    count() %>% 
+    ungroup() %>% 
+    bind_rows(., data_benthic_sites %>% 
+                filter(region == gcrmn_region) %>% 
+                st_drop_geometry() %>% 
+                mutate(subregion = paste0(region, " (region)")) %>% 
+                group_by(region, subregion, interval_class) %>% 
+                count() %>% 
+                ungroup()) %>% 
+    complete(subregion = data_region %>% 
+               st_drop_geometry() %>% 
+               filter(region == gcrmn_region) %>% 
+               select(subregion) %>% 
+               distinct() %>% 
+               pull(), 
+             region = data_region %>% 
+               st_drop_geometry() %>% 
+               filter(region == gcrmn_region) %>% 
+               distinct() %>% 
+               pull(),
+             interval_class = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"),
+             fill = list(n = 0)) %>% 
+    complete(subregion, region, interval_class, fill = list(n = 0)) %>% 
+    group_by(region, subregion) %>% 
+    mutate(total = sum(n)) %>% 
+    ungroup() %>% 
+    mutate(interval_class = factor(interval_class,
+                                   c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years")),
+           perc = (n*100)/total,
+           y_label = ifelse(str_detect(subregion, "region"), 
+                            paste0("**", subregion, "**<br/><span style='color:grey'>(_n_ = ",
+                                   format(total, big.mark = ",", scientific = FALSE), ")</span>"),
+                            paste0(subregion, "<br/><span style='color:grey'>(_n_ = ",
+                                   format(total, big.mark = ",", scientific = FALSE), ")</span>")),
+           perc_label = round(perc, 0),
+           perc_label = if_else(perc_label < 8, "", paste0(as.character(perc_label), "%")),
+           text_color = ifelse(interval_class %in% c("11-15 years", ">15 years"), "white", "black")) %>% 
+    ggplot(data = ., aes(x = y_label, y = perc, fill = interval_class, label = perc_label, color = text_color)) +
+      geom_bar(stat = "identity", position = position_stack(reverse = TRUE), width = 0.7, color = NA) +
+      geom_text(position = position_stack(vjust = 0.5, reverse = TRUE),
+                family = font_choose_graph, size = 3) + 
+      coord_flip() +
+      theme_graph() +
+      labs(x = NULL, y = "Percentage of sites") +
+      scale_color_identity() +
+      scale_fill_manual(values = palette_second,
+                        breaks = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"),
+                        labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
+                        drop = FALSE,
+                        name = "Number of years with data") +
+      theme(legend.title.position = "top",
+            legend.title = element_text(hjust = 0.5),
+            axis.text = element_markdown()) +
+      scale_x_discrete(limits = rev)
+  
+  ggsave(paste0("figs/06_additional/01_benthic-data_explo/monitoring-duration_",
+                str_replace_all(str_to_lower(gcrmn_region), " ", "-"), ".png"),
+         width = 8, height = 8, dpi = fig_resolution)
+  
+}
+
+## 9.2 Map over the function ----
+
+map(unique(data_region$region), ~plot_sites_interval(gcrmn_region = .))
