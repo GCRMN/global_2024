@@ -10,11 +10,16 @@ load("C:/Users/jwicquart/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_bentho
 
 # 3. Filter required data ----
 
+# -------------------------------------------------------- #
+# /!\     MAKE SURE TO REMOVE DATASET ID WHOSE USE     /!\ #
+# /!\        IS NOT AUTHORISED FOR THIS REPORT         /!\ #
+# -------------------------------------------------------- #
+
 data_benthic <- synthetic_data %>% 
   # Remove useless datasets
-  #filter(!(datasetID %in% c("0009"))) %>% 
+  filter(!(datasetID %in% c("0009"))) %>% 
   # Filter data on the period of interest
-  filter(year >= 1980 & year <= 2024)
+  filter(year <= 2024)
 
 # 4. Save the data ----
 
