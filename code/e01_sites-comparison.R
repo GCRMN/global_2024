@@ -60,7 +60,7 @@ polygon <- st_polygon(x = list(rbind(
 
 ## 4.2 Transform land ----
 
-data_land <- st_read("data/01_maps/03_land/ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp")
+data_land <- st_read("data/01_maps/01_raw/03_natural-earth/ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp")
 
 data_land <- st_crop(x = data_land, 
                      y = st_as_sfc(st_bbox(c(xmin = -180, ymin = -48, xmax = 180, ymax = 48), crs = 4326))) %>%
@@ -69,7 +69,7 @@ data_land <- st_crop(x = data_land,
 
 ## 4.3 Transform region ----
 
-data_region <- st_read("data/01_maps/05_subregions/gcrmn_subregions.shp")
+data_region <- st_read("data/01_maps/02_clean/04_subregions/gcrmn_subregions.shp")
 
 data_region_pac <- data_region %>% 
   filter(region == "Pacific") %>% 
