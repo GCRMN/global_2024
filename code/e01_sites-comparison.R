@@ -32,7 +32,8 @@ data_sites <- left_join(data_sites_2025, data_sites_2020) %>%
          region = factor(region, c(sort(unique(data_benthic$region)), "Global")))
 
 ggplot(data_sites, aes(x = region, y = diff)) +
-  geom_bar(stat = "identity", fill = "#3EC1EB") +
+  #geom_bar(stat = "identity", fill = "#3EC1EB") +
+  geom_bar(stat = "identity", fill = "#4d8cb3") +
   geom_hline(yintercept = 100) +
   coord_flip() +
   labs(x = NULL, y = "Percentage of the number of sites included\nin 2025 report compared to 2020 report") +
@@ -126,7 +127,7 @@ data_all <- bind_rows(data_2020, data_2025) %>%
   mutate(type = as.factor(type)) %>% 
   st_transform(crs = crs_selected)
 
-### 4.5.4 Map ----
+### 4.5.4 Map (global) ----
 
 ggplot() +
   geom_sf(data = data_tropics, linetype = "dashed", col = "lightgrey") +
@@ -142,3 +143,37 @@ ggplot() +
   guides(color = guide_legend(override.aes = list(size = 4)))
 
 ggsave("comparison-2020-2025_map.png", height = 4, width = 9, dpi = 600)
+
+### 4.5.5 Map (regional) ----
+
+plot_comparison_region <- function(region_i){
+  
+  data_region <- data_region %>% 
+    filter(region == region_i)
+  
+  data_bbox <- st_bbox(data_region)
+  
+  data_benthic_sites_i <- data_all %>% 
+    select(-region) %>% 
+    st_join(., data_region) %>% 
+    filter(region == region_i) %>% 
+    st_transform(crs = 4326)
+  
+  plot_i <- ggplot() +
+    geom_sf(data = data_region, fill = NA, color = "grey") +
+    geom_sf(data = data_land) +
+    geom_sf(data = data_benthic_sites_i %>% arrange(type), aes(color = type)) +
+    coord_sf(expand = FALSE) +
+    scale_color_manual(values = c("#3EC1EB", "black"),
+                       breaks = c("Report 2020", "Report 2025"),
+                       drop = FALSE,
+                       name = NULL) +
+    guides(color = guide_legend(override.aes = list(size = 4))) +
+    coord_sf(xlim = c(data_bbox$xmin, data_bbox$xmax), ylim = c(data_bbox$ymin, data_bbox$ymax)) +
+    theme_map()
+  
+  ggsave(paste0("comparison-2020-2025_map_", region_i, ".png"), dpi = 300, height = 6, width = 6)
+  
+}
+
+map(unique(data_region$region), ~plot_comparison_region(region_i = .))

@@ -246,9 +246,45 @@ export_descriptors <- function(gcrmn_region){
 
 map(unique(data_region$region), ~export_descriptors(gcrmn_region = .))
 
+## 6.3 By country ----
+
+data_benthic %>% 
+  group_by(country) %>% 
+  data_descriptors() %>% 
+  ungroup() %>% 
+  bind_rows(., data_benthic %>% 
+              data_descriptors() %>% 
+              mutate(country = "All")) %>% 
+  mutate(across(c(nb_sites, nb_surveys), ~format(.x, big.mark = ",", scientific = FALSE))) %>% 
+  write.csv(., file = "figs/06_additional/monitoring_descriptors_country.csv",
+            row.names = FALSE)
+
 # 7. Number of surveys per year ----
 
-## 7.1 Create the function ----
+## 7.1 Global ----
+
+data_benthic %>% 
+  select(decimalLatitude, decimalLongitude, eventDate, year) %>% 
+  st_drop_geometry() %>% 
+  distinct() %>% 
+  group_by(year) %>% 
+  count() %>% 
+  ungroup() %>% 
+  complete(year, fill = list(n = 0)) %>% 
+  mutate(percent = n*100/sum(n)) %>% 
+  ggplot(data = ., aes(x = year, y = percent)) +
+  geom_bar(stat = "identity", show.legend = FALSE, width = 1,
+           color = palette_first[4], fill = palette_first[3]) +
+  labs(x = "Year", y = "Surveys (%)") +
+  coord_cartesian(clip = "off") +
+  theme_graph() +
+  scale_x_continuous(expand = c(0, 0), limits = c(1979, 2026))
+
+ggsave("figs/01_part-1/fig-2.png", width = 5, height = 4, dpi = fig_resolution)
+
+## 7.2 Regional ----
+
+### 7.2.1 Create the function ----
 
 plot_surveys_year <- function(gcrmn_region){
   
@@ -268,20 +304,39 @@ plot_surveys_year <- function(gcrmn_region){
     labs(x = "Year", y = "Surveys (%)") +
     coord_cartesian(clip = "off") +
     theme_graph() +
-    scale_x_continuous(expand = c(0, 0), limits = c(1980, 2025))
+    scale_x_continuous(expand = c(0, 0), limits = c(1979, 2026))
   
   ggsave(paste0("figs/02_part-2/fig-3/", str_replace_all(str_to_lower(gcrmn_region), " ", "-"), ".png"),
          width = 5, height = 4, dpi = fig_resolution)
   
 }
 
-## 7.2 Map over the function ----
+### 7.2.2 Map over the function ----
 
 map(unique(data_region$region), ~plot_surveys_year(gcrmn_region = .))
 
 # 8. Number of surveys per depth ----
 
-## 8.1 Create the function ----
+## 8.1 Global ----
+
+data_benthic %>% 
+  select(decimalLatitude, decimalLongitude, eventDate, year, verbatimDepth) %>% 
+  st_drop_geometry() %>% 
+  drop_na(verbatimDepth) %>% 
+  distinct() %>% 
+  ggplot(data = ., aes(x = verbatimDepth)) +
+  geom_histogram(binwidth = 1, aes(y = after_stat(width * density * 100)),
+                 color = palette_first[4], fill = palette_first[3]) +
+  labs(x = "Depth (m)", y = "Surveys (%)") +
+  coord_cartesian(clip = "off") +
+  theme_graph() +
+  scale_x_continuous(expand = c(0, 0), limits = c(-1, 40))
+
+ggsave("figs/01_part-1/fig-3.png", width = 5, height = 4, dpi = fig_resolution)
+
+## 8.2 Regional ----
+
+### 8.2.1 Create the function ----
 
 plot_surveys_depth <- function(gcrmn_region){
   
@@ -297,14 +352,14 @@ plot_surveys_depth <- function(gcrmn_region){
     labs(x = "Depth (m)", y = "Surveys (%)") +
     coord_cartesian(clip = "off") +
     theme_graph() +
-    scale_x_continuous(expand = c(0, 0), limits = c(0, 40))
+    scale_x_continuous(expand = c(0, 0), limits = c(-1, 40))
   
   ggsave(paste0("figs/02_part-2/fig-4/", str_replace_all(str_to_lower(gcrmn_region), " ", "-"), ".png"),
          width = 5, height = 4, dpi = fig_resolution)
   
 }
 
-## 8.2 Map over the function ----
+## 8.2.2 Map over the function ----
 
 map(unique(data_region$region), ~plot_surveys_depth(gcrmn_region = .))
 
