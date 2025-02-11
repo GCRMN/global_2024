@@ -458,7 +458,7 @@ plot_year_dataset <- function(region_i){
     
   }
   
-  ggsave(filename = paste0("figs/06_additional/01_benthic-data_explo/nb-sites_year-datasetid_",
+  ggsave(filename = paste0("figs/06_additional/nb-sites_year-datasetid_",
                            str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
          plot = plot_i, height = (2 + (3*0.3*nb_datasets_i)), width = 9, dpi = fig_resolution)
   
