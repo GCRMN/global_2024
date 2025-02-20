@@ -94,7 +94,7 @@ data_tropics <- tibble(tropic = c("Cancer", "Cancer", "Equator", "Equator", "Cap
   st_difference(polygon) %>%
   st_transform(crs = crs_selected)
 
-## 4.2 Make the map ----
+## 4.2 Make the map (monitoring) ----
 
 ggplot() +
   geom_sf(data = data_tropics, linetype = "dashed", col = "lightgrey") +
@@ -110,9 +110,19 @@ ggplot() +
   guides(color = guide_legend(override.aes = list(size = 3.5))) +
   theme_map()
   
-## 4.3 Save the map ----
-
 ggsave("figs/01_part-1/fig-1.png", dpi = 600, height = 4.5, width = 12)
+
+## 4.3 Make the map (regions) ----
+
+ggplot() +
+  geom_sf(data = data_tropics, linetype = "dashed", col = "lightgrey") +
+  geom_sf(data = data_region, aes(fill = region)) +
+  geom_sf(data = data_land) +
+  coord_sf(expand = FALSE) +
+  labs(fill = "GCRMN region") +
+  theme_map()
+
+ggsave("figs/01_part-1/fig-0.png", dpi = 600, height = 4.5, width = 12)
 
 rm(data_region_pac, polygon)
 
