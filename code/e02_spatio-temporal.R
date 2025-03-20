@@ -23,15 +23,17 @@ data_region <- st_read("data/01_maps/02_clean/04_subregions/gcrmn_subregions.shp
 load("data/02_misc/data-benthic.RData")
 
 data_benthic_sites <- data_benthic %>% 
-  select(decimalLatitude, decimalLongitude, year, region, subregion) %>% 
+  select(decimalLatitude, decimalLongitude, region, subregion, year) %>% 
   distinct() %>% 
   group_by(decimalLatitude, decimalLongitude, region, subregion) %>% 
-  summarise(interval_years = max(year, na.rm = TRUE) - min(year, na.rm = TRUE)) %>%
+  count(name = "nb_years") %>% 
   ungroup() %>% 
-  mutate(interval_class = cut(interval_years, 
-                              breaks = c(-Inf, 1, 5, 10, 15, Inf),
-                              labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years")),
-         interval_class = as.factor(interval_class)) %>% 
+  mutate(int_class = cut(nb_years, 
+                         breaks = c(-Inf, 1, 5, 10, 15, Inf),
+                         labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years")),
+         int_class = as.factor(int_class)) %>% 
+  arrange(int_class) %>% 
+  select(-nb_years) %>% 
   st_as_sf(coords = c("decimalLongitude", "decimalLatitude"), crs = 4326)
 
 # 4. Global map ----
@@ -100,7 +102,7 @@ ggplot() +
   geom_sf(data = data_tropics, linetype = "dashed", col = "lightgrey") +
   geom_sf(data = data_region, fill = "grey99") +
   geom_sf(data = data_land) +
-  geom_sf(data = data_benthic_sites %>% arrange(interval_class), aes(color = interval_class)) +
+  geom_sf(data = data_benthic_sites %>% arrange(int_class), aes(color = int_class)) +
   coord_sf(expand = FALSE) +
   scale_color_manual(values = palette_second,
                      breaks = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"),
@@ -155,8 +157,8 @@ plot_region <- function(gcrmn_region){
 
     plot_i <- ggplot() +
       geom_sf(data = data_region, fill = NA, color = "grey") +
-      geom_sf(data = data_benthic_sites_i %>% arrange(interval_class),
-              aes(color = interval_class), show.legend = TRUE) +
+      geom_sf(data = data_benthic_sites_i %>% arrange(int_class),
+              aes(color = int_class), show.legend = TRUE) +
       scale_color_manual(values = palette_second,
                          breaks = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"),
                          labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
@@ -181,8 +183,8 @@ plot_region <- function(gcrmn_region){
 
   plot_i <- ggplot() +
     geom_sf(data = data_region, fill = NA, color = "grey") +
-    geom_sf(data = data_benthic_sites_i %>% arrange(interval_class),
-            aes(color = interval_class), show.legend = TRUE) +
+    geom_sf(data = data_benthic_sites_i %>% arrange(int_class),
+            aes(color = int_class), show.legend = TRUE) +
     scale_color_manual(values = palette_second,
                        breaks = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"),
                        labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
