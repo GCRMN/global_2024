@@ -157,8 +157,6 @@ plot_region <- function(gcrmn_region){
 
     plot_i <- ggplot() +
       geom_sf(data = data_region, fill = NA, color = "grey") +
-      geom_sf(data = data_benthic_sites_i %>% arrange(int_class),
-              aes(color = int_class), show.legend = TRUE) +
       scale_color_manual(values = palette_second,
                          breaks = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"),
                          labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
@@ -167,6 +165,8 @@ plot_region <- function(gcrmn_region){
       guides(color = guide_legend(override.aes = list(size = 3.5))) +
       geom_sf(data = data_land) +
       coord_sf(xlim = c(data_bbox$xmin, data_bbox$xmax), ylim = c(data_bbox$ymin, data_bbox$ymax)) +
+      geom_sf(data = data_benthic_sites_i %>% arrange(int_class),
+              aes(color = int_class), show.legend = TRUE) +
       theme_map() +
       scale_x_continuous(breaks = c(180, 160, 140, -160, -140, -120))
     
@@ -183,8 +183,6 @@ plot_region <- function(gcrmn_region){
 
   plot_i <- ggplot() +
     geom_sf(data = data_region, fill = NA, color = "grey") +
-    geom_sf(data = data_benthic_sites_i %>% arrange(int_class),
-            aes(color = int_class), show.legend = TRUE) +
     scale_color_manual(values = palette_second,
                        breaks = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"),
                        labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
@@ -192,6 +190,8 @@ plot_region <- function(gcrmn_region){
                        name = "Number of years with data") +
     guides(color = guide_legend(override.aes = list(size = 3.5))) +
     geom_sf(data = data_land) +
+    geom_sf(data = data_benthic_sites_i %>% arrange(int_class),
+            aes(color = int_class), show.legend = TRUE) +
     coord_sf(xlim = c(data_bbox$xmin, data_bbox$xmax), ylim = c(data_bbox$ymin, data_bbox$ymax)) +
     theme_map()
   
@@ -479,3 +479,99 @@ plot_year_dataset <- function(region_i){
 ## 9.3 Map over the function ----
 
 map(unique(data_benthic$region), ~plot_year_dataset(region_i = .))
+
+# 10. Number of sites per year ----
+
+## 10.1 Transform data ----
+
+data_year_dataset <- data_benthic %>% 
+  group_by(region, year) %>% 
+  data_descriptors() %>% 
+  ungroup() %>% 
+  select(region, year, nb_sites) %>% 
+  complete(nesting(region),
+           year = 1980:2024,
+           fill = list(nb_sites = 0))
+
+## 10.2 Create a function to produce the plot ----
+
+plot_year_region <- function(region_i){
+  
+  data_year_dataset_i <- data_year_dataset %>% 
+    filter(region == region_i)
+  
+  plot_i <- ggplot(data = data_year_dataset_i,
+                   aes(x = year, y = 1, fill = nb_sites)) +
+    geom_tile(color = "white", height = 0.6, linewidth = 0.6) +
+    theme_graph() +
+    labs(y = NULL, x = "Year") +
+    scale_x_continuous(expand = c(0, 0), limits = c(1979, 2025)) +
+    theme(legend.title.position = "top",
+          legend.title = element_text(size = 10, hjust = 1, face = "bold", color = "#2c3e50"),
+          legend.key.width = unit(2, "cm"),
+          legend.key.height = unit(0.4, "cm"),
+          legend.justification = "right",
+          axis.text.y = element_blank(),
+          panel.grid = element_blank(),
+          axis.ticks.y = element_blank())
+  
+  if(max(data_year_dataset_i$nb_sites) == 1){
+    
+    plot_i <- plot_i +
+      scale_fill_stepsn(breaks = c(0, 1, 2),
+                        colors = c("lightgrey", "lightgrey", palette_second[2], palette_second[2]),
+                        limits = c(0, 2),
+                        values = scales::rescale(c(0, 1, 2)),
+                        labels = scales::label_number(accuracy = 1),
+                        show.limits = TRUE,
+                        right = FALSE,
+                        name = "NUMBER OF SITES")
+    
+  }else if(max(data_year_dataset_i$nb_sites) == 2){
+    
+    plot_i <- plot_i +
+      scale_fill_stepsn(breaks = c(0, 1, 2),
+                        colors = c("lightgrey", "lightgrey", palette_second[2], palette_second[2]),
+                        limits = c(0, max(data_year_dataset_i$nb_sites)),
+                        values = scales::rescale(c(0, 1, 2)),
+                        labels = scales::label_number(accuracy = 1),
+                        show.limits = TRUE,
+                        right = FALSE,
+                        name = "NUMBER OF SITES")
+    
+  }else if(max(data_year_dataset_i$nb_sites) == 3){
+    
+    plot_i <- plot_i +
+      scale_fill_stepsn(breaks = c(0, 1, 2, 3),
+                        colors = c("lightgrey", "lightgrey", palette_second[2], palette_second[2], palette_second[4]),
+                        limits = c(0, max(data_year_dataset_i$nb_sites)),
+                        values = scales::rescale(c(0, 1, 2, 3)),
+                        labels = scales::label_number(accuracy = 1),
+                        show.limits = TRUE,
+                        right = FALSE,
+                        name = "NUMBER OF SITES")
+    
+  }else{
+    
+    plot_i <- plot_i +
+      scale_fill_stepsn(breaks = c(0, round(seq(1, max(data_year_dataset_i$nb_sites), length.out = 6), 0)),
+                        colors = c("lightgrey", "lightgrey", palette_second[2], palette_second[2], palette_second[3],
+                                   palette_second[4], palette_second[5]),
+                        limits = c(0, max(data_year_dataset_i$nb_sites)),
+                        values = scales::rescale(c(0, round(seq(1, max(data_year_dataset_i$nb_sites), length.out = 6), 0))),
+                        labels = scales::label_number(accuracy = 1),
+                        show.limits = TRUE,
+                        right = FALSE,
+                        name = "NUMBER OF SITES")
+    
+  }
+  
+  ggsave(filename = paste0("figs/02_part-2/fig-5/",
+                           str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
+         plot = plot_i, height = 3, width = 9, dpi = fig_resolution)
+  
+}
+
+## 10.3 Map over the function ----
+
+map(unique(data_benthic$region), ~plot_year_region(region_i = .))
