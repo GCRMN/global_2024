@@ -36,7 +36,7 @@ map_sphere <- function(region_i){
   plot_i <- ggplot() +
     geom_sf(data = b, fill = "#D5C7B9", col = "#D5C7B9") +
     geom_sf(data = i, fill = "#ebf5fd") +
-    geom_sf(data = data_graticules, color = "white", linewidth = 0.25) +
+    geom_sf(data = data_graticules, color = "white") +
     geom_sf(data = data_region_i, color = NA, fill = "#c44d56", alpha = 0.75) +
     geom_sf(data = b, fill = NA, col = "#363737") +
     theme_minimal()
