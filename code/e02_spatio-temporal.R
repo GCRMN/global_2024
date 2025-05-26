@@ -128,84 +128,6 @@ ggsave("figs/01_part-1/fig-0.png", dpi = 600, height = 4.5, width = 12)
 
 rm(data_region_pac, polygon)
 
-# 5. Regional maps ----
-
-## 5.1 Make the function to export the maps ----
-
-plot_region <- function(gcrmn_region){
-  
-  if(gcrmn_region == "Pacific"){
-    
-    crs_selected <- "+proj=eqc +lat_ts=0 +lat_0=0 +lon_0=160 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
-    
-    data_region <- data_region %>% 
-      filter(region == gcrmn_region) %>% 
-      st_transform(crs_selected)
-    
-    data_region %<>% # Special pipe from magrittr
-      st_buffer(10) %>% # To join polygon (remove vertical line)
-      nngeo::st_remove_holes(.)
-    
-    data_bbox <- st_bbox(data_region)
-    
-    data_benthic_sites_i <- data_benthic_sites %>% 
-      filter(region == gcrmn_region) %>% 
-      st_transform(crs = crs_selected)
-    
-    data_land <- data_land %>% 
-      st_transform(crs_selected)
-
-    plot_i <- ggplot() +
-      geom_sf(data = data_region, fill = NA, color = "grey") +
-      scale_color_manual(values = palette_second,
-                         breaks = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"),
-                         labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
-                         drop = FALSE,
-                         name = "Number of years with data") +
-      guides(color = guide_legend(override.aes = list(size = 3.5))) +
-      geom_sf(data = data_land) +
-      coord_sf(xlim = c(data_bbox$xmin, data_bbox$xmax), ylim = c(data_bbox$ymin, data_bbox$ymax)) +
-      geom_sf(data = data_benthic_sites_i %>% arrange(int_class),
-              aes(color = int_class), show.legend = TRUE) +
-      theme_map() +
-      scale_x_continuous(breaks = c(180, 160, 140, -160, -140, -120))
-    
-  }else{
-  
-  data_region <- data_region %>% 
-    filter(region == gcrmn_region)
-  
-  data_bbox <- st_bbox(data_region)
-  
-  data_benthic_sites_i <- data_benthic_sites %>% 
-    filter(region == gcrmn_region) %>% 
-    st_transform(crs = 4326)
-
-  plot_i <- ggplot() +
-    geom_sf(data = data_region, fill = NA, color = "grey") +
-    scale_color_manual(values = palette_second,
-                       breaks = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"),
-                       labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
-                       drop = FALSE,
-                       name = "Number of years with data") +
-    guides(color = guide_legend(override.aes = list(size = 3.5))) +
-    geom_sf(data = data_land) +
-    geom_sf(data = data_benthic_sites_i %>% arrange(int_class),
-            aes(color = int_class), show.legend = TRUE) +
-    coord_sf(xlim = c(data_bbox$xmin, data_bbox$xmax), ylim = c(data_bbox$ymin, data_bbox$ymax)) +
-    theme_map()
-  
-  }
-  
-  ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(gcrmn_region), " ", "-"), ".png"),
-         dpi = 600)
-  
-}
-
-## 5.2 Map over the function ----
-
-map(unique(data_region$region), ~plot_region(gcrmn_region = .))
-
 # 6. Monitoring descriptors ----
 
 ## 6.1 By region ----
@@ -318,7 +240,7 @@ plot_surveys_year <- function(gcrmn_region){
     theme_graph() +
     scale_x_continuous(expand = c(0, 0), limits = c(1979, 2026))
   
-  ggsave(paste0("figs/02_part-2/fig-3/", str_replace_all(str_to_lower(gcrmn_region), " ", "-"), ".png"),
+  ggsave(paste0("figs/02_part-2/fig-4/", str_replace_all(str_to_lower(gcrmn_region), " ", "-"), ".png"),
          width = 5, height = 4, dpi = fig_resolution)
   
 }
@@ -366,7 +288,7 @@ plot_surveys_depth <- function(gcrmn_region){
     theme_graph() +
     scale_x_continuous(expand = c(0, 0), limits = c(-1, 40))
   
-  ggsave(paste0("figs/02_part-2/fig-4/", str_replace_all(str_to_lower(gcrmn_region), " ", "-"), ".png"),
+  ggsave(paste0("figs/02_part-2/fig-5/", str_replace_all(str_to_lower(gcrmn_region), " ", "-"), ".png"),
          width = 5, height = 4, dpi = fig_resolution)
   
 }
@@ -566,7 +488,7 @@ plot_year_region <- function(region_i){
     
   }
   
-  ggsave(filename = paste0("figs/02_part-2/fig-5/",
+  ggsave(filename = paste0("figs/02_part-2/fig-6/",
                            str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
          plot = plot_i, height = 3, width = 9, dpi = fig_resolution)
   

@@ -13,6 +13,8 @@ library(tidyterra)
 
 source("code/function/graphical_par.R")
 source("code/function/map_sphere.R")
+source("code/function/map_region_geography.R")
+source("code/function/map_region_monitoring.R")
 
 # 3. Sphere maps ----
 
@@ -41,7 +43,7 @@ map(unique(data_region$region), ~map_sphere(region_i = .))
 
 # 4. Geographic maps ---
 
-## 4.1 Load data ----
+## 4.1 Load and transform data ----
 
 data_countries <- read_sf("data/01_maps/01_raw/03_natural-earth/ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp")
 
@@ -61,95 +63,28 @@ data_tropics <- tibble(tropic = c("Cancer", "Cancer", "Equator", "Equator", "Cap
 
 ## 4.2 Make the maps ----
 
-map_region_geography <- function(region_i, color_scalebar = "white"){
-  
-  data_subregions_i <- data_subregions %>% 
-    filter(region == region_i)
-  
-  plot_i <- ggplot() +
-    geom_spatraster_rgb(data = data_tif, maxcell = 10e6) +
-    geom_sf(data = data_reefs, fill = "#c44d56", color = "#c44d56") +
-    geom_sf(data = data_tropics, linetype = "dashed", linewidth = 0.25) +
-    geom_sf(data = data_subregions_i, color = "white", fill = NA, linewidth = 0.3) +
-    geom_sf(data = data_countries, fill = "#dadfe1", color = "black") +
-    theme(panel.border = element_rect(fill = NA, color = "black"),
-          axis.text = element_text(family = font_choose_map, color = "black"))
-  
-  if(region_i == "South Asia"){
-    
-    plot_i <- plot_i + 
-      coord_sf(xlim = c(60, 103), ylim = c(-12, 30),
-               label_axes = list(bottom = "E", top = "E", left = "N")) +
-      annotation_scale(location = "br",
-                       width_hint = 0.25, text_family = font_choose_map, text_col = color_scalebar,
-                       text_cex = 0.7, style = "bar", line_width = 1, height = unit(0.04, "cm"),
-                       line_col = color_scalebar, pad_x = unit(0.5, "cm"), pad_y = unit(0.5, "cm"),
-                       bar_cols = c(color_scalebar, color_scalebar))
-    
-    ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
-           height = 5.6, width = 5.5)
-    
-  }else if(region_i == "EAS"){
-    
-    plot_i <- plot_i + 
-      coord_sf(xlim = c(88, 145), ylim = c(-13, 35),
-               label_axes = list(bottom = "E", top = "E", left = "N")) +
-      annotation_scale(location = "bl",
-                       width_hint = 0.25, text_family = font_choose_map, text_col = color_scalebar,
-                       text_cex = 0.7, style = "bar", line_width = 1, height = unit(0.04, "cm"),
-                       line_col = color_scalebar, pad_x = unit(0.5, "cm"), pad_y = unit(0.5, "cm"),
-                       bar_cols = c(color_scalebar, color_scalebar))
-    
-    ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
-           height = 5.5, width = 6)
-    
-  }else if(region_i == "Caribbean"){
-    
-    plot_i <- plot_i + 
-      coord_sf(xlim = c(-100, -55), ylim = c(7.5, 35),
-               label_axes = list(top = "E", left = "N", right = "N"))
-    
-    ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
-           height = 5.3, width = 8)
-    
-  }else if(region_i == "WIO"){
-    
-    plot_i <- plot_i + 
-      coord_sf(xlim = c(30, 68), ylim = c(11, -32),
-               label_axes = list(bottom = "E", top = "E", left = "N")) +
-      annotation_scale(location = "br",
-                       width_hint = 0.25, text_family = font_choose_map, text_col = color_scalebar,
-                       text_cex = 0.7, style = "bar", line_width = 1, height = unit(0.04, "cm"),
-                       line_col = color_scalebar, pad_x = unit(0.5, "cm"), pad_y = unit(0.5, "cm"),
-                       bar_cols = c(color_scalebar, color_scalebar))
-    
-    ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
-           height = 6.6, width = 5.8)
-    
-  }else if(region_i == "ROPME"){
-    
-    plot_i <- plot_i + 
-      coord_sf(xlim = c(45, 67), ylim = c(13, 32),
-               label_axes = list(bottom = "E", top = "E", left = "N")) +
-      annotation_scale(location = "br",
-                       width_hint = 0.25, text_family = font_choose_map, text_col = color_scalebar,
-                       text_cex = 0.7, style = "bar", line_width = 1, height = unit(0.04, "cm"),
-                       line_col = color_scalebar, pad_x = unit(0.5, "cm"), pad_y = unit(0.5, "cm"),
-                       bar_cols = c(color_scalebar, color_scalebar))
-    
-    ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
-           height = 5.9, width = 5.9)
-    
-  }
-  
-}
+map(unique(data_subregions$region), ~map_region_geography(region_i = .))
 
-map_region_geography(region_i = "South Asia")
+# 5. Monitoring distribution maps ----
 
-map(c("South Asia", "ROPME", "Caribbean", "EAS", "WIO"), ~map_region_geography(region_i = .))
+## 5.1 Load and transform data ----
 
+load("data/02_misc/data-benthic.RData")
 
-# Reef buffer
-# intersect reefs et region pour filter que reef region après
-# Créer les fichiers inkscape et ajouter les labels (pays limitrophes, océans, tropiques, ecoregions)
-# Créer une fonction map_region_monitoring
+data_benthic_sites <- data_benthic %>% 
+  select(decimalLatitude, decimalLongitude, region, subregion, year) %>% 
+  distinct() %>% 
+  group_by(decimalLatitude, decimalLongitude, region, subregion) %>% 
+  count(name = "nb_years") %>% 
+  ungroup() %>% 
+  mutate(int_class = cut(nb_years, 
+                         breaks = c(-Inf, 1, 5, 10, 15, Inf),
+                         labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years")),
+         int_class = as.factor(int_class)) %>% 
+  arrange(int_class) %>% 
+  select(-nb_years) %>% 
+  st_as_sf(coords = c("decimalLongitude", "decimalLatitude"), crs = 4326)
+
+## 5.2 Make the maps ----
+
+map(unique(data_subregions$region), ~map_region_monitoring(region_i = .))
