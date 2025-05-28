@@ -8,12 +8,15 @@ sf_use_s2(TRUE)
 library(ggspatial) # For annotation_scale function
 library(terra)
 library(tidyterra)
+library(ggtext)
 
 # 2. Load functions ----
 
 source("code/function/graphical_par.R")
 source("code/function/map_sphere.R")
+source("code/function/data_descriptors.R")
 source("code/function/map_region_geography.R")
+source("code/function/plot_map_labels.R")
 source("code/function/map_region_monitoring.R")
 
 # 3. Sphere maps ----
@@ -88,3 +91,17 @@ data_benthic_sites <- data_benthic %>%
 ## 5.2 Make the maps ----
 
 map(unique(data_subregions$region), ~map_region_monitoring(region_i = .))
+
+
+############### TEST EXPORT PANEL SUBREGIONS #############
+
+load("data/02_misc/data-benthic.RData")
+
+data_monitoring <- data_benthic %>% 
+  group_by(subregion) %>% 
+  data_descriptors() %>% 
+  ungroup()
+
+plot_map_labels(subregion_name_i = "Australia 1")
+
+# Faire meme chose avec la legende
