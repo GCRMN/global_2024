@@ -102,6 +102,9 @@ data_monitoring <- data_benthic %>%
   data_descriptors() %>% 
   ungroup()
 
-plot_map_labels(subregion_name_i = "Australia 1")
+map(unique(data_monitoring$subregion), ~plot_map_labels(subregion_name_i = .x))
+
 
 # Faire meme chose avec la legende
+# Régler le problème des fonts qui ne s'exportent pas
+# Modifier le dépot GCRMN regions pour ajouter la variable subregion_name
