@@ -9,7 +9,7 @@ windowsFonts("Open Sans" = windowsFont("Open Sans"))
 windowsFonts("MinionPro-Semibold" = windowsFont("MinionPro-Semibold"))
 
 font_choose_graph <- "Open Sans"
-font_choose_map <- "MinionPro-Semibold"
+font_choose_map <- "Open Sans"
 
 fig_resolution <- 300
 

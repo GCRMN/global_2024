@@ -3,14 +3,19 @@ map_region_geography <- function(region_i, color_scalebar = "white"){
   data_subregions_i <- data_subregions %>% 
     filter(region == region_i)
   
+  data_reefs_i <- st_intersection(data_reefs, data_subregions_i)
+  
   plot_i <- ggplot() +
-    geom_spatraster_rgb(data = data_tif, maxcell = 10e6) +
-    geom_sf(data = data_reefs, fill = "#c44d56", color = "#c44d56") +
-    geom_sf(data = data_tropics, linetype = "dashed", linewidth = 0.25) +
+    geom_spatraster_rgb(data = data_tif, maxcell = 5e+07) +
+    geom_sf(data = data_reefs_i, fill = "#c44d56", color = "#c44d56") +
     geom_sf(data = data_subregions_i, color = "white", fill = NA, linewidth = 0.3) +
-    geom_sf(data = data_countries, fill = "#dadfe1", color = "black") +
+    geom_sf(data = data_tropics, linetype = "dashed", linewidth = 0.25, color = "#483e37") +
+    geom_sf(data = data_countries, fill = "NA", color = "black", linewidth = 0.1) +
     theme(panel.border = element_rect(fill = NA, color = "black"),
-          axis.text = element_text(family = font_choose_map, color = "black"))
+          plot.background = element_rect(fill = "transparent", color = NA),
+          axis.text = element_text(family = font_choose_map, color = "black"),
+          axis.text.y = element_text(angle = 90, hjust = 0.5),
+          axis.text.y.right = element_text(angle = -90, hjust = 0.5))
   
   if(region_i == "South Asia"){
     
@@ -24,7 +29,7 @@ map_region_geography <- function(region_i, color_scalebar = "white"){
                        bar_cols = c(color_scalebar, color_scalebar))
     
     ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
-           height = 5.6, width = 5.5)
+           height = 5.4, width = 5.5, bg = "transparent")
     
   }else if(region_i == "EAS"){
     
@@ -38,7 +43,7 @@ map_region_geography <- function(region_i, color_scalebar = "white"){
                        bar_cols = c(color_scalebar, color_scalebar))
     
     ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
-           height = 5.5, width = 6)
+           height = 5.5, width = 6, bg = "transparent")
     
   }else if(region_i == "Caribbean"){
     
@@ -52,13 +57,14 @@ map_region_geography <- function(region_i, color_scalebar = "white"){
                        bar_cols = c(color_scalebar, color_scalebar))
     
     ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
-           height = 5.3, width = 8)
+           height = 5.3, width = 8, bg = "transparent")
     
   }else if(region_i == "WIO"){
     
     plot_i <- plot_i + 
       coord_sf(xlim = c(30, 68), ylim = c(11, -32),
                label_axes = list(top = "E", left = "N", right = "N")) +
+      scale_x_continuous(breaks = c(35, 45, 55, 65)) +
       annotation_scale(location = "br",
                        width_hint = 0.25, text_family = font_choose_map, text_col = color_scalebar,
                        text_cex = 0.7, style = "bar", line_width = 1, height = unit(0.04, "cm"),
@@ -66,7 +72,7 @@ map_region_geography <- function(region_i, color_scalebar = "white"){
                        bar_cols = c(color_scalebar, color_scalebar))
     
     ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
-           height = 6.6, width = 5.8)
+           height = 6.1, width = 5.4, bg = "transparent")
     
   }else if(region_i == "ROPME"){
     
@@ -80,13 +86,14 @@ map_region_geography <- function(region_i, color_scalebar = "white"){
                        bar_cols = c(color_scalebar, color_scalebar))
     
     ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
-           height = 5.9, width = 5.9)
+           height = 5.6, width = 5.9, bg = "transparent")
     
   }else if(region_i == "PERSGA"){
     
     plot_i <- plot_i + 
       coord_sf(xlim = c(29, 60), ylim = c(6, 34),
                label_axes = list(top = "E", left = "N", right = "N")) +
+      scale_y_continuous(breaks = c(10, 15, 20, 25, 30)) +
       annotation_scale(location = "br",
                        width_hint = 0.25, text_family = font_choose_map, text_col = color_scalebar,
                        text_cex = 0.7, style = "bar", line_width = 1, height = unit(0.04, "cm"),
@@ -94,7 +101,7 @@ map_region_geography <- function(region_i, color_scalebar = "white"){
                        bar_cols = c(color_scalebar, color_scalebar))
     
     ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
-           height = 5.9, width = 5.9)
+           height = 5.9, width = 5.9, bg = "transparent")
     
   }else if(region_i == "Australia"){
     
@@ -108,7 +115,7 @@ map_region_geography <- function(region_i, color_scalebar = "white"){
                        bar_cols = c(color_scalebar, color_scalebar))
     
     ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
-           height = 4.2, width = 8.5)
+           height = 4.2, width = 8.5, bg = "transparent")
     
   }else if(region_i == "ETP"){
     
@@ -122,7 +129,7 @@ map_region_geography <- function(region_i, color_scalebar = "white"){
                        bar_cols = c(color_scalebar, color_scalebar))
     
     ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
-           height = 4.8, width = 8.5)
+           height = 4.8, width = 7.2, bg = "transparent")
     
   }else if(region_i == "Brazil"){
     
@@ -136,7 +143,7 @@ map_region_geography <- function(region_i, color_scalebar = "white"){
                        bar_cols = c(color_scalebar, color_scalebar))
     
     ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
-           height = 4.8, width = 6)
+           height = 4.9, width = 5.5, bg = "transparent")
     
   }else if(region_i == "Pacific"){
     
@@ -176,15 +183,16 @@ map_region_geography <- function(region_i, color_scalebar = "white"){
       st_transform(crs_selected) 
     
     plot_i <- ggplot() +
-      geom_spatraster_rgb(data = data_tif_pacific, maxcell = 10e6) +
+      geom_spatraster_rgb(data = data_tif_pacific, maxcell = 5e+07) +
       geom_sf(data = data_reefs_pacific, fill = "#c44d56", color = "#c44d56") +
       geom_sf(data = data_tropics_pacific, linetype = "dashed", linewidth = 0.25) +
       geom_sf(data = data_subregions_i, color = "white", fill = NA, linewidth = 0.3) +
-      geom_sf(data = data_countries_pacific, fill = "#dadfe1", color = "black") +
+      geom_sf(data = data_countries_pacific, fill = NA, color = "black", linewidth = 0.1) +
       coord_sf(ylim = c(-4000000, 4000000), xlim = c(-3500000, 11000000), expand = FALSE,
                label_axes = list(top = "E", left = "N", right = "N")) +
       scale_x_continuous(breaks = c(180, 160, 140, -160, -140, -120)) +
       theme(panel.border = element_rect(fill = NA, color = "black"),
+            plot.background = element_rect(fill = "transparent", color = NA),
             axis.text = element_text(family = font_choose_map, color = "black")) +
       annotation_scale(location = "br",
                        width_hint = 0.25, text_family = font_choose_map, text_col = color_scalebar,
@@ -193,7 +201,7 @@ map_region_geography <- function(region_i, color_scalebar = "white"){
                        bar_cols = c(color_scalebar, color_scalebar))
     
     ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
-           height = 4.1, width = 6.8)
+           height = 4.5, width = 7, bg = "transparent")
     
   }else{
     

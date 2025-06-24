@@ -34,11 +34,11 @@ map_sphere <- function(region_i){
     st_transform(., paste0("+proj=ortho +lat_0=0 +lon_0=", longitude))
   
   plot_i <- ggplot() +
-    geom_sf(data = b, fill = "#D5C7B9", col = "#D5C7B9") +
-    geom_sf(data = i, fill = "#ebf5fd") +
+    geom_sf(data = b, fill = "#cfb7a5", col = "black", linewidth = 0.3) +
+    geom_sf(data = i, fill = "#bfdbee") +
     geom_sf(data = data_graticules, color = "white") +
     geom_sf(data = data_region_i, color = NA, fill = "#c44d56", alpha = 0.75) +
-    geom_sf(data = b, fill = NA, col = "#363737") +
+    geom_sf(data = b, fill = NA, col = "#363737", linewidth = 0.4) +
     theme_minimal()
   
   ggsave(paste0("figs/02_part-2/fig-1/", str_replace_all(str_to_lower(region_i), " ", "-"), ".png"))

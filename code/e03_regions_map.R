@@ -9,6 +9,9 @@ library(ggspatial) # For annotation_scale function
 library(terra)
 library(tidyterra)
 library(ggtext)
+library(showtext)
+showtext::showtext_auto()
+showtext::showtext_opts(dpi = 300)
 
 # 2. Load functions ----
 
@@ -42,6 +45,8 @@ data_parameters <- tibble(region = c("Australia", "Brazil", "Caribbean", "EAS", 
 
 ## 3.3 Map over the function ----
 
+map_sphere(region_i = "PERSGA")
+
 map(unique(data_region$region), ~map_sphere(region_i = .))
 
 # 4. Geographic maps ---
@@ -63,6 +68,12 @@ data_tropics <- tibble(tropic = c("Cancer", "Cancer", "Equator", "Equator", "Cap
   group_by(tropic) %>%
   dplyr::summarize(do_union = FALSE) %>%
   st_cast("LINESTRING")
+
+sf_use_s2(FALSE)
+
+data_subregions <- st_difference(data_subregions, st_union(data_countries))
+
+data_tropics <- st_difference(data_tropics, st_union(data_countries))
 
 ## 4.2 Make the maps ----
 
