@@ -11,18 +11,8 @@ plot_map_labels <- function(subregion_name_i, color_major = "#c44d56", color_min
     filter(subregion_name == subregion_name_i)
   
   ggplot() +
-    annotate(geom = "rect", xmin = 0, xmax = 2, ymin = 0, ymax = 2,
-             fill = "white") +
-    annotate(geom = "rect", xmin = 0, xmax = 0.45, ymin = 1.5, ymax = 2,
-             fill = color_major) +
-    annotate(geom = "rect", xmin = 0.475, xmax = 2, ymin = 1.5, ymax = 2,
-             fill = color_minor) +
-    annotate(geom = "rect", xmin = 0, xmax = 2, ymin = 0, ymax = 2,
-             fill = NA, color = "black", linewidth = 2) +
-    geom_text(data = data_labels_i, aes(x = 0.235, y = 1.75, label = subregion_nb),
-              color = "white", size = 20, family = font_choose_map, fontface = "bold") +
-    geom_textbox(data = data_labels_i, aes(x = 0.6, y = 1.75, label = subregion_name), width = unit(15, "cm"),
-                 box.colour = NA, fill = NA, size = 16, family = font_choose_map, hjust = 0) +
+    annotate(geom = "rect", xmin = 0, xmax = 2, ymin = 0, ymax = 1.5,
+             fill = "white", color = "black", linewidth = 0.5) +
     geom_textbox(data = data_labels_i, aes(x = 0.235, y = 1.15, label = label_a), width = unit(15, "cm"),
                  box.colour = NA, fill = NA, size = 16, family = font_choose_map, hjust = 0) +
     geom_textbox(data = data_labels_i, aes(x = 0.235, y = 0.75, label = label_b), width = unit(15, "cm"),
@@ -35,23 +25,5 @@ plot_map_labels <- function(subregion_name_i, color_major = "#c44d56", color_min
           panel.grid = element_blank())
   
   ggsave(paste0("figs/02_part-2/fig-3/labels/", subregion_name_i, ".png"),  height = 5, width = 7)
-  
-  ggplot() +
-    annotate(geom = "rect", xmin = 0, xmax = 0.45, ymin = 1.5, ymax = 2,
-             fill = color_major) +
-    annotate(geom = "rect", xmin = 0.475, xmax = 2, ymin = 1.5, ymax = 2,
-             fill = color_minor) +
-    annotate(geom = "rect", xmin = 0, xmax = 2, ymin = 1.5, ymax = 2,
-             fill = NA, color = "black", linewidth = 2) +
-    geom_text(data = data_labels_i, aes(x = 0.235, y = 1.75, label = subregion_nb),
-              color = "white", size = 20, family = font_choose_map, fontface = "bold") +
-    geom_textbox(data = data_labels_i, aes(x = 0.6, y = 1.75, label = subregion_name), width = unit(15, "cm"),
-                 box.colour = NA, fill = NA, size = 16, family = font_choose_map, hjust = 0) +
-    theme_minimal() +
-    theme(axis.text = element_blank(),
-          axis.title = element_blank(),
-          panel.grid = element_blank())
-  
-  ggsave(paste0("figs/02_part-2/fig-2/labels/", subregion_name_i, ".png"),  height = 2, width = 7)
   
 }

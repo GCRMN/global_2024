@@ -7,10 +7,10 @@ map_region_geography <- function(region_i, color_scalebar = "white"){
   
   plot_i <- ggplot() +
     geom_spatraster_rgb(data = data_tif, maxcell = 5e+07) +
-    geom_sf(data = data_reefs_i, fill = "#c44d56", color = "#c44d56") +
+    geom_sf(data = data_reefs_i, fill = "#ad5fad", color = "#ad5fad") +
     geom_sf(data = data_subregions_i, color = "white", fill = NA, linewidth = 0.3) +
     geom_sf(data = data_tropics, linetype = "dashed", linewidth = 0.25, color = "#483e37") +
-    geom_sf(data = data_countries, fill = "NA", color = "black", linewidth = 0.1) +
+    geom_sf(data = data_countries, fill = "NA", color = "black", linewidth = 0.15) +
     theme(panel.border = element_rect(fill = NA, color = "black"),
           plot.background = element_rect(fill = "transparent", color = NA),
           axis.text = element_text(family = font_choose_map, color = "black"),
@@ -180,14 +180,16 @@ map_region_geography <- function(region_i, color_scalebar = "white"){
     
     data_reefs_pacific <- data_reefs %>% 
       st_difference(correction_polygon) %>% 
-      st_transform(crs_selected) 
+      st_transform(crs_selected)
+    
+    data_reefs_pacific <- st_intersection(data_reefs_pacific, data_subregions_i)
     
     plot_i <- ggplot() +
       geom_spatraster_rgb(data = data_tif_pacific, maxcell = 5e+07) +
-      geom_sf(data = data_reefs_pacific, fill = "#c44d56", color = "#c44d56") +
-      geom_sf(data = data_tropics_pacific, linetype = "dashed", linewidth = 0.25) +
+      geom_sf(data = data_reefs_pacific, fill = "#ad5fad", color = "#ad5fad") +
+      geom_sf(data = data_tropics_pacific, linetype = "dashed", linewidth = 0.25, color = "#483e37") +
       geom_sf(data = data_subregions_i, color = "white", fill = NA, linewidth = 0.3) +
-      geom_sf(data = data_countries_pacific, fill = NA, color = "black", linewidth = 0.1) +
+      geom_sf(data = data_countries_pacific, fill = NA, color = "black", linewidth = 0.15) +
       coord_sf(ylim = c(-4000000, 4000000), xlim = c(-3500000, 11000000), expand = FALSE,
                label_axes = list(top = "E", left = "N", right = "N")) +
       scale_x_continuous(breaks = c(180, 160, 140, -160, -140, -120)) +
@@ -197,11 +199,11 @@ map_region_geography <- function(region_i, color_scalebar = "white"){
       annotation_scale(location = "br",
                        width_hint = 0.25, text_family = font_choose_map, text_col = color_scalebar,
                        text_cex = 0.7, style = "bar", line_width = 1, height = unit(0.04, "cm"),
-                       line_col = color_scalebar, pad_x = unit(0.5, "cm"), pad_y = unit(0.5, "cm"),
+                       line_col = color_scalebar, pad_x = unit(0.5, "cm"), pad_y = unit(0.25, "cm"),
                        bar_cols = c(color_scalebar, color_scalebar))
     
     ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
-           height = 4.5, width = 7, bg = "transparent")
+           height = 4.5, width = 8, bg = "transparent")
     
   }else{
     

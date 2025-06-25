@@ -10,6 +10,7 @@ library(terra)
 library(tidyterra)
 library(ggtext)
 library(showtext)
+library(cowplot)
 showtext::showtext_auto()
 showtext::showtext_opts(dpi = 300)
 
@@ -19,8 +20,8 @@ source("code/function/graphical_par.R")
 source("code/function/map_sphere.R")
 source("code/function/data_descriptors.R")
 source("code/function/map_region_geography.R")
-source("code/function/plot_map_labels.R")
 source("code/function/map_region_monitoring.R")
+source("code/function/plot_map_labels.R")
 
 # 3. Sphere maps ----
 
@@ -45,8 +46,6 @@ data_parameters <- tibble(region = c("Australia", "Brazil", "Caribbean", "EAS", 
 
 ## 3.3 Map over the function ----
 
-map_sphere(region_i = "PERSGA")
-
 map(unique(data_region$region), ~map_sphere(region_i = .))
 
 # 4. Geographic maps ---
@@ -59,7 +58,7 @@ data_subregions <- read_sf("data/01_maps/02_clean/04_subregions/gcrmn_subregions
 
 data_tif <- rast("data/01_maps/01_raw/03_natural-earth/HYP_HR_SR_OB_DR/HYP_HR_SR_OB_DR.tif")
 
-data_reefs <- read_sf("data/01_maps/02_clean/01_reefs/reefs.shp")
+data_reefs <- read_sf("data/01_maps/02_clean/02_reefs-buffer/reefs_buffer_20.shp")
 
 data_tropics <- tibble(tropic = c("Cancer", "Cancer", "Equator", "Equator", "Capricorn", "Capricorn"),
                        lat = c(23.4366, 23.4366, 0, 0, -23.4366, -23.4366),
@@ -104,6 +103,11 @@ data_benthic_sites <- data_benthic %>%
 map(unique(data_subregions$region), ~map_region_monitoring(region_i = .))
 
 
+
+
+
+
+
 ############### TEST EXPORT PANEL SUBREGIONS #############
 
 load("data/02_misc/data-benthic.RData")
@@ -114,8 +118,3 @@ data_monitoring <- data_benthic %>%
   ungroup()
 
 map(unique(data_monitoring$subregion), ~plot_map_labels(subregion_name_i = .x))
-
-
-# Faire meme chose avec la legende
-# Régler le problème des fonts qui ne s'exportent pas
-# Modifier le dépot GCRMN regions pour ajouter la variable subregion_name
