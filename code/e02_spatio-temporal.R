@@ -6,6 +6,9 @@ sf_use_s2(FALSE)
 library(magrittr) # To use the pipe %<>%
 library(ggtext)
 library(readxl)
+library(showtext)
+showtext::showtext_auto()
+showtext::showtext_opts(dpi = 300)
 
 # 2. Source functions ----
 
