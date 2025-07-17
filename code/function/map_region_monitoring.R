@@ -9,20 +9,19 @@ map_region_monitoring <- function(region_i, color_scalebar = "white"){
     filter(region == region_i)
   
   plot_i <- ggplot() +
-    geom_sf(data = data_tropics, linetype = "dashed", linewidth = 0.25, color = "#483e37") +
-    geom_sf(data = data_subregions_i, color = "#007caf", fill = NA, linewidth = 0.2) +
+    #geom_sf(data = data_tropics, linetype = "dashed", linewidth = 0.25, color = "#483e37") +
+    geom_sf(data = data_subregions_i, color = "#57add2", fill = NA, linewidth = 0.2) +
     geom_sf(data = data_countries, fill = "#dadfe1", color = "black", linewidth = 0.15) +
     geom_sf(data = data_benthic_sites_i %>% arrange(int_class),
-            aes(fill = int_class), show.legend = TRUE,
-            shape = 21, size = 2, color = "black", stroke = 0.1) +
-    scale_fill_manual(values = palette_second,
-                      breaks = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"),
-                      labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
-                      drop = FALSE,
-                      name = NULL) +
+            aes(color = int_class), show.legend = FALSE, size = 1.6) +
+    scale_color_manual(values = palette_second,
+                       breaks = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"),
+                       labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
+                       drop = FALSE,
+                       name = NULL) +
     guides(fill = guide_legend(override.aes = list(size = 3))) +
     theme(panel.border = element_rect(fill = NA, color = "black"),
-          panel.background = element_rect(fill = "#ecf7fe"),
+          panel.background = element_rect(fill = "white"),
           panel.grid = element_blank(),
           plot.background = element_rect(fill = "transparent", color = NA),
           axis.text = element_text(family = font_choose_map, color = "black"),
@@ -46,7 +45,7 @@ map_region_monitoring <- function(region_i, color_scalebar = "white"){
       theme(legend.position = "inside",
             legend.position.inside = c(0.8, 0.8))
     
-    ggsave(paste0("figs/02_part-2/fig-3/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
+    ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
            height = 5.4, width = 5.5, bg = "transparent")
     
   }else if(region_i == "EAS"){
@@ -62,7 +61,7 @@ map_region_monitoring <- function(region_i, color_scalebar = "white"){
       theme(legend.position = "inside",
             legend.position.inside = c(0.2, 0.8))
     
-    ggsave(paste0("figs/02_part-2/fig-3/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
+    ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
            height = 5.5, width = 6, bg = "transparent")
     
   }else if(region_i == "Caribbean"){
@@ -76,7 +75,7 @@ map_region_monitoring <- function(region_i, color_scalebar = "white"){
                        line_col = color_scalebar, pad_x = unit(0.5, "cm"), pad_y = unit(0.5, "cm"),
                        bar_cols = c(color_scalebar, color_scalebar))
     
-    ggsave(paste0("figs/02_part-2/fig-3/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
+    ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
            height = 5.3, width = 8, bg = "transparent")
     
   }else if(region_i == "WIO"){
@@ -91,7 +90,7 @@ map_region_monitoring <- function(region_i, color_scalebar = "white"){
                        line_col = color_scalebar, pad_x = unit(0.5, "cm"), pad_y = unit(0.5, "cm"),
                        bar_cols = c(color_scalebar, color_scalebar))
     
-    ggsave(paste0("figs/02_part-2/fig-3/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
+    ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
            height = 6.1, width = 5.4, bg = "transparent")
     
   }else if(region_i == "ROPME"){
@@ -105,7 +104,7 @@ map_region_monitoring <- function(region_i, color_scalebar = "white"){
                        line_col = color_scalebar, pad_x = unit(0.5, "cm"), pad_y = unit(0.5, "cm"),
                        bar_cols = c(color_scalebar, color_scalebar))
     
-    ggsave(paste0("figs/02_part-2/fig-3/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
+    ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
            height = 5.6, width = 5.9, bg = "transparent")
     
   }else if(region_i == "PERSGA"){
@@ -120,7 +119,7 @@ map_region_monitoring <- function(region_i, color_scalebar = "white"){
                        line_col = color_scalebar, pad_x = unit(0.5, "cm"), pad_y = unit(0.5, "cm"),
                        bar_cols = c(color_scalebar, color_scalebar))
     
-    ggsave(paste0("figs/02_part-2/fig-3/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
+    ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
            height = 5.9, width = 5.9, bg = "transparent")
     
   }else if(region_i == "Australia"){
@@ -134,7 +133,7 @@ map_region_monitoring <- function(region_i, color_scalebar = "white"){
                        line_col = color_scalebar, pad_x = unit(0.5, "cm"), pad_y = unit(0.5, "cm"),
                        bar_cols = c(color_scalebar, color_scalebar))
     
-    ggsave(paste0("figs/02_part-2/fig-3/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
+    ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
            height = 4.2, width = 8.5, bg = "transparent")
     
   }else if(region_i == "ETP"){
@@ -148,7 +147,7 @@ map_region_monitoring <- function(region_i, color_scalebar = "white"){
                        line_col = color_scalebar, pad_x = unit(0.5, "cm"), pad_y = unit(0.5, "cm"),
                        bar_cols = c(color_scalebar, color_scalebar))
     
-    ggsave(paste0("figs/02_part-2/fig-3/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
+    ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
            height = 4.8, width = 7.2, bg = "transparent")
     
   }else if(region_i == "Brazil"){
@@ -162,7 +161,7 @@ map_region_monitoring <- function(region_i, color_scalebar = "white"){
                        line_col = color_scalebar, pad_x = unit(0.5, "cm"), pad_y = unit(0.5, "cm"),
                        bar_cols = c(color_scalebar, color_scalebar))
     
-    ggsave(paste0("figs/02_part-2/fig-3/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
+    ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
            height = 4.9, width = 5.5, bg = "transparent")
     
   }else if(region_i == "Pacific"){
@@ -201,23 +200,25 @@ map_region_monitoring <- function(region_i, color_scalebar = "white"){
       st_transform(crs_selected)
     
     plot_i <- ggplot() +
-      geom_sf(data = data_tropics_pacific, linetype = "dashed", linewidth = 0.25, color = "#483e37") +
+      #geom_sf(data = data_tropics_pacific, linetype = "dashed", linewidth = 0.25, color = "#483e37") +
       geom_sf(data = data_subregions_i, color = "#007caf", fill = NA, linewidth = 0.2) +
       geom_sf(data = data_countries_pacific, fill = "#dadfe1", color = "black", linewidth = 0.15) +
       geom_sf(data = data_benthic_sites_i %>% arrange(int_class),
-              aes(fill = int_class), show.legend = FALSE,
-              shape = 21, size = 2, color = "black", stroke = 0.1) +
-      scale_fill_manual(values = palette_second,
-                        breaks = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"),
-                        labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
-                        drop = FALSE,
-                        name = "Number of years with data") +
+              aes(color = int_class), show.legend = FALSE,
+              size = 1.6) +
+      scale_color_manual(values = palette_second,
+                         breaks = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"),
+                         labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
+                         drop = FALSE,
+                         name = "Number of years with data") +
       coord_sf(ylim = c(-4000000, 4000000), xlim = c(-3500000, 11000000), expand = FALSE,
                label_axes = list(top = "E", left = "N", right = "N")) +
       scale_x_continuous(breaks = c(180, 160, 140, -160, -140, -120)) +
       theme(panel.border = element_rect(fill = NA, color = "black"),
-            panel.background = element_rect(fill = "#ecf7fe"),
+            panel.background = element_rect(fill = "white"),
             panel.grid = element_blank(),
+            axis.text.y = element_text(angle = 90, hjust = 0.5),
+            axis.text.y.right = element_text(angle = -90, hjust = 0.5),
             plot.background = element_rect(fill = "transparent", color = NA),
             axis.text = element_text(family = font_choose_map, color = "black")) +
       annotation_scale(location = "br",
@@ -226,7 +227,7 @@ map_region_monitoring <- function(region_i, color_scalebar = "white"){
                        line_col = color_scalebar, pad_x = unit(0.5, "cm"), pad_y = unit(0.5, "cm"),
                        bar_cols = c(color_scalebar, color_scalebar))
     
-    ggsave(paste0("figs/02_part-2/fig-3/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
+    ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
            height = 4.5, width = 8, bg = "transparent")
     
   }else{

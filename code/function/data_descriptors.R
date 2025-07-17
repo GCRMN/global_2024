@@ -33,14 +33,14 @@ data_descriptors <- function(data){
   
   if (is.grouped_df(data) == TRUE) {
     
-    result <- nb_sites %>% 
+    result <- nb_datasets %>% 
+      left_join(., nb_sites) %>% 
       left_join(., nb_surveys) %>% 
-      left_join(., nb_datasets) %>% 
       left_join(., first_last_year)
     
   }else{
     
-    result <- bind_cols(nb_sites, nb_surveys, nb_datasets, first_last_year)
+    result <- bind_cols(nb_datasets, nb_sites, nb_surveys, first_last_year)
     
   } 
   

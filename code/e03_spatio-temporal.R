@@ -3,6 +3,7 @@
 library(tidyverse)
 library(sf)
 sf_use_s2(FALSE)
+library(ggspatial) # For annotation_scale function
 library(magrittr) # To use the pipe %<>%
 library(ggtext)
 library(readxl)
@@ -16,6 +17,7 @@ source("code/function/graphical_par.R")
 source("code/function/data_descriptors.R")
 source("code/function/theme_map.R")
 source("code/function/theme_graph.R")
+source("code/function/map_region_monitoring.R")
 
 # 3. Load data ----
 
@@ -39,7 +41,7 @@ data_benthic_sites <- data_benthic %>%
   select(-nb_years) %>% 
   st_as_sf(coords = c("decimalLongitude", "decimalLatitude"), crs = 4326)
 
-# 4. Global map ----
+# 4. Monitoring map (global) ----
 
 ## 4.1 Transform data ----
 
@@ -99,7 +101,7 @@ data_tropics <- tibble(tropic = c("Cancer", "Cancer", "Equator", "Equator", "Cap
   st_difference(polygon) %>%
   st_transform(crs = crs_selected)
 
-## 4.2 Make the map (monitoring) ----
+## 4.2 Make the map ----
 
 ggplot() +
   geom_sf(data = data_tropics, linetype = "dashed", col = "lightgrey") +
@@ -117,23 +119,57 @@ ggplot() +
   
 ggsave("figs/01_part-1/fig-1.png", dpi = 600, height = 4.5, width = 12)
 
-## 4.3 Make the map (regions) ----
+# 5. Monitoring map (regions) ----
 
-ggplot() +
-  geom_sf(data = data_tropics, linetype = "dashed", col = "lightgrey") +
-  geom_sf(data = data_region, aes(fill = region)) +
-  geom_sf(data = data_land) +
-  coord_sf(expand = FALSE) +
-  labs(fill = "GCRMN region") +
-  theme_map()
+## 5.1 Load and transform data ----
 
-ggsave("figs/01_part-1/fig-0.png", dpi = 600, height = 4.5, width = 12)
+data_benthic_sites <- data_benthic_sites %>% 
+  st_transform(crs = 4326)
 
-rm(data_region_pac, polygon)
+data_countries <- read_sf("data/01_maps/01_raw/03_natural-earth/ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp")
+
+data_subregions <- read_sf("data/01_maps/02_clean/04_subregions/gcrmn_subregions.shp")
+
+data_tropics <- tibble(tropic = c("Cancer", "Cancer", "Equator", "Equator", "Capricorn", "Capricorn"),
+                       lat = c(23.4366, 23.4366, 0, 0, -23.4366, -23.4366),
+                       long = c(-180, 180, -180, 180, -180, 180)) %>% 
+  st_as_sf(coords = c("long", "lat"), crs = 4326) %>%
+  group_by(tropic) %>%
+  dplyr::summarize(do_union = FALSE) %>%
+  st_cast("LINESTRING")
+
+sf_use_s2(FALSE)
+
+data_subregions <- st_difference(data_subregions, st_union(data_countries))
+
+data_tropics <- st_difference(data_tropics, st_union(data_countries))
+
+## 5.2 Make the map ----
+
+map(unique(data_subregions$region), ~map_region_monitoring(region_i = .))
+
+## 5.3 Export the legend ----
+
+ggplot(data = tibble(color = palette_second,
+                     label = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"),
+                     y = seq(1, 5, 1)),
+       aes(y = y)) +
+  geom_point(aes(x = 1, color = color), size = 8) +
+  geom_text(aes(x = 2, label = label), hjust = 0, size = 6) +
+  scale_color_identity() +
+  lims(x = c(0, 5), y = c(0.5, 5.5)) +
+  theme(panel.background = element_rect(fill = "transparent"),
+        plot.background = element_rect(fill = "transparent", color = NA),
+        panel.grid = element_blank(),
+        axis.title = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank())
+
+ggsave("figs/02_part-2/fig-2/legend.png", width = 2.5, height = 3, bg = "transparent")
 
 # 6. Monitoring descriptors ----
 
-## 6.1 By region ----
+## 6.1 Global ----
 
 data_benthic %>% 
   group_by(region) %>% 
@@ -144,7 +180,7 @@ data_benthic %>%
   write.csv(., file = paste0("figs/01_part-1/tbl-1.csv"),
             row.names = FALSE)
 
-## 6.2 By subregion ----
+## 6.2 Regional ----
 
 ### 6.2.1 Make the function to export the descriptors ----
 
@@ -405,7 +441,7 @@ plot_year_dataset <- function(region_i){
 
 map(unique(data_benthic$region), ~plot_year_dataset(region_i = .))
 
-# 10. Number of sites per year ----
+# 10. Number of sites per dataset and year ----
 
 ## 10.1 Transform data ----
 

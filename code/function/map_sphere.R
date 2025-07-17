@@ -41,6 +41,6 @@ map_sphere <- function(region_i){
     geom_sf(data = b, fill = NA, col = "#363737", linewidth = 0.4) +
     theme_minimal()
   
-  ggsave(paste0("figs/02_part-2/fig-1/", str_replace_all(str_to_lower(region_i), " ", "-"), ".png"))
+  ggsave(paste0("figs/02_part-2/fig-1/", str_replace_all(str_to_lower(region_i), " ", "-"), "_sphere.png"))
   
 }
