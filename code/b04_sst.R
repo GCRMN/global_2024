@@ -43,7 +43,7 @@ rm(data_reefs_a, data_reefs_b)
 
 # 3. List files of SST to download ----
 
-list_url <- data.frame(date = seq(from = ymd("1985-01-01"), to = ymd("2023-12-31"), by = "1 day")) %>% 
+list_url <- data.frame(date = seq(from = ymd("1985-01-01"), to = ymd("2024-12-31"), by = "1 day")) %>% 
   mutate(year = year(date),
          date = str_remove_all(date, "-"),
          url = paste0("https://www.star.nesdis.noaa.gov/pub/socd/mecb/crw/data/5km/v3.1_op/nc/v1.0/daily/sst/",
@@ -104,15 +104,19 @@ data_sst <- future_map_dfr(1:100, ~extract_sst(row_nb = ., data_reef = data_reef
 
 
 
+###############################################
 
+ggplot(data = data_sst, aes(x = date, y = sst)) +
+  geom_line() +
+  facet_wrap(~subregion)
 
+ggplot(data = data_sst %>% filter(region == "All"), aes(x = date, y = sst)) +
+  geom_line()
 
+ggplot(data = data_sst %>% filter(region == "Caribbean" & subregion  == "All"), aes(x = date, y = sst)) +
+  geom_line()
 
-
-
-
-
-
+###############################################
 
 
 
