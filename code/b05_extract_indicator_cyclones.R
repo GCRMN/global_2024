@@ -51,34 +51,39 @@ extract_cyclone <- function(subregion_i){
   print(subregion_i)
   print(data_ts_lines_i)
   
-  # Extract characteristics of the tropical storm
-  
-  data_res <- NULL
-  
-  for(i in unique(data_ts_lines_i$ts_id)){
+  if(nrow(data_ts_lines_i) > 0){
     
-    data_ts_points_i <- data_ts_points %>% 
-      filter(ts_id == i)
+    # Extract characteristics of the tropical storm
     
-    data_ts_points_i <- data_ts_points_i[st_nearest_feature(data_reef_i, data_ts_points_i),] %>% 
-      st_drop_geometry()
+    data_res <- NULL
     
-    data_res <- bind_rows(data_res, data_ts_points_i)
+    for(i in unique(data_ts_lines_i$ts_id)){
+      
+      data_ts_points_i <- data_ts_points %>% 
+        filter(ts_id == i)
+      
+      data_ts_points_i <- data_ts_points_i[st_nearest_feature(data_reef_i, data_ts_points_i),] %>% 
+        st_drop_geometry()
+      
+      data_res <- bind_rows(data_res, data_ts_points_i)
+      
+    }
+    
+    # Return the results
+    
+    results <- left_join(data_res, data_ts_lines_i) %>% 
+      mutate(subregion = subregion_i, .before = "ts_id")
+    
+    return(results)
     
   }
-  
-  # Return the results
-  
-  results <- left_join(data_res, data_ts_lines_i) %>% 
-    mutate(subregion = subregion_i, .before = "ts_id")
-  
-  return(results)
   
 }
 
 ## 3.2 Map over the function ----
 
-data_cyclones <- map_dfr(unique(data_reef$subregion), ~extract_cyclone(subregion_i = .))
+data_cyclones <- map(unique(data_reef$subregion), ~extract_cyclone(subregion_i = .)) %>% 
+  list_rbind()
 
 ## 3.3 Export the results ----
 
