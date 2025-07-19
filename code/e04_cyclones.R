@@ -20,7 +20,7 @@ source("code/function/theme_map.R")
 load("data/07_cyclones/02_cyclones_extracted.RData")
 
 data_cyclones <- data_cyclones %>% 
-  # Add region frmm subregion
+  # Add region from subregion
   mutate(region = gsub('[[:digit:]]+', '', subregion),
          region = str_trim(region)) %>% 
   # Get saffir simpson scale on entire track
@@ -30,7 +30,12 @@ data_cyclones <- data_cyclones %>%
   # Filter cyclone (i.e. remove tropical storms)
   filter(max_saffir >= 1) %>% 
   mutate(ts_name = str_to_sentence(ts_name),
-         max_saffir = as.factor(max_saffir)) %>% 
+         max_saffir = as.factor(max_saffir)) %>%
+  # Get the highest wind speed cyclones per region (remove duplicates)
+  select(-subregion) %>% 
+  group_by(region, ts_id) %>% 
+  filter(windspeed == max(windspeed)) %>% 
+  ungroup() %>% 
   # Add cyclone position by wind_speed
   arrange(region, desc(windspeed)) %>% 
   group_by(region) %>% 
