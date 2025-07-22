@@ -31,16 +31,17 @@ data_sites <- left_join(data_sites_2025, data_sites_2020) %>%
   mutate(diff = (nb_sites_2025*100)/nb_sites_2020,
          region = factor(region, c(sort(unique(data_benthic$region)), "Global")))
 
-ggplot(data_sites, aes(x = region, y = diff)) +
-  #geom_bar(stat = "identity", fill = "#3EC1EB") +
-  geom_bar(stat = "identity", fill = "#4d8cb3") +
+plot_i <- ggplot(data_sites, aes(x = region, y = diff)) +
+  geom_bar(stat = "identity", fill = "#4d8cb3", width = 0.8) +
   geom_hline(yintercept = 100) +
   coord_flip() +
-  labs(x = NULL, y = "Percentage of the number of sites included\nin 2025 report compared to 2020 report") +
+  labs(x = NULL, y = "Percentage of the number of sites included in 2025 report compared to 2020 report") +
   theme_graph() +
+  theme(text = element_text(size = 25),
+        axis.title.x = element_text(size = 30)) +
   scale_x_discrete(limits = rev)
 
-ggsave("comparison-2020-2025_plot.png", height = 4.5, width = 9, dpi = 600)
+ggsave("figs/06_additional/comp-2020-2025_barplot.png", height = 4.5, width = 9, dpi = 600)
 
 # 4. Map comparison site distribution 2020 vs 2025 ----
 
@@ -129,20 +130,23 @@ data_all <- bind_rows(data_2020, data_2025) %>%
 
 ### 4.5.4 Map (global) ----
 
-ggplot() +
+plot_i <- ggplot() +
   geom_sf(data = data_tropics, linetype = "dashed", col = "lightgrey") +
   geom_sf(data = data_region, fill = "grey99") +
   geom_sf(data = data_land) +
   geom_sf(data = data_all %>% arrange(type), aes(color = type)) +
   coord_sf(expand = FALSE) +
   theme_map() +
+  theme(axis.text.y = element_text(hjust = 0.5),
+        axis.text = element_text(size = 16),
+        legend.text = element_text(size = 16)) +
   scale_color_manual(values = c("#3EC1EB", "black"),
                      breaks = c("Report 2020", "Report 2025"),
                      drop = FALSE,
                      name = NULL) +
   guides(color = guide_legend(override.aes = list(size = 4)))
 
-ggsave("comparison-2020-2025_map.png", height = 4, width = 9, dpi = 600)
+ggsave("figs/06_additional/comp-2020-2025_global-map.png", height = 4, width = 9, dpi = 600)
 
 ### 4.5.5 Map (regional) ----
 
@@ -172,7 +176,8 @@ plot_comparison_region <- function(region_i){
     coord_sf(xlim = c(data_bbox$xmin, data_bbox$xmax), ylim = c(data_bbox$ymin, data_bbox$ymax)) +
     theme_map()
   
-  ggsave(paste0("comparison-2020-2025_map_", region_i, ".png"), dpi = 300, height = 6, width = 6)
+  ggsave(paste0("figs/06_additional/comp-2020-2025_regional-map_", region_i, ".png"),
+         dpi = 300, height = 6, width = 6)
   
 }
 

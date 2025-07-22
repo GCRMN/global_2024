@@ -7,9 +7,6 @@ library(ggspatial) # For annotation_scale function
 library(magrittr) # To use the pipe %<>%
 library(ggtext)
 library(readxl)
-library(showtext)
-showtext::showtext_auto()
-showtext::showtext_opts(dpi = 300)
 
 # 2. Source functions ----
 
@@ -279,7 +276,7 @@ plot_surveys_year <- function(gcrmn_region){
     theme_graph() +
     scale_x_continuous(expand = c(0, 0), limits = c(1979, 2026))
   
-  ggsave(paste0("figs/02_part-2/fig-4/", str_replace_all(str_to_lower(gcrmn_region), " ", "-"), ".png"),
+  ggsave(paste0("figs/06_additional/surveys-year_", str_replace_all(str_to_lower(gcrmn_region), " ", "-"), ".png"),
          width = 5, height = 4, dpi = fig_resolution)
   
 }
@@ -287,6 +284,29 @@ plot_surveys_year <- function(gcrmn_region){
 ### 7.2.2 Map over the function ----
 
 map(unique(data_region$region), ~plot_surveys_year(gcrmn_region = .))
+
+## 7.2.3 Subplots ----
+
+plot_i <- data_benthic %>% 
+  select(region, decimalLatitude, decimalLongitude, eventDate, year) %>% 
+  st_drop_geometry() %>% 
+  distinct() %>% 
+  group_by(year, region) %>% 
+  count() %>% 
+  ungroup() %>% 
+  group_by(region) %>%
+  mutate(percent = n*100/sum(n)) %>% 
+  ungroup() %>% 
+  ggplot(data = ., aes(x = year, y = percent)) +
+  geom_bar(stat = "identity", show.legend = FALSE, width = 1,
+           color = palette_first[4], fill = palette_first[3]) +
+  labs(x = "Year", y = "Surveys (%)") +
+  coord_cartesian(clip = "off") +
+  theme_graph() +
+  facet_wrap(~region, ncol = 2) +
+  scale_x_continuous(expand = c(0, 0), limits = c(1979, 2026))
+
+ggsave("figs/05_supp-mat/surveys-year.png", width = 7, height = 10, dpi = fig_resolution)
 
 # 8. Number of surveys per depth ----
 
@@ -327,7 +347,7 @@ plot_surveys_depth <- function(gcrmn_region){
     theme_graph() +
     scale_x_continuous(expand = c(0, 0), limits = c(-1, 40))
   
-  ggsave(paste0("figs/02_part-2/fig-5/", str_replace_all(str_to_lower(gcrmn_region), " ", "-"), ".png"),
+  ggsave(paste0("figs/06_additional/surveys-depth_", str_replace_all(str_to_lower(gcrmn_region), " ", "-"), ".png"),
          width = 5, height = 4, dpi = fig_resolution)
   
 }
@@ -336,11 +356,29 @@ plot_surveys_depth <- function(gcrmn_region){
 
 map(unique(data_region$region), ~plot_surveys_depth(gcrmn_region = .))
 
+## 8.2.3 Subplots ----
+
+plot_i <- data_benthic %>% 
+  select(region, territory, decimalLatitude, decimalLongitude, eventDate, year, verbatimDepth) %>% 
+  st_drop_geometry() %>% 
+  drop_na(verbatimDepth) %>% 
+  distinct() %>% 
+  ggplot(data = ., aes(x = verbatimDepth)) +
+  geom_histogram(binwidth = 1, aes(y = after_stat(width * density * 100)),
+                 color = palette_first[4], fill = palette_first[3]) +
+  labs(x = "Depth (m)", y = "Surveys (%)") +
+  coord_cartesian(clip = "off") +
+  theme_graph() +
+  facet_wrap(~region, ncol = 2) +
+  scale_x_continuous(expand = c(0, 0), limits = c(-1, 40))
+
+ggsave("figs/05_supp-mat/surveys-depth.png", width = 7, height = 10, dpi = fig_resolution)
+
 # 9. Number of sites per datasetID and year ----
 
 ## 9.1 Transform data ----
 
-data_sources <- read_xlsx("C:/Users/jwicquart/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benthos/gcrmndb_benthos/data/05_data-sources.xlsx") %>% 
+data_sources <- read_xlsx("C:/Users/jerem/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benthos/gcrmndb_benthos/data/05_data-sources.xlsx") %>% 
   select(datasetID, rightsHolder) %>% 
   distinct()
 

@@ -115,6 +115,10 @@ plot_dhw <- function(region_i){
                            str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
          plot = plot_i, height = 5.3, width = 7.2, dpi = fig_resolution)
   
+  ggsave(filename = paste0("figs/02_part-2/fig-4/",
+                           str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".pdf"),
+         plot = plot_i, height = 5.3, width = 7.2, dpi = fig_resolution)
+  
 }
 
 map(setdiff(unique(data_dhw_freq$region), "All"), ~plot_dhw(region_i = .))

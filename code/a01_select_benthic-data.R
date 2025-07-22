@@ -6,7 +6,7 @@ sf_use_s2(FALSE)
 
 # 2. Load gcrmndb_benthos data ----
 
-load("C:/Users/jwicquart/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benthos/gcrmndb_benthos/data/09_gcrmndb_benthos.RData")
+load("C:/Users/jerem/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benthos/gcrmndb_benthos/data/09_gcrmndb_benthos.RData")
 
 # 3. Filter required data ----
 
