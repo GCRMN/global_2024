@@ -24,14 +24,14 @@ data_benthic %>%
 
 # 4. List of contributors per datasetID ----
 
-read_xlsx("C:/Users/jwicquart/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benthos/gcrmndb_benthos/data/05_data-sources.xlsx") %>% 
+read_xlsx("C:/Users/jerem/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benthos/gcrmndb_benthos/data/05_data-sources.xlsx") %>% 
   filter(datasetID %in% unique(data_benthic$datasetID)) %>% 
   select(datasetID, rightsHolder, last_name, first_name, email) %>% 
   openxlsx::write.xlsx(., file = "figs/05_supp-mat/tbl-2.xlsx")
 
 # 5. List of contributors emails ----
 
-read_xlsx("C:/Users/jwicquart/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benthos/gcrmndb_benthos/data/05_data-sources.xlsx") %>% 
+read_xlsx("C:/Users/jerem/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benthos/gcrmndb_benthos/data/05_data-sources.xlsx") %>% 
   filter(datasetID %in% unique(data_benthic$datasetID)) %>% 
   select(last_name, first_name, email) %>% 
   distinct() %>% 
@@ -40,7 +40,7 @@ read_xlsx("C:/Users/jwicquart/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_b
 
 # 6. List of contributors' names per region ----
 
-read_xlsx("C:/Users/jwicquart/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benthos/gcrmndb_benthos/data/05_data-sources.xlsx") %>% 
+read_xlsx("C:/Users/jerem/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benthos/gcrmndb_benthos/data/05_data-sources.xlsx") %>% 
   filter(datasetID %in% unique(data_benthic$datasetID)) %>% 
   select(datasetID, last_name, first_name) %>% 
   full_join(data_benthic %>% 
@@ -60,9 +60,9 @@ read_xlsx("C:/Users/jwicquart/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_b
 
 # 7. List of contributors' contacts per region ----
 
-read_xlsx("C:/Users/jwicquart/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benthos/gcrmndb_benthos/data/05_data-sources.xlsx") %>% 
+read_xlsx("C:/Users/jerem/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benthos/gcrmndb_benthos/data/05_data-sources.xlsx") %>% 
   filter(datasetID %in% unique(data_benthic$datasetID)) %>% 
-  select(datasetID, rightsHolder, last_name, first_name, email) %>% 
+  select(datasetID, rightsHolder, last_name, first_name, affiliation, email) %>% 
   full_join(data_benthic %>% 
               select(region, datasetID) %>% 
               distinct(),
