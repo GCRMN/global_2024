@@ -216,17 +216,24 @@ export_descriptors <- function(gcrmn_region){
 
 map(unique(data_region$region), ~export_descriptors(gcrmn_region = .))
 
-## 6.3 By country ----
+## 6.3 By region and country ----
+
+data_benthic %>% 
+  group_by(region, country) %>% 
+  data_descriptors() %>% 
+  ungroup() %>% 
+  mutate(across(c(nb_sites, nb_surveys), ~format(.x, big.mark = ",", scientific = FALSE))) %>% 
+  write.csv(., file = "figs/06_additional/monitoring_region-country.csv",
+            row.names = FALSE)
+
+## 6.4 By country ----
 
 data_benthic %>% 
   group_by(country) %>% 
   data_descriptors() %>% 
   ungroup() %>% 
-  bind_rows(., data_benthic %>% 
-              data_descriptors() %>% 
-              mutate(country = "All")) %>% 
   mutate(across(c(nb_sites, nb_surveys), ~format(.x, big.mark = ",", scientific = FALSE))) %>% 
-  write.csv(., file = "figs/06_additional/monitoring_descriptors_country.csv",
+  write.csv(., file = "figs/06_additional/monitoring_country.csv",
             row.names = FALSE)
 
 # 7. Number of surveys per year ----
