@@ -8,6 +8,7 @@ library(ggtext)
 source("code/function/graphical_par.R")
 source("code/function/theme_graph.R")
 source("code/function/theme_map.R")
+source("code/function/extract_coeff.R")
 
 # 3. Yearly SST anomaly ----
 
@@ -42,12 +43,12 @@ plot_ssta <- function(region_i){
     theme(plot.title = element_markdown(size = 17, face = "bold", family = "Open Sans Semibold"),
           plot.subtitle = element_markdown(size = 12)) +
     labs(x = "Year", y = "SST anomaly (°C)") +
-    theme_graph() +
-    lims(y = c(-1.5, 1.5))
+    theme_graph()# +
+    #lims(y = c(-1.5, 1.5))
 
   ggsave(filename = paste0("figs/02_part-2/fig-3/",
                            str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
-         plot = plot_i, height = 3.5, width = 9, dpi = fig_resolution)
+         plot = plot_i, height = 5, width = 9, dpi = fig_resolution)
   
 }
 
@@ -122,3 +123,52 @@ plot_dhw <- function(region_i){
 }
 
 map(setdiff(unique(data_dhw_freq$region), "All"), ~plot_dhw(region_i = .))
+
+# 5. Daily SST ----
+
+load("data/02_misc/data_sst.RData")
+
+plot_i <- data_sst %>% 
+  filter(subregion == "All" & region != "All") %>% 
+  ggplot(data = ., aes(x = date, y = sst)) +
+  geom_line() +
+  labs(x = "Year", y = "Sea Surface Temperature (°C)") +
+  coord_cartesian(clip = "off") +
+  theme_graph() +
+  facet_wrap(~region, ncol = 2, scales = "free") +
+  scale_x_continuous(expand = c(0, 0))
+
+ggsave("figs/05_supp-mat/sst.png", width = 7, height = 10, dpi = fig_resolution)
+
+# 6. Long-term SST average and trend ----
+
+load("data/02_misc/data_sst.RData")
+
+## 6.1 Long-term SST average ----
+
+data_sst <- data_sst %>% 
+  group_by(region, subregion) %>% 
+  mutate(mean_sst = mean(sst, na.rm = TRUE)) %>% 
+  ungroup()
+
+## 6.2 Long-term SST trend ----
+
+data_sst %>% 
+  # Convert date as numeric
+  mutate(date = as.numeric(as_date(date))) %>% 
+  # Extract linear model coefficients
+  group_by(region, subregion) %>% 
+  group_modify(~extract_coeff(data = .x, var_y = "sst", var_x = "date")) %>% 
+  ungroup() %>% 
+  # Calculate increase in SST over the period
+  mutate(min_date = as.numeric(as_date(min(data_sst$date))),
+         max_date = as.numeric(as_date(max(data_sst$date)))) %>% 
+  mutate(sst_increase = ((max_date)*slope+intercept) - ((min_date)*slope+intercept)) %>% 
+  select(-min_date, -max_date) %>% 
+  # Calculate the warming rate (°C per year)
+  mutate(warming_rate = sst_increase/(year(max(data_sst$date))-year(min(data_sst$date)))) %>% 
+  # Add mean_sst for each area
+  left_join(., data_sst %>% 
+              select(region, subregion, mean_sst) %>% 
+              distinct()) %>% 
+  openxlsx::write.xlsx(., file = "figs/06_additional/sst-long-term-mean-trend.xlsx")
