@@ -1,21 +1,20 @@
 # 1. Required packages ----
 
-library(extrafont)
 library(scico)
+library(sysfonts)
 library(showtext)
 
 # 2. Set the default font family ----
 
-windowsFonts("Open Sans" = windowsFont("Open Sans"))
-windowsFonts("MinionPro-Semibold" = windowsFont("MinionPro-Semibold"))
+font_add_google("Open Sans", "opsan") # Install a font from Google Font
 
-font_choose_graph <- "Open Sans"
-font_choose_map <- "Open Sans"
-
-showtext::showtext_auto()
-showtext::showtext_opts(dpi = 300)
+font_choose_graph <- "opsan"
+font_choose_map <- "opsan"
 
 fig_resolution <- 300
+
+showtext::showtext_auto()
+showtext::showtext_opts(dpi = fig_resolution)
 
 # 3. Set the colors ----
 

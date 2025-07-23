@@ -43,8 +43,7 @@ plot_ssta <- function(region_i){
     theme(plot.title = element_markdown(size = 17, face = "bold", family = "Open Sans Semibold"),
           plot.subtitle = element_markdown(size = 12)) +
     labs(x = "Year", y = "SST anomaly (°C)") +
-    theme_graph()# +
-    #lims(y = c(-1.5, 1.5))
+    theme_graph()
 
   ggsave(filename = paste0("figs/02_part-2/fig-3/",
                            str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
