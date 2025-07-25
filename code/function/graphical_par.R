@@ -3,10 +3,11 @@
 library(scico)
 library(sysfonts)
 library(showtext)
+library(showtextdb)
 
 # 2. Set the default font family ----
 
-font_add_google("Open Sans", "opsan") # Install a font from Google Font
+font_add_google("Open Sans", "opsan") # Add a font from Google Font
 
 font_choose_graph <- "opsan"
 font_choose_map <- "opsan"

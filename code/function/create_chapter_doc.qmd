@@ -1,0 +1,80 @@
+---
+title: "Chapter `r nb_chapter`"
+subtitle: "`r region_i`"
+format:
+  docx:
+    fig-align: "center"
+editor: source
+---
+
+```{r echo=FALSE, message=FALSE}
+
+require(tidyverse)
+require(readxl)
+require(flextable)
+
+```
+
+\newpage
+
+## Geography
+
+\
+
+```{r echo=FALSE, message=FALSE}
+
+figure_path <- paste0("../../figs/02_part-2/fig-1/", str_to_lower(region_name), ".png")
+
+```
+
+![](`r figure_path`){width=100%}
+
+**Figure 2.`r nb_chapter`.1.** Map of coral reef distribution and subregions of the `r region_i` region. Subregions are represented by white polygons. Only countries and territories adjacent to coral reefs of the region are labelled. Coral reefs are represented using a 20 km buffer to facilitate interpretation. Only coral reefs of the region are represented. The scale bar provides distance at the equator and may not accurately represent distance over the entire latitudinal range of the region. The borders represented on this map are not endorsed by the GCRMN.
+
+\newpage
+
+## Benthic cover trends
+
+### Regional trends
+
+### Subregional trends
+
+\newpage
+
+## Monitoring data
+
+\newpage
+
+## Sea Surface Temperature
+
+```{r echo=FALSE, message=FALSE}
+
+figure_path <- paste0("../../figs/02_part-2/fig-3/", str_to_lower(region_name), ".png")
+
+```
+
+![](`r figure_path`){width=100%}
+
+\newpage
+
+## Cyclones
+
+\newpage
+
+## Other threats
+
+\newpage
+
+## Other threats
+
+\newpage
+
+## Marine protected areas
+
+\newpage
+
+## References
+
+\
+
+TO BE ADDED
