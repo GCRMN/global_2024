@@ -11,13 +11,7 @@ var buffer_reef = ee.FeatureCollection("users/jeremywicquart/global_2024_reefs_b
 
 Map.addLayer(buffer_reef);
 
-// 3. Import subregions ----
-
-var data_subregion = ee.FeatureCollection("users/jeremywicquart/global_2024_subregion");
-
-Map.addLayer(data_subregion);
-
-// B. Population within 20 km from coral reefs ---------------------------------------------------
+// B. Population within 5 km from coral reefs (subregional) -------------------------------------
 
 // 1. Empty Collection to fill ----
 
@@ -46,61 +40,81 @@ var fill = function(img, ini) {
   return inift.merge(ft3);
 };
 
+
 // 3. Apply the function ----
 
-var data_results = ee.FeatureCollection(data_pop.iterate(fill, ft));
+var data_results = ee.FeatureCollection(data_pop.iterate(fill, ft))
 
 // 4. Export the data ----
 
 Export.table.toDrive({
   collection:data_results,
   folder:"GEE",
-  fileNamePrefix:"ind_human-pop_20km",
+  fileNamePrefix:"ind_human-pop_5km_subregion",
   fileFormat:"CSV",
-  description:"ind_human-pop_20km",
-  selectors:["area", "date", "sum"],
+  description:"ind_human-pop_5km_subregion",
+  selectors:["region", "subregion", "date", "sum"],
 });
 
-// C. Population per EEZ -----------------------------------------------------------------
+// C. Population within 5 km from coral reefs (regional) -------------------------------------
 
-// 1. Empty Collection to fill ----
+// 1. Merge subregions into regions ----
 
-var ft = ee.FeatureCollection(ee.List([]));
+// 1.1 List of regions ----
 
-// 2. Create function to extract SST ----
+var regions = buffer_reef.aggregate_array('region').distinct();
 
-var fill = function(img, ini) {
-  // type cast
-  var inift = ee.FeatureCollection(ini);
+// 1.2 Create a function to merge the subregions ----
 
-  // gets the values for the points in the current img
-  var ft2 = img.reduceRegions({
-    reducer: ee.Reducer.sum(),
-    collection: data_area_eez,
-    scale: 930,
-    });
+var FctMergeSubregions = function(region_name) {
   
-  // gets the date of the img
-  var date = img.date().format();
+  // Filter subregions in region
+  var filtered = buffer_reef.filter(ee.Filter.eq('region', region_name));
 
-  // writes the date in each feature
-  var ft3 = ft2.map(function(f){return f.set("date", date)});
+  // Merge polygons
+  var subregion_merged = filtered.geometry().dissolve();
 
-  // merges the FeatureCollections
-  return inift.merge(ft3);
+  // Return the merged geometry
+  return ee.Feature(subregion_merged).set('region', region_name);
+  
 };
 
-// 3. Apply the function ----
+// 1.3 Map over the function and create a FeatureCollection ----
+
+var buffer_reef = ee.FeatureCollection(regions.map(FctMergeSubregions));
+
+// 2. Apply the function ----
 
 var data_results = ee.FeatureCollection(data_pop.iterate(fill, ft));
 
-// 4. Export the data ----
+// 3. Export the data ----
 
 Export.table.toDrive({
   collection:data_results,
   folder:"GEE",
-  fileNamePrefix:"ind_human-pop_eez",
+  fileNamePrefix:"ind_human-pop_5km_region",
   fileFormat:"CSV",
-  description:"ind_human-pop_eez",
-  selectors:["area", "date", "sum"],
+  description:"ind_human-pop_5km_region",
+  selectors:["region", "subregion", "date", "sum"],
+});
+
+// D. Population within 5 km from coral reefs (global) -------------------------------------
+
+// 1. Merge subregions into regions ----
+
+var buffer_reef = buffer_reef.geometry().dissolve();
+
+// 2. Apply the function ----
+
+var data_results = ee.FeatureCollection(data_pop.iterate(fill, ft));
+
+// 3. Export the data ----
+
+Export.table.toDrive({
+  collection:data_results,
+  folder:"GEE",
+  fileNamePrefix:"ind_human-pop_5km_global",
+  fileFormat:"CSV",
+  description:"ind_human-pop_5km_global",
+  selectors:["region", "subregion", "date", "sum"],
 });
