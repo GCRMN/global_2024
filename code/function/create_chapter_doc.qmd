@@ -35,17 +35,64 @@ figure_path <- paste0("../../figs/02_part-2/fig-1/", str_to_lower(region_name), 
 
 ## Benthic cover trends
 
+\
+
 ### Regional trends
 
+\
+
+**Figure 2.`r nb_chapter`.2.** Modeled temporal trends of benthic percentage cover in the `r region_i` region from 1980 to 2024 for hard coral (A), macroalgae (B), and turf algae (C). The bold line represents the estimated average benthic cover, lighter and darker ribbons represent 95% and 80% confidence intervals, respectively.
+
+\
+
 ### Subregional trends
+
+\
+
+**Figure 2.`r nb_chapter`.3.** Modeled temporal trends of benthic percentage cover in `r region_i`’s subregions from 1980 to 2023 for hard coral (A), macroalgae (B), and turf algae (C). The bold line represents the estimated average benthic cover, lighter and darker ribbons represent 95% and 80% confidence intervals, respectively.
 
 \newpage
 
 ## Monitoring data
 
+\
+
+```{r echo=FALSE, message=FALSE}
+
+data_monitoring <- read.csv(paste0("../../figs/02_part-2/tbl-1/", str_to_lower(region_name), ".csv")) %>% 
+  filter(subregion == "All")
+
+nb_datasets <- data_monitoring %>% select(nb_datasets) %>% pull()
+
+nb_sites <- data_monitoring %>% select(nb_sites) %>% pull()
+
+nb_surveys <- data_monitoring %>% select(nb_surveys) %>% pull()
+
+first_year <- data_monitoring %>% select(first_year) %>% pull()
+
+last_year <- data_monitoring %>% select(last_year) %>% pull()
+
+```
+
+The estimation of temporal trends in percentage cover of hard coral and algae from 1980 to 2024 was assessed using data of `r nb_sites` monitoring sites from `r nb_datasets` datasets, which represent `r nb_surveys` surveys conducted between `r first_year` to `r last_year`. Most of the data were surveyed between 20XX and 20XX (**Supplementary Figure 1**).
+
+\
+
+```{r echo=FALSE, message=FALSE}
+
+figure_path <- paste0("../../figs/02_part-2/fig-2/", str_to_lower(region_name), ".png")
+
+```
+
+![](`r figure_path`){width=100%}
+
+**Figure 2.`r nb_chapter`.4.** Spatiotemporal distribution of benthic cover monitoring sites across the `r region_i` region. Sites that were monitored for the longest period are represented on top of the sites monitored for fewer years. The scale bar provides distance at the equator and may not accurately represent distance over the entire latitudinal range of the region.
+
 \newpage
 
 ## Sea Surface Temperature
+
+\
 
 ```{r echo=FALSE, message=FALSE}
 
@@ -55,13 +102,37 @@ figure_path <- paste0("../../figs/02_part-2/fig-3/", str_to_lower(region_name), 
 
 ![](`r figure_path`){width=100%}
 
+**Figure 2.`r nb_chapter`.5.** Annuals mean Sea Surface Temperature (SST) anomalies (°C) over coral reefs of `r region_i` from 1986 to 2024. SST anomalies were calculated based on the long-term average over the period 1986-2024. Positive values (red bars) indicate SST warmer than the long-term average whereas negative values (blue bars) indicate SST cooler than the long-term average.
+
 \newpage
 
 ## Cyclones
 
-\newpage
+\
 
-## Other threats
+```{r echo=FALSE, message=FALSE}
+
+figure_path <- paste0("../../figs/02_part-2/fig-8/", str_to_lower(region_name), ".png")
+
+```
+
+![](`r figure_path`){width=100%}
+
+**Figure 2.`r nb_chapter`.7.** Number of tropical storms  passed within 100 km from coral reefs of the `r region_i` region from 1980 to 2025. Colors correspond to the cyclone’s Saffir-Simpson category along the entire cyclone’s track.
+
+\
+
+\
+
+```{r echo=FALSE, message=FALSE}
+
+figure_path <- paste0("../../figs/02_part-2/fig-7/", str_to_lower(region_name), ".png")
+
+```
+
+![](`r figure_path`){width=100%}
+
+**Figure 2.`r nb_chapter`.8.**  Maximum sustained wind speed of tropical storms passed within 100 km of a coral reef of the `r region_i` region between 1980 and 2025. Colors correspond to the cyclone’s Saffir-Simpson category along the entire cyclone’s track. However, the values of sustained wind speed are extracted from the nearest tropical storm position from a coral reef. For this reason, some sustained wind speed values are below the lower threshold of category 1 Saffir-Simpson scale (*i.e.* 119 km.h^-1^). Note that cyclones passing more than 100 km away from coral reefs of `r region_i` are not represented, although they may have had an impact.
 
 \newpage
 
@@ -75,6 +146,3 @@ figure_path <- paste0("../../figs/02_part-2/fig-3/", str_to_lower(region_name), 
 
 ## References
 
-\
-
-TO BE ADDED

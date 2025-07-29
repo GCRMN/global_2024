@@ -124,14 +124,14 @@ map(setdiff(unique(data_dhw_freq$region), "All"), ~plot_dhw(region_i = .))
 load("data/02_misc/data_sst.RData")
 
 plot_i <- data_sst %>% 
+  mutate(date = as_date(date)) %>% 
   filter(subregion == "All" & region != "All") %>% 
   ggplot(data = ., aes(x = date, y = sst)) +
   geom_line() +
   labs(x = "Year", y = "Sea Surface Temperature (°C)") +
   coord_cartesian(clip = "off") +
   theme_graph() +
-  facet_wrap(~region, ncol = 2, scales = "free") +
-  scale_x_continuous(expand = c(0, 0))
+  facet_wrap(~region, ncol = 2, scales = "free")
 
 ggsave("figs/05_supp-mat/sst.png", width = 7, height = 10, dpi = fig_resolution)
 
