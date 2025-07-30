@@ -23,6 +23,35 @@ require(flextable)
 
 ```{r echo=FALSE, message=FALSE}
 
+data_reef_extent <- read.csv(paste0("../../figs/02_part-2/tbl-3/", str_to_lower(region_name), ".csv"))
+
+extent_rank <- data_reef_extent %>% 
+  filter(subregion == "All") %>% 
+  select(pos_world) %>% 
+  mutate(pos_world = as.character(pos_world),
+         pos_world = case_when(pos_world == "1" ~ "1st",
+                               pos_world == "2" ~ "2nd",
+                               pos_world == "3" ~ "3rd",
+                               TRUE ~ paste0(pos_world, "th"))) %>% pull()
+
+extent_abs <- data_reef_extent %>% 
+  filter(subregion == "All") %>% 
+  select(reef_extent_abs) %>% 
+  mutate(reef_extent_abs = format(round(reef_extent_abs, 0), big.mark = ",", scientific = FALSE)) %>% pull()
+
+extent_rel <- data_reef_extent %>% 
+  filter(subregion == "All") %>% 
+  select(reef_extent_rel_world) %>% 
+  mutate(reef_extent_rel_world = round(reef_extent_rel_world, 1)) %>% pull()
+
+```
+
+The `r region_i` GCRMN region ranges over a longitudinal axis of X km and a latitudinal axis of y km. The region hosts `r extent_abs` km^2^ of coral reefs, which represent `r extent_rel`% of the world’s coral reef extent. `r region_i` is the `r extent_rank` largest region in the world in terms of coral reef extent. A total of Y countries and territories host coral reefs of the region. Coral reefs range from Jordan and Israel in the North to Somalia in the South, and from Egypt in the West to Yemen in the East (**Fig. 2.`r nb_chapter`.1**).
+
+\
+
+```{r echo=FALSE, message=FALSE}
+
 figure_path <- paste0("../../figs/02_part-2/fig-1/", str_to_lower(region_name), ".png")
 
 ```
@@ -30,6 +59,26 @@ figure_path <- paste0("../../figs/02_part-2/fig-1/", str_to_lower(region_name), 
 ![](`r figure_path`){width=100%}
 
 **Figure 2.`r nb_chapter`.1.** Map of coral reef distribution and subregions of the `r region_i` region. Subregions are represented by white polygons. Only countries and territories adjacent to coral reefs of the region are labelled. Coral reefs are represented using a 20 km buffer to facilitate interpretation. Only coral reefs of the region are represented. The scale bar provides distance at the equator and may not accurately represent distance over the entire latitudinal range of the region. The borders represented on this map are not endorsed by the GCRMN.
+
+\
+
+```{r echo=FALSE, message=FALSE}
+
+data_population <- read.csv(paste0("../../figs/02_part-2/tbl-2/", str_to_lower(region_name), ".csv")) %>% 
+  filter(subregion == "All")
+
+pop_2020 <- data_population %>% select(pop_2020) %>% 
+  mutate(pop_2020 = format(round(pop_2020, 0), big.mark = ",", scientific = FALSE)) %>% pull()
+
+pop_change_rel <- data_population %>% select(pop_change_rel) %>% 
+  mutate(pop_change_rel = round(pop_change_rel, 1)) %>% pull()
+
+pop_change_abs <- data_population %>% select(pop_change_abs) %>% 
+  mutate(pop_change_abs = format(round(pop_change_abs/20, 0), big.mark = ",", scientific = FALSE)) %>% pull()
+
+```
+
+A total of `r pop_2020` inhabitants was living within 5 km from coral reefs of the `r region_i` region in 2020. About X % of this total number of inhabitants is living in subregion X (name of subregion). From 2000 to 2020, the total number of inhabitants living within 5 km from coral reefs of the `r region_i` region increase by `r pop_change_rel`%, representing an annual increase of `r pop_change_abs` inhabitants, on average. Most of this increase occurred in subregion X (name of the subregion).
 
 \newpage
 
