@@ -148,7 +148,7 @@ data_sst <- data_sst %>%
 
 ## 6.2 Long-term SST trend ----
 
-data_sst %>% 
+data_sst <- data_sst %>% 
   # Convert date as numeric
   mutate(date = as.numeric(as_date(date))) %>% 
   # Extract linear model coefficients
@@ -162,8 +162,31 @@ data_sst %>%
   select(-min_date, -max_date) %>% 
   # Calculate the warming rate (°C per year)
   mutate(warming_rate = sst_increase/(year(max(data_sst$date))-year(min(data_sst$date)))) %>% 
-  # Add mean_sst for each area
+  # Add mean_sst for each subregion
   left_join(., data_sst %>% 
               select(region, subregion, mean_sst) %>% 
-              distinct()) %>% 
-  openxlsx::write.xlsx(., file = "figs/06_additional/sst-long-term-mean-trend.xlsx")
+              distinct())
+
+## 6.3. Export the full table ----
+
+openxlsx::write.xlsx(data_sst, file = "figs/06_additional/sst-long-term-mean-trend.xlsx")
+
+## 6.4. Export the table per region ----
+
+### 6.4.1 Create the function ----
+
+export_descriptors <- function(gcrmn_region){
+  
+  data_sst %>% 
+    filter(region == gcrmn_region) %>% 
+    select(-region) %>% 
+    write.csv(., file = paste0("figs/02_part-2/tbl-4/",
+                               str_replace_all(str_to_lower(gcrmn_region), " ", "-"),
+                               ".csv"),
+              row.names = FALSE)
+  
+}
+
+### 6.4.2 Map over the function ----
+
+map(setdiff(unique(data_sst$region), "All"), ~export_descriptors(gcrmn_region = .))

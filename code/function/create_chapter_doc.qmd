@@ -15,6 +15,12 @@ require(flextable)
 
 ```
 
+\
+
+\
+
+**Authors**: Tom Dallison, Erica K. Towle, Jérémy Wicquart, Manuel Gonzalez-Rivero, Serge Planes, Francis Staub, Amanda Brigdale.
+
 \newpage
 
 ## Geography
@@ -37,7 +43,8 @@ extent_rank <- data_reef_extent %>%
 extent_abs <- data_reef_extent %>% 
   filter(subregion == "All") %>% 
   select(reef_extent_abs) %>% 
-  mutate(reef_extent_abs = format(round(reef_extent_abs, 0), big.mark = ",", scientific = FALSE)) %>% pull()
+  mutate(reef_extent_abs = format(round(reef_extent_abs, 0),
+                                  big.mark = ",", scientific = FALSE)) %>% pull()
 
 extent_rel <- data_reef_extent %>% 
   filter(subregion == "All") %>% 
@@ -46,7 +53,7 @@ extent_rel <- data_reef_extent %>%
 
 ```
 
-The `r region_i` GCRMN region ranges over a longitudinal axis of X km and a latitudinal axis of y km. The region hosts `r extent_abs` km^2^ of coral reefs, which represent `r extent_rel`% of the world’s coral reef extent. `r region_i` is the `r extent_rank` largest region in the world in terms of coral reef extent. A total of Y countries and territories host coral reefs of the region. Coral reefs range from Jordan and Israel in the North to Somalia in the South, and from Egypt in the West to Yemen in the East (**Fig. 2.`r nb_chapter`.1**).
+The `r region_i` GCRMN region ranges over a longitudinal axis of X km and a latitudinal axis of y km. The region hosts `r extent_abs` km^2^ of coral reefs, which represent `r extent_rel`% of the world’s coral reef extent. `r region_i` is the `r extent_rank` largest GCRMN region in terms of coral reef extent. A total of Y countries and territories host coral reefs of the region. Coral reefs range from Jordan and Israel in the North to Somalia in the South, and from Egypt in the West to Yemen in the East (**Fig. 2.`r nb_chapter`.1**).
 
 \
 
@@ -64,21 +71,72 @@ figure_path <- paste0("../../figs/02_part-2/fig-1/", str_to_lower(region_name), 
 
 ```{r echo=FALSE, message=FALSE}
 
-data_population <- read.csv(paste0("../../figs/02_part-2/tbl-2/", str_to_lower(region_name), ".csv")) %>% 
-  filter(subregion == "All")
+nb_subregions <- data_reef_extent %>% 
+  filter(subregion != "All") %>% 
+  select(subregion) %>% 
+  summarise(nb_subregions = length(subregion)) %>% 
+  pull()
 
-pop_2020 <- data_population %>% select(pop_2020) %>% 
-  mutate(pop_2020 = format(round(pop_2020, 0), big.mark = ",", scientific = FALSE)) %>% pull()
+max_reef_extent_nb <- data_reef_extent %>% 
+  filter(subregion != "All") %>% 
+  filter(reef_extent_abs == max(reef_extent_abs)) %>% 
+  mutate(subregion = str_trim(gsub("[A-z]", "", subregion))) %>% select(subregion) %>% pull()
+  
+max_reef_extent_value_abs <- data_reef_extent %>% 
+  filter(subregion != "All") %>% 
+  filter(reef_extent_abs == max(reef_extent_abs)) %>% 
+  select(reef_extent_abs) %>% 
+  mutate(reef_extent_abs = format(round(reef_extent_abs, 0),
+                                  big.mark = ",", scientific = FALSE)) %>% pull()
 
-pop_change_rel <- data_population %>% select(pop_change_rel) %>% 
-  mutate(pop_change_rel = round(pop_change_rel, 1)) %>% pull()
+max_reef_extent_value_rel <- data_reef_extent %>% 
+  filter(subregion != "All") %>% 
+  filter(reef_extent_rel_region == max(reef_extent_rel_region)) %>% 
+  select(reef_extent_rel_region) %>% 
+  mutate(reef_extent_rel_region = round(reef_extent_rel_region, 1)) %>% pull()
 
-pop_change_abs <- data_population %>% select(pop_change_abs) %>% 
-  mutate(pop_change_abs = format(round(pop_change_abs/20, 0), big.mark = ",", scientific = FALSE)) %>% pull()
+min_reef_extent_nb <- data_reef_extent %>% 
+  filter(subregion != "All") %>% 
+  filter(reef_extent_abs == min(reef_extent_abs)) %>% 
+  mutate(subregion = str_trim(gsub("[A-z]", "", subregion))) %>% select(subregion) %>% pull()
+
+min_reef_extent_value_abs <- data_reef_extent %>% 
+  filter(subregion != "All") %>% 
+  filter(reef_extent_abs == min(reef_extent_abs)) %>% 
+  select(reef_extent_abs) %>% 
+  mutate(reef_extent_abs = format(round(reef_extent_abs, 0),
+                                  big.mark = ",", scientific = FALSE)) %>% pull()
+
+min_reef_extent_value_rel <- data_reef_extent %>% 
+  filter(subregion != "All") %>% 
+  filter(reef_extent_rel_region == min(reef_extent_rel_region)) %>% 
+  select(reef_extent_rel_region) %>% 
+  mutate(reef_extent_rel_region = round(reef_extent_rel_region, 1)) %>% pull()
 
 ```
 
-A total of `r pop_2020` inhabitants was living within 5 km from coral reefs of the `r region_i` region in 2020. About X % of this total number of inhabitants is living in subregion X (name of subregion). From 2000 to 2020, the total number of inhabitants living within 5 km from coral reefs of the `r region_i` region increase by `r pop_change_rel`%, representing an annual increase of `r pop_change_abs` inhabitants, on average. Most of this increase occurred in subregion X (name of the subregion).
+The `r region_i` region is divided into `r nb_subregions` subregions (**Fig. 2.`r nb_chapter`.1**). Subregion 1 includes the Gulf of Suez and the Gulf of Aqaba in the North. Subregions 2 and 3 are separated by the Bab Al Mandab strait. Subregion 3 hosts Socotra Island. Subregion `r max_reef_extent_nb` host `r max_reef_extent_value_rel`% of coral reefs of the region (`r max_reef_extent_value_abs` km²) whereas subregion `r min_reef_extent_nb` host only `r min_reef_extent_value_rel`% of coral reefs of the region (`r min_reef_extent_value_abs` km²).
+
+```{r echo=FALSE, message=FALSE}
+
+data_population <- read.csv(paste0("../../figs/02_part-2/tbl-2/", str_to_lower(region_name), ".csv"))
+
+pop_2020 <- data_population %>% filter(subregion == "All") %>% select(pop_2020) %>% 
+  mutate(pop_2020 = format(round(pop_2020, 0), big.mark = ",", scientific = FALSE)) %>% pull()
+
+pop_change_rel <- data_population %>% filter(subregion == "All") %>% select(pop_change_rel) %>% 
+  mutate(pop_change_rel = round(pop_change_rel, 1)) %>% pull()
+
+pop_change_abs <- data_population %>% filter(subregion == "All") %>% select(pop_change_abs) %>% 
+  mutate(pop_change_abs = format(round(pop_change_abs/20, 0), big.mark = ",", scientific = FALSE)) %>% pull()
+
+pop_change_abs_max <- data_population %>% filter(subregion != "All") %>% 
+  filter(pop_change_abs == max(pop_change_abs)) %>% 
+  mutate(subregion = str_trim(gsub("[A-z]", "", subregion))) %>% select(subregion) %>% pull()
+
+```
+
+A total of `r pop_2020` inhabitants was living within 5 km from coral reefs of the `r region_i` region in 2020. About X % of this total number of inhabitants is living in subregion X (name of subregion). From 2000 to 2020, the total number of inhabitants living within 5 km from coral reefs of the `r region_i` region increased by `r pop_change_rel`%, representing an annual increase of `r pop_change_abs` inhabitants, on average. Most of this increase occurred in subregion `r pop_change_abs_max`.
 
 \newpage
 
@@ -145,6 +203,26 @@ figure_path <- paste0("../../figs/02_part-2/fig-2/", str_to_lower(region_name), 
 
 ```{r echo=FALSE, message=FALSE}
 
+data_sst <- read.csv(paste0("../../figs/02_part-2/tbl-4/", str_to_lower(region_name), ".csv")) %>% 
+  filter(subregion == "All")
+
+mean_sst <- data_sst %>% select(mean_sst) %>%
+  mutate(mean_sst = round(mean_sst, 2)) %>% pull()
+
+sst_increase <- data_sst %>% select(sst_increase) %>%
+  mutate(sst_increase = round(sst_increase, 2)) %>% pull()
+
+warming_rate <- data_sst %>% select(warming_rate) %>%
+  mutate(warming_rate = round(warming_rate, 3)) %>% pull()
+
+```
+
+From 1985 to 2025, the long-term average of Sea Surface Temperature (SST) on coral reefs of `r region_i` was `r mean_sst`°C (**Supplementary Figure 1**). SST over coral reefs of `r region_i` have increased by `r sst_increase`°C between 1985 and 2025, which corresponds to an average warming rate of `r warming_rate`°C per year (**Supplementary Figure 1**).
+
+\
+
+```{r echo=FALSE, message=FALSE}
+
 figure_path <- paste0("../../figs/02_part-2/fig-3/", str_to_lower(region_name), ".png")
 
 ```
@@ -153,9 +231,25 @@ figure_path <- paste0("../../figs/02_part-2/fig-3/", str_to_lower(region_name), 
 
 **Figure 2.`r nb_chapter`.5.** Annuals mean Sea Surface Temperature (SST) anomalies (°C) over coral reefs of `r region_i` from 1986 to 2024. SST anomalies were calculated based on the long-term average over the period 1986-2024. Positive values (red bars) indicate SST warmer than the long-term average whereas negative values (blue bars) indicate SST cooler than the long-term average.
 
+\
+
+```{r echo=FALSE, message=FALSE}
+
+figure_path <- paste0("../../figs/02_part-2/fig-4/", str_to_lower(region_name), ".png")
+
+```
+
+![](`r figure_path`){width=100%}
+
+**Figure 2.`r nb_chapter`.6.** Percentage of coral reefs of `r region_i` experiencing heat stress levels. The level “No stress” corresponds to values of Degree Heating Weeks (DHW) below 0, the level “Alert 1” corresponds to DHW above 1 and lower or equal to 2.
+
 \newpage
 
 ## Cyclones
+
+\
+
+From 1980 to 2025, a total of X cyclones were estimated to have passed within 100 km from coral reefs of `r region_i` region, representing an average of X (+/- X SD) cyclones per year (**Fig. 2.`r nb_chapter`.7**). The cyclone with the highest sustained wind speed over the studied period was the cyclone Veena, in 1983, which passed 14 km from a coral reef with sustained wind speed of 185 km.h^-1^ (**Fig. 2.`r nb_chapter`.8**).
 
 \
 
@@ -187,9 +281,27 @@ figure_path <- paste0("../../figs/02_part-2/fig-7/", str_to_lower(region_name), 
 
 ## Other threats
 
+\
+
+### Subsection A
+
+\
+
+### Subsection B
+
+\
+
+### Subsection C
+
 \newpage
 
 ## Marine protected areas
+
+\
+
+**Figure 2.`r nb_chapter`.9.** Marine Protected Areas (MPA) in the `r region_i`.
+
+\
 
 \newpage
 
