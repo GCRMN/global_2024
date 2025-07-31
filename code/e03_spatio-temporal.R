@@ -581,3 +581,40 @@ plot_year_region <- function(region_i){
 ## 10.3 Map over the function ----
 
 map(unique(data_benthic$region), ~plot_year_region(region_i = .))
+
+# 11. Number of sites per number of monitoring years ----
+
+## 11.1 Transform data ----
+
+load("data/02_misc/data-benthic.RData")
+
+data_benthic_sites <- data_benthic %>% 
+  select(decimalLatitude, decimalLongitude, region, year) %>% 
+  distinct() %>% 
+  group_by(decimalLatitude, decimalLongitude, region) %>% 
+  count(name = "nb_years") %>% 
+  ungroup() %>% 
+  mutate(int_class = cut(nb_years,
+                         breaks = c(-Inf, 1, 5, 10, 15, Inf),
+                         labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years")),
+                   int_class = as.factor(int_class)) %>% 
+  group_by(int_class, region) %>% 
+  count() %>% 
+  group_by(region) %>% 
+  mutate(perc = (n*100)/sum(n))
+
+## 11.2 Make the plot ----
+
+ggplot(data = data_benthic_sites, aes(x = int_class, y = perc, fill = int_class,
+                                      label = paste0(round(perc, 1), "%\n(n = ", n, ")"))) +
+  geom_bar(stat = "identity", width = 0.5, show.legend = FALSE) +
+  geom_text(vjust = -0.3, size = 2.5, family = font_choose_graph) +
+  scale_fill_manual(values = palette_second) +
+  labs(y = "Percentage of sites", x = "Number of years surveyed") +
+  coord_cartesian(clip = "off") +
+  theme_graph() +
+  theme(axis.text.x = element_text(size = 8, angle = 45)) +
+  facet_wrap(~region, ncol = 2) +
+  lims(y = c(0, 100))
+
+ggsave("figs/05_supp-mat/surveys-per-category.png", width = 7, height = 10, dpi = fig_resolution)
