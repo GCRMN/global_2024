@@ -125,10 +125,14 @@ cyclone_frequency <- function(region_i){
   
   # 2. Make the plot 
   
+  name_cyclone <- case_when(region_i == "Caribbean" ~ "hurricanes",
+                            region_i == "EAS" ~ "typhoons",
+                            TRUE ~ "cyclones")
+  
   plot_i <- ggplot(data = data_cyclones_i, aes(x = year, y = n, fill = max_saffir)) +
     geom_bar(stat = "identity", show.legend = TRUE) +
     theme_graph() +
-    labs(x = "Year", y = "Number of hurricanes") +
+    labs(x = "Year", y = paste0("Number of ", name_cyclone)) +
     scale_fill_manual(breaks = c("1", "2", "3", "4", "5"),
                       labels = c("Cat. 1", "Cat. 2", "Cat. 3", "Cat. 4", "Cat. 5"),
                       values = c(palette_second[2:5], "black"),
