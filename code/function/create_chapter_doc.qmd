@@ -19,11 +19,17 @@ require(flextable)
 
 \
 
-**Authors**: Tom Dallison, Erica K. Towle, Jérémy Wicquart, Manuel Gonzalez-Rivero, Serge Planes, Francis Staub, Amanda Brigdale.
+**Authors**: Firstname, Surname^1^,  Firstname, Surname^2^
+
+\
+
+^1^ Affiliation name
+\
+^2^ Affiliation name
 
 \newpage
 
-## Geography
+## Geographic information and context
 
 \
 
@@ -35,10 +41,10 @@ extent_rank <- data_reef_extent %>%
   filter(subregion == "All") %>% 
   select(pos_world) %>% 
   mutate(pos_world = as.character(pos_world),
-         pos_world = case_when(pos_world == "1" ~ "1st",
-                               pos_world == "2" ~ "2nd",
-                               pos_world == "3" ~ "3rd",
-                               TRUE ~ paste0(pos_world, "th"))) %>% pull()
+         pos_world = case_when(pos_world == "1" ~ "1^st^",
+                               pos_world == "2" ~ "2^nd^",
+                               pos_world == "3" ~ "3^rd^",
+                               TRUE ~ paste0(pos_world, "^th^"))) %>% pull()
 
 extent_abs <- data_reef_extent %>% 
   filter(subregion == "All") %>% 
@@ -49,11 +55,45 @@ extent_abs <- data_reef_extent %>%
 extent_rel <- data_reef_extent %>% 
   filter(subregion == "All") %>% 
   select(reef_extent_rel_world) %>% 
-  mutate(reef_extent_rel_world = round(reef_extent_rel_world, 1)) %>% pull()
+  mutate(reef_extent_rel_world = format(round(reef_extent_rel_world, 1))) %>% pull()
+
+axis_lat <- read.csv(paste0("../../figs/02_part-2/tbl-5/", str_to_lower(region_name), ".csv")) %>% 
+  select(lat_axis) %>% 
+  mutate(lat_axis = format(lat_axis, big.mark = ",", scientific = FALSE)) %>% 
+  pull()
+
+axis_long <- read.csv(paste0("../../figs/02_part-2/tbl-5/", str_to_lower(region_name), ".csv")) %>% 
+  select(long_axis) %>% 
+  mutate(long_axis = format(long_axis, big.mark = ",", scientific = FALSE)) %>% 
+  pull()
+
+nb_countries <- read.csv(paste0("../../figs/02_part-2/tbl-5/", str_to_lower(region_name), ".csv")) %>% 
+  select(nb_countries) %>% 
+  pull()
+
+border_north <- read.csv(paste0("../../figs/02_part-2/tbl-5/", str_to_lower(region_name), ".csv")) %>% 
+  select(border_north) %>% 
+  pull()
+
+border_south <- read.csv(paste0("../../figs/02_part-2/tbl-5/", str_to_lower(region_name), ".csv")) %>% 
+  select(border_south) %>% 
+  pull()
+
+border_east <- read.csv(paste0("../../figs/02_part-2/tbl-5/", str_to_lower(region_name), ".csv")) %>% 
+  select(border_east) %>% 
+  pull()
+
+border_west <- read.csv(paste0("../../figs/02_part-2/tbl-5/", str_to_lower(region_name), ".csv")) %>% 
+  select(border_west) %>% 
+  pull()
+
+denomination <- read.csv(paste0("../../figs/02_part-2/tbl-5/", str_to_lower(region_name), ".csv")) %>% 
+  select(denomination) %>% 
+  pull()
 
 ```
 
-The `r region_i` GCRMN region ranges over a longitudinal axis of X km and a latitudinal axis of y km. The region hosts `r extent_abs` km^2^ of coral reefs, which represent `r extent_rel`% of the world’s coral reef extent. `r region_i` is the `r extent_rank` largest GCRMN region in terms of coral reef extent. A total of Y countries and territories host coral reefs of the region. Coral reefs range from Jordan and Israel in the North to Somalia in the South, and from Egypt in the West to Yemen in the East (**Fig. 2.`r nb_chapter`.1**).
+The `r region_i` GCRMN region ranges over a longitudinal axis of `r axis_long` km and a latitudinal axis of `r axis_lat` km. The region hosts `r extent_abs` km^2^ of coral reefs, which represent `r extent_rel`% of the world’s coral reef extent. `r region_i` is the `r extent_rank` largest GCRMN region in terms of coral reef extent. A total of `r nb_countries` `r denomination` host coral reefs of the region. Coral reefs range from `r border_north` in the North to `r border_south` in the South, and from `r border_west` in the West to `r border_east` in the East (**Fig. 2.`r nb_chapter`.1**).
 
 \
 
@@ -65,7 +105,7 @@ figure_path <- paste0("../../figs/02_part-2/fig-1/", str_to_lower(region_name), 
 
 ![](`r figure_path`){width=100%}
 
-**Figure 2.`r nb_chapter`.1.** Map of coral reef distribution and subregions of the `r region_i` region. Subregions are represented by white polygons. Only countries and territories adjacent to coral reefs of the region are labelled. Coral reefs are represented using a 20 km buffer to facilitate interpretation. Only coral reefs of the region are represented. The scale bar provides distance at the equator and may not accurately represent distance over the entire latitudinal range of the region. The borders represented on this map are not endorsed by the GCRMN.
+**Figure 2.`r nb_chapter`.1.** Distribution of coral reefs within the `r region_i` region and its respective sub-regions. Sub-regions are represented by white polygons. Only countries and territories adjacent to coral reefs of the region are labelled. Coral reefs are represented using a 20 km buffer to facilitate interpretation. Only coral reefs of the region are represented. Coral reef distribution data are from WRI, distribution may vary depending on the data source used. The scale bar provides distance at the equator and may not accurately represent distance over the entire latitudinal range of the region. The borders and nomenclature represented on this map are not endorsed by the GCRMN.
 
 \
 
@@ -115,7 +155,7 @@ min_reef_extent_value_rel <- data_reef_extent %>%
 
 ```
 
-The `r region_i` region is divided into `r nb_subregions` subregions (**Fig. 2.`r nb_chapter`.1**). Subregion 1 includes the Gulf of Suez and the Gulf of Aqaba in the North. Subregions 2 and 3 are separated by the Bab Al Mandab strait. Subregion 3 hosts Socotra Island. Subregion `r max_reef_extent_nb` host `r max_reef_extent_value_rel`% of coral reefs of the region (`r max_reef_extent_value_abs` km²) whereas subregion `r min_reef_extent_nb` host only `r min_reef_extent_value_rel`% of coral reefs of the region (`r min_reef_extent_value_abs` km²).
+The `r region_i` region is divided into `r nb_subregions` subregions (**Fig. 2.`r nb_chapter`.1**). [DESCRIPTION OF MAJOR REEF SYSTEMS IN EACH SUBREGIONS]. Sub-region `r max_reef_extent_nb` host `r max_reef_extent_value_rel`% of coral reefs of the region (`r max_reef_extent_value_abs` km²) whereas sub-region `r min_reef_extent_nb` host only `r min_reef_extent_value_rel`% of coral reefs of the region (`r min_reef_extent_value_abs` km²).
 
 ```{r echo=FALSE, message=FALSE}
 
@@ -136,68 +176,19 @@ pop_change_abs_max <- data_population %>% filter(subregion != "All") %>%
 
 ```
 
-A total of `r pop_2020` inhabitants was living within 5 km from coral reefs of the `r region_i` region in 2020. About X % of this total number of inhabitants is living in subregion X (name of subregion). From 2000 to 2020, the total number of inhabitants living within 5 km from coral reefs of the `r region_i` region increased by `r pop_change_rel`%, representing an annual increase of `r pop_change_abs` inhabitants, on average. Most of this increase occurred in subregion `r pop_change_abs_max`.
+From 2020, a total of `r pop_2020` inhabitants were living within 5 km of coral reefs of the `r region_i` region. [About X % of this total number of inhabitants is living in subregion X (name of subregion).] From 2000 to 2020, the region recorded an increase of `r pop_change_rel`% in the populations residing within 5 km of coral reefs, representing an average annual increase of `r pop_change_abs` inhabitants. The greatest increase in populations over this period was recorded in sub-region `r pop_change_abs_max` (**Supplementary Table X**).
+
+\
+
+TEXT ABOUT MPA
 
 \newpage
 
-## Benthic cover trends
+## Environmental pressures and disturbances
 
 \
 
-### Regional trends
-
-\
-
-**Figure 2.`r nb_chapter`.2.** Modeled temporal trends of benthic percentage cover in the `r region_i` region from 1980 to 2024 for hard coral (A), macroalgae (B), and turf algae (C). The bold line represents the estimated average benthic cover, lighter and darker ribbons represent 95% and 80% confidence intervals, respectively.
-
-\
-
-### Subregional trends
-
-\
-
-**Figure 2.`r nb_chapter`.3.** Modeled temporal trends of benthic percentage cover in `r region_i`’s subregions from 1980 to 2023 for hard coral (A), macroalgae (B), and turf algae (C). The bold line represents the estimated average benthic cover, lighter and darker ribbons represent 95% and 80% confidence intervals, respectively.
-
-\newpage
-
-## Monitoring data
-
-\
-
-```{r echo=FALSE, message=FALSE}
-
-data_monitoring <- read.csv(paste0("../../figs/02_part-2/tbl-1/", str_to_lower(region_name), ".csv")) %>% 
-  filter(subregion == "All")
-
-nb_datasets <- data_monitoring %>% select(nb_datasets) %>% pull()
-
-nb_sites <- data_monitoring %>% select(nb_sites) %>% pull()
-
-nb_surveys <- data_monitoring %>% select(nb_surveys) %>% pull()
-
-first_year <- data_monitoring %>% select(first_year) %>% pull()
-
-last_year <- data_monitoring %>% select(last_year) %>% pull()
-
-```
-
-The estimation of temporal trends in percentage cover of hard coral and algae from 1980 to 2024 was assessed using data of `r nb_sites` monitoring sites from `r nb_datasets` datasets, which represent `r nb_surveys` surveys conducted between `r first_year` to `r last_year`. Most of the data were surveyed between 20XX and 20XX (**Supplementary Figure 1**).
-
-\
-
-```{r echo=FALSE, message=FALSE}
-
-figure_path <- paste0("../../figs/02_part-2/fig-2/", str_to_lower(region_name), ".png")
-
-```
-
-![](`r figure_path`){width=100%}
-
-**Figure 2.`r nb_chapter`.4.** Spatiotemporal distribution of benthic cover monitoring sites across the `r region_i` region. Sites that were monitored for the longest period are represented on top of the sites monitored for fewer years. The scale bar provides distance at the equator and may not accurately represent distance over the entire latitudinal range of the region.
-
-\newpage
-
-## Sea Surface Temperature
+### Temperature regime
 
 \
 
@@ -217,7 +208,7 @@ warming_rate <- data_sst %>% select(warming_rate) %>%
 
 ```
 
-From 1985 to 2025, the long-term average of Sea Surface Temperature (SST) on coral reefs of `r region_i` was `r mean_sst`°C (**Supplementary Figure 1**). SST over coral reefs of `r region_i` have increased by `r sst_increase`°C between 1985 and 2025, which corresponds to an average warming rate of `r warming_rate`°C per year (**Supplementary Figure 1**).
+From 1985 to 2025, the long-term average of Sea Surface Temperature (SST) recorded over coral reefs within the `r region_i` region was `r mean_sst`°C (**Supplementary Figure 1**). Over this period, the SST over coral reefs the region increased by `r sst_increase`°C, which corresponds to an average warming rate of `r warming_rate`°C per year (**Supplementary Figure 1**).
 
 \
 
@@ -229,7 +220,7 @@ figure_path <- paste0("../../figs/02_part-2/fig-3/", str_to_lower(region_name), 
 
 ![](`r figure_path`){width=100%}
 
-**Figure 2.`r nb_chapter`.5.** Annuals mean Sea Surface Temperature (SST) anomalies (°C) over coral reefs of `r region_i` from 1986 to 2024. SST anomalies were calculated based on the long-term average over the period 1986-2024. Positive values (red bars) indicate SST warmer than the long-term average whereas negative values (blue bars) indicate SST cooler than the long-term average.
+**Figure 2.`r nb_chapter`.5.** Annual mean Sea Surface Temperature (SST) anomalies (°C) over the coral reefs of `r region_i` from 1986 to 2024. SST anomalies were calculated based on the long-term average over the period 1986-2024. Positive values (red bars) indicate SST warmer than the long-term average whereas negative values (blue bars) indicate SST cooler than the long-term average.
 
 \
 
@@ -241,15 +232,30 @@ figure_path <- paste0("../../figs/02_part-2/fig-4/", str_to_lower(region_name), 
 
 ![](`r figure_path`){width=100%}
 
-**Figure 2.`r nb_chapter`.6.** Percentage of coral reefs of `r region_i` experiencing heat stress levels. The level “No stress” corresponds to values of Degree Heating Weeks (DHW) below 0, the level “Alert 1” corresponds to DHW above 1 and lower or equal to 2.
+**Figure 2.`r nb_chapter`.6.** Percentage of the coral reefs within the `r region_i` region experiencing heat stress levels. The level “No stress” corresponds to values of Degree Heating Weeks (DHW) below 0, the level “Alert 1” corresponds to DHW above 1 and lower or equal to 2. [FILL THRESHOLDS]
 
 \newpage
 
-## Cyclones
+### Cyclones
 
 \
 
-From 1980 to 2025, a total of X cyclones were estimated to have passed within 100 km from coral reefs of `r region_i` region, representing an average of X (+/- X SD) cyclones per year (**Fig. 2.`r nb_chapter`.7**). The cyclone with the highest sustained wind speed over the studied period was the cyclone Veena, in 1983, which passed 14 km from a coral reef with sustained wind speed of 185 km.h^-1^ (**Fig. 2.`r nb_chapter`.8**).
+```{r echo=FALSE, message=FALSE}
+
+regional_cyclone_name <- case_when(region_i == "EAS" ~ "typhoons",
+                                   region_i == "Caribbean" ~ "hurricanes",
+                                   TRUE ~ "cyclones")
+
+first_sentence <- case_when(region_i == "EAS" ~ "In the EAS region, cyclones are known as typhoons. ",
+                            region_i == "Caribbean" ~ "In the Caribbean region, cyclones are known as hurricanes. ",
+                            TRUE ~ "")
+
+```
+
+
+`r first_sentence`From 1980 to 2025, a total of X `r regional_cyclone_name` have passed within 100 km of coral reefs within the `r region_i` region, representing an average of X (+/- X SD) `r regional_cyclone_name` per year (**Fig. 2.`r nb_chapter`.7**). The cyclone with the highest sustained wind speed over the studied period was the cyclone Veena, in 1983, which passed 14 km from a coral reef with sustained wind speed of 185 km.h^-1^ (**Fig. 2.`r nb_chapter`.8**).
+
+Although we selected the 100 km threshold, `r regional_cyclone_name` passing at a greater distance can have an impact coral reefs [1].
 
 \
 
@@ -275,35 +281,83 @@ figure_path <- paste0("../../figs/02_part-2/fig-7/", str_to_lower(region_name), 
 
 ![](`r figure_path`){width=100%}
 
-**Figure 2.`r nb_chapter`.8.**  Maximum sustained wind speed of tropical storms passed within 100 km of a coral reef of the `r region_i` region between 1980 and 2025. Colors correspond to the cyclone’s Saffir-Simpson category along the entire cyclone’s track. However, the values of sustained wind speed are extracted from the nearest tropical storm position from a coral reef. For this reason, some sustained wind speed values are below the lower threshold of category 1 Saffir-Simpson scale (*i.e.* 119 km.h^-1^). Note that cyclones passing more than 100 km away from coral reefs of `r region_i` are not represented, although they may have had an impact.
+**Figure 2.`r nb_chapter`.8.**  Maximum sustained wind speed of tropical storms passed within 100 km of a coral reef of the `r region_i` region between 1980 and 2025. Colors correspond to the cyclone’s Saffir-Simpson category along the entire cyclone’s track. However, the values of sustained wind speed are extracted from the nearest tropical storm position from a coral reef. For this reason, some sustained wind speed values are below the lower threshold of category 1 Saffir-Simpson scale (*i.e.* 119 km.h^-1^).
 
 \newpage
 
-## Other threats
-
-\
-
-### Subsection A
-
-\
-
-### Subsection B
-
-\
-
-### Subsection C
+### Other threats
 
 \newpage
 
-## Marine protected areas
+## Status of coral reefs
 
 \
 
-**Figure 2.`r nb_chapter`.9.** Marine Protected Areas (MPA) in the `r region_i`.
+### Regional trends
 
 \
+
+**Figure 2.`r nb_chapter`.2.** Modeled temporal trends of benthic percentage cover in the `r region_i` region from 1980 to 2024 for hard coral (A), macroalgae (B), turf algae (C), and coralline algae (D). The bold line represents the estimated average benthic cover, lighter and darker ribbons represent 95% and 80% confidence intervals, respectively.
+
+\
+
+### Subregional trends
+
+\
+
+**Figure 2.`r nb_chapter`.3.** Modeled temporal trends of benthic percentage cover in `r region_i`’s subregions from 1980 to 2023 for hard coral (A), macroalgae (B), turf algae (C), and coralline algae (D). The bold line represents the estimated average benthic cover, lighter and darker ribbons represent 95% and 80% confidence intervals, respectively.
+
+\newpage
+
+## Description of monitoring data
+
+\
+
+```{r echo=FALSE, message=FALSE}
+
+data_monitoring <- read.csv(paste0("../../figs/02_part-2/tbl-1/", str_to_lower(region_name), ".csv")) %>% 
+  filter(subregion == "All")
+
+nb_datasets <- data_monitoring %>% select(nb_datasets) %>% pull()
+
+nb_sites <- data_monitoring %>% select(nb_sites) %>% pull()
+
+nb_surveys <- data_monitoring %>% select(nb_surveys) %>% pull()
+
+first_year <- data_monitoring %>% select(first_year) %>% pull()
+
+last_year <- data_monitoring %>% select(last_year) %>% pull()
+
+surveys_90_perc <- data_monitoring %>% select(surveys_90_perc) %>% pull()
+
+```
+
+The estimation of temporal trends in percentage cover of benthic categories from 1980 to 2024 was assessed using data from `r nb_datasets` datasets, representing `r nb_sites` monitoring sites, which were acquired through `r nb_surveys` surveys conducted between `r first_year` to `r last_year`. On all of these surveys, 90% were assessed after `r surveys_90_perc` (**Supplementary Figure 1**).
+
+(**Supplementary Table 3**).
+
+\
+
+```{r echo=FALSE, message=FALSE}
+
+figure_path <- paste0("../../figs/02_part-2/fig-2/", str_to_lower(region_name), ".png")
+
+```
+
+![](`r figure_path`){width=100%}
+
+**Figure 2.`r nb_chapter`.4.** Spatio-temporal distribution of benthic cover monitoring sites across the `r region_i` region. Sites that were monitored for the longest period are represented on top of the sites monitored for fewer years. The scale bar provides distance at the equator and may not accurately represent distance over the entire latitudinal range of the region. The borders and nomenclature represented on this map are not endorsed by the GCRMN.
 
 \newpage
 
 ## References
+
+\
+
+[1] Puotinen, M., Drost, E., Lowe, R., Depczynski, M., Radford, B., Heyward, A., & Gilmour, J. (2020). Towards modelling the future risk of cyclone wave damage to the world's coral reefs. Global Change Biology, 26(8), 4302-4315.
+
+\newpage
+
+## Acknowledgments of contributions
+
 
