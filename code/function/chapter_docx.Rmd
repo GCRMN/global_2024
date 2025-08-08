@@ -38,7 +38,7 @@ require(flextable)
 
 <div custom-style="text">
 
-**Citation**: Firstname, S.,  Firstname, S., *etc* (2026). In Dallison T., Wicquart J., Gonzalez-Rivero, M., Towle, E.K., Brigdale, A., Staub, F., Planes, S. *Status and Trends of Coral Reefs of the World: 2025*. Global Coral Reef Monitoring Network (GCRMN) and International Coral Reef Initiative (ICRI). DOI.
+**Citation**: Firstname, S.,  Firstname, S., *et al.* (2026). *Chapter `r nb_chapter` - Status and Trends of Coral Reefs in `r region_i`*. In Dallison T., Wicquart J., Gonzalez-Rivero, M., Towle, E.K., Brigdale, A., Staub, F., Planes, S. *Status and Trends of Coral Reefs of the World: 2025*. Global Coral Reef Monitoring Network (GCRMN) and International Coral Reef Initiative (ICRI). DOI.
 
 </div>
 
@@ -49,7 +49,6 @@ require(flextable)
 <div custom-style="explanations">
 **[Number of words of the section: 500]**
 </div>
-
 
 <div custom-style="text">
 
@@ -113,9 +112,7 @@ denomination <- read.csv(paste0("../../figs/02_part-2/tbl-5/", str_to_lower(regi
 
 ```
 
-The `r region_i` GCRMN region ranges over a longitudinal axis of `r axis_long` km and a latitudinal axis of `r axis_lat` km. The region hosts `r extent_abs` km^2^ of coral reefs, which represent `r extent_rel`% of the world’s coral reef extent, and is the `r region_i` is the `r extent_rank` largest GCRMN region in terms of coral reef extent. Coral reefs reside within the Economic Exclusive Zones of `r nb_countries` `r denomination` within the region. Coral reefs range from `r border_north` in the North to `r border_south` in the South, and from `r border_west` in the West to `r border_east` in the East (**Fig. 2.`r nb_chapter`.1**).
-
-\
+The `r region_i` GCRMN region ranges over a longitudinal axis of `r axis_long` km and a latitudinal axis of `r axis_lat` km. The region hosts `r extent_abs` km^2^ of coral reefs, which represent `r extent_rel`% of the world’s coral reef extent, and is the `r region_i` is the `r extent_rank` largest GCRMN region in terms of coral reef extent. Coral reefs reside within the economic exclusive zones of `r nb_countries` `r denomination` within the region. Coral reefs range from `r border_north` in the North to `r border_south` in the South, and from `r border_west` in the West to `r border_east` in the East (**Fig. 2.`r nb_chapter`.1**).
 
 ```{r echo=FALSE, message=FALSE}
 
@@ -127,7 +124,7 @@ figure_path <- paste0("../../figs/02_part-2/fig-1/", str_to_lower(region_name), 
 
 **Figure 2.`r nb_chapter`.1.** The distribution of coral reefs within the `r region_i` region and its respective sub-regions. Sub-regions are represented by white polygons. Only countries and territories adjacent to coral reefs of the region are labelled. Coral reefs are represented using a 20 km buffer to facilitate interpretation. Only coral reefs of the region are represented. Coral reef distribution data are from WRI, distribution may vary depending on the data source used. The scale bar provides distance at the equator and may not accurately represent distance over the entire latitudinal range of the region. The borders and nomenclature represented on this map are not endorsed by the GCRMN.
 
-\
+\newpage
 
 ```{r echo=FALSE, message=FALSE}
 
@@ -175,7 +172,7 @@ min_reef_extent_value_rel <- data_reef_extent %>%
 
 ```
 
-The `r region_i` region is divided into `r nb_subregions` subregions (**Fig. 2.`r nb_chapter`.1**). Sub-region `r max_reef_extent_nb` host `r max_reef_extent_value_rel`% of coral reefs of the region (`r max_reef_extent_value_abs` km²) whereas sub-region `r min_reef_extent_nb` host only `r min_reef_extent_value_rel`% of coral reefs of the region (`r min_reef_extent_value_abs` km²). [*DESCRIPTION OF MAJOR REEF SYSTEMS, GULF, STRAITS, ETC IN THE SUBREGIONS*].
+The `r region_i` region is divided into `r nb_subregions` subregions (**Fig. 2.`r nb_chapter`.1**). Sub-region `r max_reef_extent_nb` host `r max_reef_extent_value_rel`% of coral reefs of the region (`r max_reef_extent_value_abs` km²) whereas sub-region `r min_reef_extent_nb` host only `r min_reef_extent_value_rel`% of coral reefs of the region (`r min_reef_extent_value_abs` km²).
 
 ```{r echo=FALSE, message=FALSE}
 
@@ -194,9 +191,14 @@ pop_change_abs_max <- data_population %>% filter(subregion != "All") %>%
   filter(pop_change_abs == max(pop_change_abs)) %>% 
   mutate(subregion = str_trim(gsub("[A-z]", "", subregion))) %>% select(subregion) %>% pull()
 
+pop_2020_max <- data_population %>% filter(subregion != "All") %>% 
+  filter(pop_2020 == max(pop_2020)) %>% 
+  select(subregion) %>% 
+  mutate(subregion = parse_number(subregion)) %>% pull()
+
 ```
 
-From 2020, a total of `r pop_2020` inhabitants were living within 5 km of coral reefs of the `r region_i` region. [About X % of this total number of inhabitants is living in subregion X (name of subregion).] From 2000 to 2020, the region recorded an increase of `r pop_change_rel`% in the populations residing within 5 km of coral reefs, representing an average annual increase of `r pop_change_abs` inhabitants. The greatest increase in populations over this period was recorded in sub-region `r pop_change_abs_max` (**Supplementary Table X**).
+From 2020, a total of `r pop_2020` inhabitants were living within 5 km of coral reefs of the `r region_i` region. From 2000 to 2020, the region recorded an increase of `r pop_change_rel`% in the populations residing within 5 km of coral reefs, representing an average annual increase of `r pop_change_abs` inhabitants. The greatest increase in populations over this period was recorded in sub-region `r pop_change_abs_max`, although the highest number of inhabitants in 2020 is located in sub-region `r pop_2020_max` (**Supplementary Table X**).
 
 <div custom-style="todo">
 A paragraph about percentage of coral reefs within MPAs will be added in a future version
@@ -210,15 +212,11 @@ A paragraph about percentage of coral reefs within MPAs will be added in a futur
 
 ## Environmental pressures and disturbances
 
-\
-
 ### Temperature regime
 
 <div custom-style="explanations">
 **[Number of words of the section: ~150]**
 </div>
-
-\
 
 <div custom-style="text">
 
@@ -252,6 +250,10 @@ figure_path <- paste0("../../figs/02_part-2/fig-3/", str_to_lower(region_name), 
 
 **Figure 2.`r nb_chapter`.5.** Annual mean Sea Surface Temperature (SST) anomalies (°C) over the coral reefs of `r region_i` from 1986 to 2024. SST anomalies were calculated based on the long-term average over the period 1986-2024. Positive values (red bars) indicate SST warmer than the long-term average whereas negative values (blue bars) indicate SST cooler than the long-term average.
 
+\newpage
+
+From 1986 to 2024, periods of major heat stress occurred in ...
+
 \
 
 ```{r echo=FALSE, message=FALSE}
@@ -262,7 +264,7 @@ figure_path <- paste0("../../figs/02_part-2/fig-4/", str_to_lower(region_name), 
 
 ![](`r figure_path`){width=100%}
 
-**Figure 2.`r nb_chapter`.6.** Percentage of the coral reefs within the `r region_i` region experiencing heat stress levels. The level “No stress” corresponds to values of Degree Heating Weeks (DHW) below 0, the level “Alert 1” corresponds to DHW above 1 and lower or equal to 2. [FILL THRESHOLDS]
+**Figure 2.`r nb_chapter`.6.** Percentage of the coral reefs within the `r region_i` region experiencing heat stress levels per year, from 1986 to 2024. The level “No stress” corresponds to values of Degree Heating Weeks (DHW) equal to 0, the level “Warning” to 0 < DHW < 4 (risk of possible bleaching), the level “Alert 1” to 4 <= DHW < 8 (risk of reef-wide bleaching), the level “Alert 2” to 8 <= DHW < 12 (risk of reef-wide bleaching with mortality of heat-sensitive corals), the level “Alert 3” to 12 <= DHW < 16 (risk of multi-species mortality), the level “Alert 4” to 16 <= DHW < 20 (risk of severe, multi-species mortality), the level “Alert 5” to 20 <= DHW (risk of near complete mortality).
 
 </div>
 
@@ -273,8 +275,6 @@ figure_path <- paste0("../../figs/02_part-2/fig-4/", str_to_lower(region_name), 
 <div custom-style="explanations">
 **[Number of words of the section: ~150]**
 </div>
-
-\
 
 <div custom-style="text">
 
@@ -288,12 +288,70 @@ first_sentence <- case_when(region_i == "EAS" ~ "In the EAS region, cyclones are
                             region_i == "Caribbean" ~ "In the Caribbean region, cyclones are known as hurricanes. ",
                             TRUE ~ "")
 
+load("../../data/07_cyclones/02_cyclones_extracted.RData")
+
+data_cyclones_nb <- data_cyclones %>%
+  st_drop_geometry() %>% 
+  mutate(region = str_squish(gsub("[[:digit:]]+", "", subregion))) %>% 
+  filter(region == region_i) %>% 
+  filter(saffir != 0) %>% 
+  group_by(region, saffir) %>% 
+  summarise(n = n_distinct(ts_id)) %>% 
+  group_by(region) %>% 
+  mutate(n_tot = sum(n)) %>% 
+  ungroup() %>% 
+  select(n_tot) %>% 
+  distinct() %>% 
+  pull()
+
+data_cyclones_year <- data_cyclones %>%
+  st_drop_geometry() %>% 
+  mutate(region = str_squish(gsub("[[:digit:]]+", "", subregion))) %>% 
+  filter(region == region_i) %>% 
+  filter(saffir != 0) %>%
+  mutate(year = year(time)) %>% 
+  group_by(region, year) %>% 
+  summarise(n = n_distinct(ts_id)) %>% 
+  ungroup() %>% 
+  complete(region, year = seq(1980, 2024, 1), fill = list(n = 0)) %>% 
+  group_by(region) %>% 
+  summarise(nb_mean = round(mean(n), 1),
+            nb_sd = round(sd(n), 1))
+
+data_cyclones_mean <- data_cyclones_year %>% select(nb_mean) %>% pull()
+
+data_cyclones_sd <- data_cyclones_year %>% select(nb_sd) %>% pull()
+
+data_cyclones_highest <- data_cyclones %>%
+  st_drop_geometry() %>% 
+  mutate(region = str_squish(gsub("[[:digit:]]+", "", subregion))) %>% 
+  filter(region == region_i) %>% 
+  filter(windspeed == max(windspeed, na.rm = TRUE))
+
+data_cyclones_highest_name <- data_cyclones_highest %>% 
+  mutate(ts_name = str_to_sentence(ts_name)) %>% 
+  select(ts_name) %>% 
+  pull()
+
+data_cyclones_highest_date <- data_cyclones_highest %>% 
+  mutate(date = paste0(str_to_sentence(month(time, label = TRUE, abbr = FALSE, locale="EN-us")),
+                       " ", year(time))) %>% 
+  select(date) %>% 
+  pull()
+
+data_cyclones_highest_speed <- data_cyclones_highest %>% 
+  select(windspeed) %>% 
+  mutate(windspeed = round(windspeed, 0)) %>% 
+  pull()
+
+data_cyclones_highest_dist <- data_cyclones_highest %>% 
+  select(dist) %>% 
+  mutate(dist = round(dist, 0)) %>% 
+  pull()
+
 ```
 
-
-`r first_sentence`From 1980 to 2025, a total of X `r regional_cyclone_name` have passed within 100 km of coral reefs within the `r region_i` region, representing an average of X (+/- X SD) `r regional_cyclone_name` per year (**Fig. 2.`r nb_chapter`.7**). The cyclone with the highest sustained wind speed over the studied period was the cyclone Veena, in 1983, which passed 14 km from a coral reef with sustained wind speed of 185 km.h^-1^ (**Fig. 2.`r nb_chapter`.8**).
-
-Although we selected the 100 km threshold, `r regional_cyclone_name` passing at a greater distance can have an impact coral reefs [1].
+`r first_sentence`From 1980 to 2025, a total of `r data_cyclones_nb` `r regional_cyclone_name` have passed within 100 km of coral reefs within the `r region_i` region, representing an average of `r data_cyclones_mean` ± `r data_cyclones_sd` SD `r regional_cyclone_name` per year (**Fig. 2.`r nb_chapter`.7**). The `r gsub('.{1}$', '', regional_cyclone_name)` with the highest sustained wind speed over the studied period was the `r gsub('.{1}$', '', regional_cyclone_name)` `r data_cyclones_highest_name`, in `r data_cyclones_highest_date`, which passed `r data_cyclones_highest_dist` km from a coral reef with sustained wind speed of `r data_cyclones_highest_speed` km.h^-1^ (**Fig. 2.`r nb_chapter`.8**). Although we selected the 100 km threshold, `r regional_cyclone_name` passing at a greater distance can have an impact coral reefs [1].
 
 \
 
@@ -331,8 +389,6 @@ figure_path <- paste0("../../figs/02_part-2/fig-7/", str_to_lower(region_name), 
 **[Number of words of the section: ~200 (350 if no cyclones section)]**
 </div>
 
-\
-
 \newpage
 
 ## Status of coral reefs in the region
@@ -350,8 +406,6 @@ The figure will be provided in a future version
 <div custom-style="text">
 
 **Figure 2.`r nb_chapter`.2.** Modeled temporal trends of benthic percentage cover in the `r region_i` region from 1980 to 2024 for hard coral (A), macroalgae (B), turf algae (C), and coralline algae (D). The bold line represents the estimated average benthic cover, lighter and darker ribbons represent 95% and 80% confidence intervals, respectively.
-
-\
 
 </div>
 
@@ -371,7 +425,7 @@ The figure will be provided in a future version
 
 <div custom-style="text">
 
-**Figure 2.`r nb_chapter`.3.** Modeled temporal trends of benthic percentage cover in `r region_i`’s subregions from 1980 to 2023 for hard coral (A), macroalgae (B), turf algae (C), and coralline algae (D). The bold line represents the estimated average benthic cover, lighter and darker ribbons represent 95% and 80% confidence intervals, respectively.
+**Figure 2.`r nb_chapter`.3.** Modeled temporal trends of benthic percentage cover in `r region_i`’s sub-regions from 1980 to 2023 for hard coral (A), macroalgae (B), turf algae (C), and coralline algae (D). The bold line represents the estimated average benthic cover, lighter and darker ribbons represent 95% and 80% confidence intervals, respectively.
 
 </div>
 
@@ -382,8 +436,6 @@ The figure will be provided in a future version
 <div custom-style="explanations">
 **[Number of words of the section: ~300]**
 </div>
-
-\
 
 <div custom-style="text">
 
@@ -404,13 +456,45 @@ last_year <- data_monitoring %>% select(last_year) %>% pull()
 
 surveys_90_perc <- data_monitoring %>% select(surveys_90_perc) %>% pull()
 
+surveys_sites_value <- read.csv(paste0("../../figs/02_part-2/tbl-1/", str_to_lower(region_name), ".csv")) %>% 
+  filter(subregion != "All") %>% 
+  mutate(across(c(nb_surveys, nb_sites), ~as.numeric(str_replace_all(.x, ",", "")))) %>% 
+  mutate(perc_surveys = nb_surveys*100/(sum(nb_surveys)),
+         perc_sites = nb_sites*100/(sum(nb_sites)))
+  
+min_surveys_value <- surveys_sites_value %>% 
+  filter(perc_surveys == min(perc_surveys)) %>% 
+  select(perc_surveys) %>% 
+  mutate(perc_surveys = format(round(perc_surveys, 1), big.mark = ",", scientific = FALSE)) %>% pull()
+
+min_surveys_name <- surveys_sites_value %>% 
+  filter(perc_surveys == min(perc_surveys)) %>% 
+  select(subregion) %>% 
+  mutate(subregion = parse_number(subregion)) %>% pull()
+
+min_sites_value <- surveys_sites_value %>% 
+  filter(perc_sites == min(perc_sites)) %>% 
+  select(perc_sites) %>% 
+  mutate(perc_sites = format(round(perc_sites, 1), big.mark = ",", scientific = FALSE)) %>% pull()
+
+max_surveys_value <- surveys_sites_value %>% 
+  filter(perc_surveys == max(perc_surveys)) %>% 
+  select(perc_surveys) %>% 
+  mutate(perc_surveys = format(round(perc_surveys, 1), big.mark = ",", scientific = FALSE)) %>% pull()
+
+max_surveys_name <- surveys_sites_value %>% 
+  filter(perc_surveys == max(perc_surveys)) %>% 
+  select(subregion) %>% 
+  mutate(subregion = parse_number(subregion)) %>% pull()
+
+max_sites_value <- surveys_sites_value %>% 
+  filter(perc_sites == max(perc_sites)) %>% 
+  select(perc_sites) %>% 
+  mutate(perc_sites = format(round(perc_sites, 1), big.mark = ",", scientific = FALSE)) %>% pull()
+
 ```
 
-The estimation of temporal trends in percentage cover of benthic categories from 1980 to 2024 was assessed using data from `r nb_datasets` datasets, representing `r nb_sites` monitoring sites, which were acquired through `r nb_surveys` surveys conducted between `r first_year` to `r last_year`. On all of these surveys, 90% were assessed after `r surveys_90_perc` (**Supplementary Figure 1**).
-
-Although X% of all monitoring (X% of sites) conducted in the region between 1980 and 2024 was carried out in sub-region X, only X% was carried out in sub-region X (X% of sites).
-
-(**Supplementary Table 3**).
+The estimation of temporal trends in percentage cover of benthic categories from 1980 to 2024 was assessed using data from `r nb_datasets` datasets, representing `r nb_sites` monitoring sites, which were acquired through `r nb_surveys` surveys conducted between `r first_year` to `r last_year`. On all of these surveys, 90% were assessed after `r surveys_90_perc` (**Supplementary Figure 1**). Although `r max_surveys_value`% of all surveys (`r max_sites_value`% of sites) conducted in the region between 1980 and 2024 was carried out in sub-region `r max_surveys_name`, only `r min_surveys_value`% was carried out in sub-region `r min_surveys_name` (`r min_sites_value`% of sites).
 
 \
 
@@ -432,8 +516,6 @@ figure_path <- paste0("../../figs/02_part-2/fig-2/", str_to_lower(region_name), 
 
 <div custom-style="text">
 
-\
-
 [1] Puotinen, M., Drost, E., Lowe, R., Depczynski, M., Radford, B., Heyward, A., & Gilmour, J. (2020). Towards modelling the future risk of cyclone wave damage to the world's coral reefs. Global Change Biology, 26(8), 4302-4315.
 
 </div>
@@ -441,8 +523,6 @@ figure_path <- paste0("../../figs/02_part-2/fig-2/", str_to_lower(region_name), 
 \newpage
 
 ## Acknowledgments of contributions
-
-\
 
 <div custom-style="explanations">
 

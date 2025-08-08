@@ -44,6 +44,4 @@ render_qmd <- function(region_i, upload_drive = FALSE){
 
 # 4. Map over the function ----
 
-render_qmd(region_i = "EAS", upload_drive = FALSE)
-
-#map(data_region$region, ~render_qmd(region_i = ., upload_drive = FALSE))
+map(data_region$region, ~render_qmd(region_i = ., upload_drive = FALSE))
