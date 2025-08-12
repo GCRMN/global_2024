@@ -99,6 +99,8 @@ ggsave("figs/01_part-1/fig-11.png", height = 5.3, width = 7.2, dpi = fig_resolut
 
 plot_dhw <- function(region_i){
   
+  # Create and export the plot 
+  
   plot_i <- ggplot(data = data_dhw_freq %>% filter(region == region_i & subregion == "All")) +
     geom_bar(aes(x = year, y = freq, fill = heatstress), stat = "identity") +
     scale_fill_manual(values = c("No Stress" = "lightgrey",
@@ -114,6 +116,20 @@ plot_dhw <- function(region_i){
   ggsave(filename = paste0("figs/02_part-2/fig-4/",
                            str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
          plot = plot_i, height = 5.3, width = 7.2, dpi = fig_resolution)
+  
+  # Export the data
+  
+  data_dhw_freq %>% 
+    filter(region == region_i) %>%
+    select(-nb_cells, -total_nb_cells, -region) %>%
+    mutate(freq = round(freq, 2)) %>%
+    pivot_wider(names_from = "heatstress", values_from = "freq") %>% 
+    select("subregion", "year", "No Stress", "Warning",
+           "Alert 1", "Alert 2", "Alert 3", "Alert 4", "Alert 5") %>% 
+    arrange(subregion, year) %>% 
+    openxlsx::write.xlsx(., paste0("figs/06_additional/data-heatstress_",
+                                   str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"),
+                                                   "---", "-"), ".xlsx"))
   
 }
 
@@ -165,11 +181,15 @@ data_sst <- data_sst %>%
   # Add mean_sst for each subregion
   left_join(., data_sst %>% 
               select(region, subregion, mean_sst) %>% 
-              distinct())
+              distinct()) %>% 
+  select(-intercept, -slope)
 
 ## 6.3. Export the full table ----
 
-openxlsx::write.xlsx(data_sst, file = "figs/06_additional/sst-long-term-mean-trend.xlsx")
+data_sst %>% 
+  mutate(across(c(sst_increase, mean_sst), ~format(round(.x, 2))),
+         warming_rate = format(round(warming_rate, 3))) %>% 
+  openxlsx::write.xlsx(., file = "figs/05_supp-mat/supp-tbl-3_reef-extent_sst-mean-trend.xlsx")
 
 ## 6.4. Export the table per region ----
 

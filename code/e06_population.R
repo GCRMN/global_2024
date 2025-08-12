@@ -21,7 +21,11 @@ data_population <- read.csv("data/02_misc/ind_human-pop_5km_subregion.csv") %>%
 
 # 3. Export the full table ----
 
-openxlsx::write.xlsx(data_population, file = "figs/06_additional/human_population.xlsx")
+data_population %>% 
+  select(-pop_2000) %>% 
+  mutate(across(c(pop_2020, pop_change_abs), ~format(round(.x, 0), big.mark = ",", scientific = FALSE)),
+         pop_change_rel = format(round(pop_change_rel, 2))) %>% 
+  openxlsx::write.xlsx(., file = "figs/05_supp-mat/supp-tbl-2_population.xlsx")
 
 # 4. Export the table per region ----
 

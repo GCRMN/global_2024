@@ -177,7 +177,7 @@ data_benthic %>%
   write.csv(., file = paste0("figs/01_part-1/tbl-1.csv"),
             row.names = FALSE)
 
-## 6.2 Regional ----
+## 6.2 Regional (individual table export) ----
 
 ### 6.2.1 Make the function to export the descriptors ----
 
@@ -199,7 +199,9 @@ export_descriptors <- function(gcrmn_region){
                          nb_surveys = 0,
                          nb_datasets = 0,
                          first_year = NA,
-                         last_year = NA)) %>% 
+                         last_year = NA,
+                         surveys_90_perc = NA)) %>% 
+    mutate(region = str_trim(str_remove_all(subregion, "[0-9]"))) %>% 
     bind_rows(., data_benthic %>% 
                 filter(region == gcrmn_region) %>% 
                 data_descriptors() %>% 
@@ -216,7 +218,38 @@ export_descriptors <- function(gcrmn_region){
 
 map(unique(data_region$region), ~export_descriptors(gcrmn_region = .))
 
-## 6.3 By region and country ----
+## 6.3 Regional (full table export) ----
+
+data_benthic %>% 
+  group_by(region, subregion) %>% 
+  data_descriptors() %>% 
+  ungroup() %>% 
+  # Add subregion with no data
+  complete(subregion = data_region %>% 
+             select(subregion) %>% 
+             st_drop_geometry() %>% 
+             distinct() %>% 
+             pull(),
+           fill = list(nb_sites = 0,
+                       nb_surveys = 0,
+                       nb_datasets = 0,
+                       first_year = NA,
+                       last_year = NA,
+                       surveys_90_perc = NA)) %>% 
+             mutate(region = str_trim(str_remove_all(subregion, "[0-9]"))) %>% 
+  bind_rows(., data_benthic %>% 
+              group_by(region) %>% 
+              data_descriptors() %>% 
+              mutate(subregion = "All")) %>% 
+  bind_rows(., data_benthic %>% 
+              data_descriptors() %>% 
+              mutate(region = "All", subregion = "All")) %>% 
+  mutate(across(c(nb_sites, nb_surveys), ~format(.x, big.mark = ",", scientific = FALSE))) %>% 
+  relocate(region, .before = subregion) %>% 
+  arrange(region, subregion, .locale = "en") %>% 
+  openxlsx::write.xlsx(., file = "figs/05_supp-mat/supp-tbl-4_monitoring.xlsx", rowNames = FALSE)
+
+## 6.4 By region and country ----
 
 data_benthic %>% 
   group_by(region, country) %>% 
@@ -226,7 +259,7 @@ data_benthic %>%
   write.csv(., file = "figs/06_additional/monitoring_region-country.csv",
             row.names = FALSE)
 
-## 6.4 By country ----
+## 6.5 By country ----
 
 data_benthic %>% 
   group_by(country) %>% 
