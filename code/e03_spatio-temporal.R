@@ -256,7 +256,7 @@ data_benthic %>%
   data_descriptors() %>% 
   ungroup() %>% 
   mutate(across(c(nb_sites, nb_surveys), ~format(.x, big.mark = ",", scientific = FALSE))) %>% 
-  write.csv(., file = "figs/06_additional/monitoring_region-country.csv",
+  write.csv(., file = "figs/06_additional/02_data-exploration/monitoring_region-country.csv",
             row.names = FALSE)
 
 ## 6.5 By country ----
@@ -266,7 +266,7 @@ data_benthic %>%
   data_descriptors() %>% 
   ungroup() %>% 
   mutate(across(c(nb_sites, nb_surveys), ~format(.x, big.mark = ",", scientific = FALSE))) %>% 
-  write.csv(., file = "figs/06_additional/monitoring_country.csv",
+  write.csv(., file = "figs/06_additional/02_data-exploration/monitoring_country.csv",
             row.names = FALSE)
 
 # 7. Number of surveys per year ----
@@ -316,7 +316,8 @@ plot_surveys_year <- function(gcrmn_region){
     theme_graph() +
     scale_x_continuous(expand = c(0, 0), limits = c(1979, 2026))
   
-  ggsave(paste0("figs/06_additional/surveys-year_", str_replace_all(str_to_lower(gcrmn_region), " ", "-"), ".png"),
+  ggsave(paste0("figs/06_additional/02_data-exploration/surveys-year_",
+                str_replace_all(str_to_lower(gcrmn_region), " ", "-"), ".png"),
          width = 5, height = 4, dpi = fig_resolution)
   
 }
@@ -387,7 +388,8 @@ plot_surveys_depth <- function(gcrmn_region){
     theme_graph() +
     scale_x_continuous(expand = c(0, 0), limits = c(-1, 40))
   
-  ggsave(paste0("figs/06_additional/surveys-depth_", str_replace_all(str_to_lower(gcrmn_region), " ", "-"), ".png"),
+  ggsave(paste0("figs/06_additional/02_data-exploration/surveys-depth_",
+                str_replace_all(str_to_lower(gcrmn_region), " ", "-"), ".png"),
          width = 5, height = 4, dpi = fig_resolution)
   
 }
@@ -509,7 +511,7 @@ plot_year_dataset <- function(region_i){
     
   }
   
-  ggsave(filename = paste0("figs/06_additional/nb-sites_year-datasetid_",
+  ggsave(filename = paste0("figs/06_additional/02_data-exploration/nb-sites_year-datasetid_",
                            str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
          plot = plot_i, height = (2 + (3*0.3*nb_datasets_i)), width = 9, dpi = fig_resolution)
   

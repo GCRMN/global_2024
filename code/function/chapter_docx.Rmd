@@ -173,7 +173,7 @@ min_reef_extent_value_rel <- data_reef_extent %>%
 
 ```
 
-The `r region_i` region is divided into `r nb_subregions` subregions (**Fig. 2.`r nb_chapter`.1**). Sub-region `r max_reef_extent_nb` hosts `r max_reef_extent_value_rel`% of coral reefs in the region (`r max_reef_extent_value_abs` km²) whereas sub-region `r min_reef_extent_nb` hosts only `r min_reef_extent_value_rel`% of coral reefs in the region (`r min_reef_extent_value_abs` km²).
+The `r region_i` region is divided into `r nb_subregions` subregions (**Fig. 2.`r nb_chapter`.1**). Sub-region `r max_reef_extent_nb` hosts `r max_reef_extent_value_rel`% of coral reefs in the region (`r max_reef_extent_value_abs` km²) whereas sub-region `r min_reef_extent_nb` hosts only `r min_reef_extent_value_rel`% of coral reefs in the region (`r min_reef_extent_value_abs` km², **Supp. Table 1**).
 
 ```{r echo=FALSE, message=FALSE}
 
@@ -199,7 +199,7 @@ pop_2020_max <- data_population %>% filter(subregion != "All") %>%
 
 ```
 
-As of 2020, a total of `r pop_2020` inhabitants were living within 5 km of coral reefs. From 2000 to 2020, the region recorded a `r pop_change_rel`% increase in populations residing within 5 km of coral reefs, representing an average annual increase of `r pop_change_abs` inhabitants. The greatest increase in populations over this period was recorded in sub-region `r pop_change_abs_max`, although the highest number of inhabitants in 2020 was located in sub-region `r pop_2020_max` (**Supplementary Table X**).
+As of 2020, a total of `r pop_2020` inhabitants were living within 5 km of coral reefs. From 2000 to 2020, the region recorded a `r pop_change_rel`% increase in populations residing within 5 km of coral reefs, representing an average annual increase of `r pop_change_abs` inhabitants. The greatest increase in populations over this period was recorded in sub-region `r pop_change_abs_max`, although the highest number of inhabitants in 2020 was located in sub-region `r pop_2020_max` (**Supp. Table 2**).
 
 <div custom-style="todo">
 A paragraph about percentage of coral reefs within MPAs will be added in a future version
@@ -237,7 +237,7 @@ warming_rate <- data_sst %>% select(warming_rate) %>%
 
 ```
 
-From 1985 to 2024, the long-term average of Sea Surface Temperature (SST) recorded over coral reefs within the `r region_i` region was `r mean_sst`°C (**Supplementary Figure 1**). During this period, the SST over coral reefs in the region increased by `r sst_increase`°C, corresponding to an average warming rate of `r warming_rate`°C per year (**Supplementary Figure 1**).
+From 1985 to 2024, the long-term average of Sea Surface Temperature (SST) recorded over coral reefs within the `r region_i` region was `r mean_sst`°C (**Supp. Figure 1**). During this period, the SST over coral reefs in the region increased by `r sst_increase`°C, corresponding to an average warming rate of `r warming_rate`°C per year (**Supp. Table 3**).
 
 \
 
@@ -495,7 +495,7 @@ max_sites_value <- surveys_sites_value %>%
 
 ```
 
-Temporal trends in the percentage cover of benthic categories from 1980 to 2024 were estimated using data from `r nb_datasets` datasets encompassing `r nb_sites` monitoring sites. These data were collected through `r nb_surveys` surveys conducted between `r first_year` and `r last_year`, with 90% of surveys taking place after `r surveys_90_perc` (**Supplementary Figure 1**). Of all surveys carried out in the region between 1980 and 2024, `r max_surveys_value`% (representing `r max_sites_value`% of surveyed sites) were conducted in sub-region `r max_surveys_name`, whereas only `r min_surveys_value`% (`r min_sites_value`% of sites) were conducted in sub-region `r min_surveys_name`.
+Temporal trends in the percentage cover of benthic categories from 1980 to 2024 were estimated using data from `r nb_datasets` datasets encompassing `r nb_sites` monitoring sites. These data were collected through `r nb_surveys` surveys conducted between `r first_year` and `r last_year`, with 90% of surveys taking place after `r surveys_90_perc` (**Supp. Figure 2**). Of all surveys carried out in the region between 1980 and 2024, `r max_surveys_value`% (representing `r max_sites_value`% of surveyed sites) were conducted in sub-region `r max_surveys_name`, whereas only `r min_surveys_value`% (`r min_sites_value`% of sites) were conducted in sub-region `r min_surveys_name` (**Supp. Table 4**).
 
 \
 

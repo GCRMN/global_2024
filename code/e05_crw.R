@@ -127,7 +127,7 @@ plot_dhw <- function(region_i){
     select("subregion", "year", "No Stress", "Warning",
            "Alert 1", "Alert 2", "Alert 3", "Alert 4", "Alert 5") %>% 
     arrange(subregion, year) %>% 
-    openxlsx::write.xlsx(., paste0("figs/06_additional/data-heatstress_",
+    openxlsx::write.xlsx(., paste0("figs/06_additional/06_threats/data-heatstress_",
                                    str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"),
                                                    "---", "-"), ".xlsx"))
   

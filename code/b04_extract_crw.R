@@ -74,7 +74,7 @@ extract_ssta_mean_year <- function(row_nb, data_reef = data_reef){
   
   download.file(url = list_url_i[1, "url"],
                 destfile = paste0("data/04_crw/", list_url_i[1, "filename"]),
-                mode = "wb",   # Use mode "wb" for windows otherwise issue to read the file with terra
+                mode = "wb", # Use mode "wb" for windows otherwise issue to read the file with terra
                 timeout = max(600, getOption("timeout"))) # 600 seconds to download the file, else error message
   
   # C. Load the raster
@@ -143,7 +143,7 @@ extract_dhw_max_percent_year <- function(row_nb, data_reef = data_reefs, data_ve
   
   download.file(url = list_url_i[1, "url"],
                 destfile = paste0("data/04_crw/", list_url_i[1, "filename"]),
-                mode = "wb",   # Use mode "wb" for windows otherwise issue to read the file with terra
+                mode = "wb", # Use mode "wb" for windows otherwise issue to read the file with terra
                 timeout = max(600, getOption("timeout"))) # 600 seconds to download the file, else error message
   
   # C. Load the raster
@@ -213,7 +213,7 @@ extract_sst_day <- function(row_nb, data_reef = data_reefs, data_vect = data_vec
   
   download.file(url = list_url_i[1, "url"],
                 destfile = paste0("data/04_crw/", list_url_i[1, "filename"]),
-                mode = "wb",   # Use mode "wb" for windows otherwise issue to read the file with terra
+                mode = "wb", # Use mode "wb" for windows otherwise issue to read the file with terra
                 timeout = max(600, getOption("timeout"))) # 600 seconds to download the file, else error message
   
   # C. Load the raster
