@@ -20,14 +20,14 @@ data_benthic %>%
   summarise(datasetID = paste0(datasetID, collapse = ", ")) %>% 
   left_join(data_region %>% st_drop_geometry(), .) %>% 
   arrange(region) %>% 
-  openxlsx::write.xlsx(., file = "figs/06_additional/tbl-1_datasetid-per-region.xlsx")
+  openxlsx::write.xlsx(., file = "figs/05_supp-mat/tbl-1_datasetid-per-region.xlsx")
 
 # 4. List of contributors per datasetID ----
 
 read_xlsx("C:/Users/jerem/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benthos/gcrmndb_benthos/data/05_data-sources.xlsx") %>% 
   filter(datasetID %in% unique(data_benthic$datasetID)) %>% 
   select(datasetID, rightsHolder, last_name, first_name, email) %>% 
-  openxlsx::write.xlsx(., file = "figs/06_additional/tbl-2_contacts-contributors-per-datasetid.xlsx")
+  openxlsx::write.xlsx(., file = "figs/06_additional/05_contributors/contributors_datasetid.xlsx")
 
 # 5. List of contributors emails ----
 
@@ -36,7 +36,7 @@ read_xlsx("C:/Users/jerem/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benth
   select(last_name, first_name, email) %>% 
   distinct() %>% 
   arrange(last_name) %>% 
-  openxlsx::write.xlsx(., file = "figs/06_additional/tbl-3_list-contacts-data-contributors.xlsx")
+  openxlsx::write.xlsx(., file = "figs/06_additional/05_contributors/contributors_contacts.xlsx")
 
 # 6. List of contributors' names per region ----
 
@@ -56,7 +56,7 @@ read_xlsx("C:/Users/jerem/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benth
   group_by(region) %>% 
   mutate(name = paste0(name, collapse = ", ")) %>% 
   distinct() %>% 
-  openxlsx::write.xlsx(., file = "figs/06_additional/tbl-4_data-contributors-names-per-datasetid.xlsx")
+  openxlsx::write.xlsx(., file = "figs/06_additional/05_contributors/contributors_region.xlsx")
 
 # 7. List of contributors' contacts per region ----
 
@@ -67,6 +67,8 @@ read_xlsx("C:/Users/jerem/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benth
               select(region, datasetID) %>% 
               distinct(),
             .) %>% 
-  arrange(region, datasetID) %>% 
+  select(region, last_name, first_name, email) %>% 
+  arrange(region, last_name) %>% 
   distinct() %>% 
-  openxlsx::write.xlsx(., file = "figs/06_additional/tbl-5_contacts-contributors-per-region.xlsx")
+  drop_na(last_name) %>% 
+  openxlsx::write.xlsx(., file = "figs/06_additional/05_contributors/contributors_region_contacts.xlsx")
