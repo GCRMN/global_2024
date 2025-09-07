@@ -1,0 +1,387 @@
+---
+title: "Exploration of benthic cover data"
+format: html
+editor: source
+toc: true
+toc-depth: 4
+toc-expand: true
+---
+
+**_Status of Coral Reefs of the World: 2025_**
+
+Global Coral Reef Monitoring Network (GCRMN)
+
+
+
+```{r}
+#| include: false
+
+# 1. Load packages ----
+
+library(tidyverse)
+library(kableExtra)
+library(patchwork)
+library(ggtext)
+library(glue)
+library(sf)
+sf_use_s2(FALSE)
+
+# 2. Source functions ----
+
+source("../code/function/graphical_par.R")
+source("../code/function/theme_graph.R")
+source("../code/function/prepare_benthic_data.R")
+source("../code/function/add_colors.R")
+
+# 3. Transform data ----
+
+load("../data/02_misc/data-benthic.RData")
+
+data_benthic_cover <- prepare_benthic_data(data = data_benthic)
+
+rm(data_benthic)
+
+```
+
+## Data per category
+
+### Global
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| tbl-cap: Benthic categories per territory.
+
+data_dataset <- data_benthic_cover %>% 
+  select(category, datasetID) %>% 
+  distinct() %>% 
+  group_by(category) %>% 
+  mutate(dataset = n_distinct(datasetID)) %>% 
+  ungroup() %>% 
+  complete(category, fill = list(dataset = 0)) %>% 
+  mutate(dataset_total = n_distinct(datasetID, na.rm = TRUE)) %>% 
+  mutate(Datasets = paste(dataset, "/", dataset_total)) %>% 
+  select(category, Datasets) %>% 
+  distinct()
+
+data_regions <- data_benthic_cover %>% 
+  select(region, category) %>% 
+  distinct() %>% 
+  group_by(category) %>% 
+  count(name = "Regions") %>% 
+  ungroup() %>% 
+  mutate(Regions = paste0(Regions, " / ", length(unique(data_benthic_cover$region))))
+
+data_subregions <- data_benthic_cover %>% 
+  select(subregion, category) %>% 
+  distinct() %>% 
+  group_by(category) %>% 
+  count(name = "Subregions") %>% 
+  ungroup() %>% 
+  mutate(Subregions = paste0(Subregions, " / ", length(unique(data_benthic_cover$subregion))))
+
+data_site <- data_benthic_cover %>% 
+  select(category, decimalLatitude, decimalLongitude) %>% 
+  distinct() %>% 
+  group_by(category) %>% 
+  mutate(site = n_distinct(decimalLatitude, decimalLongitude)) %>% 
+  ungroup() %>% 
+  complete(category, fill = list(dataset = 0)) %>% 
+  mutate(site_total = n_distinct(decimalLatitude, decimalLongitude)) %>% 
+  mutate(Sites = paste(format(site, big.mark = ","), "/", format(site_total, big.mark = ","))) %>% 
+  select(category, Sites) %>% 
+  distinct()
+
+data_survey <- data_benthic_cover %>% 
+  select(category, decimalLatitude, decimalLongitude, year, month, day, eventDate) %>% 
+  distinct() %>% 
+  group_by(category) %>% 
+  mutate(survey = n_distinct(decimalLatitude, decimalLongitude, year, month, day, eventDate)) %>% 
+  ungroup() %>% 
+  complete(category, fill = list(dataset = 0)) %>% 
+  mutate(survey_total = n_distinct(decimalLatitude, decimalLongitude, year, month, day, eventDate)) %>% 
+  mutate(Surveys = paste(format(survey, big.mark = ","), "/", format(survey_total, big.mark = ","))) %>% 
+  select(category, Surveys) %>% 
+  distinct()
+
+left_join(data_dataset, data_regions) %>% 
+  left_join(., data_subregions) %>% 
+  left_join(., data_site) %>% 
+  left_join(., data_survey) %>%
+  rename(Category = category) %>% 
+  kable(., align = "c") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: Distribution of surveys which assessed the percentage cover of the benthic categories over time.
+#| fig-height: 5
+
+# 2. Create a function to produce the plots ----
+
+plot_category <- function(category_i){
+  
+data_benthic_cover %>% 
+  select(category, decimalLatitude, decimalLongitude, year, month, day, eventDate) %>% 
+  distinct() %>% 
+  group_by(category, year) %>% 
+  mutate(survey = n_distinct(decimalLatitude, decimalLongitude, year, month, day, eventDate)) %>% 
+  ungroup() %>% 
+  complete(category, year, fill = list(dataset = 0)) %>% 
+  select(category, year, survey) %>% 
+  distinct() %>% 
+  filter(category == category_i) %>% 
+  ggplot(data = ., aes(x = year, y = survey)) +
+    geom_bar(stat = "identity", show.legend = FALSE, width = 1,
+             color = palette_first[4], fill = palette_first[3]) +
+    labs(x = "Year", y = "Number of surveys") +
+    coord_cartesian(clip = "off") +
+    theme_graph() +
+    theme(strip.background = element_blank()) +
+    scale_x_continuous(expand = c(0, 0), limits = c(1980, NA))
+
+}
+
+map(sort(unique(data_benthic_cover$category)), ~plot_category(category_i = .))
+
+```
+
+### Regional
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| tbl-cap: Benthic categories per region.
+
+data_dataset <- data_benthic_cover %>% 
+  select(region, category, datasetID) %>% 
+  distinct() %>% 
+  group_by(region, category) %>% 
+  mutate(dataset = n_distinct(datasetID)) %>% 
+  ungroup() %>% 
+  complete(region, category, fill = list(dataset = 0)) %>%
+  group_by(region) %>% 
+  mutate(dataset_total = n_distinct(datasetID, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  mutate(Datasets = paste(dataset, "/", dataset_total)) %>% 
+  select(region, category, Datasets) %>% 
+  distinct()
+
+data_site <- data_benthic_cover %>% 
+  select(region, category, decimalLatitude, decimalLongitude) %>% 
+  distinct() %>% 
+  group_by(region, category) %>% 
+  mutate(site = n_distinct(decimalLatitude, decimalLongitude)) %>% 
+  ungroup() %>% 
+  complete(region, category, fill = list(site = 0)) %>% 
+  group_by(region) %>% 
+  mutate(site_total = n_distinct(decimalLatitude, decimalLongitude, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  mutate(Sites = paste(format(site, big.mark = ","), "/", format(site_total, big.mark = ","))) %>% 
+  select(region, category, Sites) %>% 
+  distinct()
+
+data_survey <- data_benthic_cover %>% 
+  select(region, category, decimalLatitude, decimalLongitude, year, month, day, eventDate) %>% 
+  distinct() %>% 
+  group_by(region, category) %>% 
+  mutate(survey = n_distinct(decimalLatitude, decimalLongitude, year, month, day, eventDate)) %>% 
+  ungroup() %>% 
+  complete(region, category, fill = list(survey = 0)) %>% 
+  group_by(region) %>% 
+  mutate(survey_total = n_distinct(decimalLatitude, decimalLongitude, year, month, day, eventDate)) %>% 
+  ungroup() %>% 
+  mutate(Surveys = paste(format(survey, big.mark = ","), "/", format(survey_total, big.mark = ","))) %>% 
+  select(region, category, Surveys) %>% 
+  distinct()
+
+left_join(data_dataset, data_site) %>% 
+  left_join(., data_survey) %>%
+  rename(Category = category, Region = region) %>% 
+  kable(., align = "c") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+```
+
+## Distribution
+
+### Global
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+ggplot() +
+  geom_density(data = data_benthic_cover, aes(x = measurementValue), fill = "lightgrey") +
+  facet_wrap(~category, ncol = 3) +
+  theme_graph() + 
+  lims(x = c(0, 100)) +
+  labs(x = "Percentage cover", y = "Density") +
+  theme(strip.text = element_text(hjust = 0.5, face = "bold"),
+        text = element_text(size = 9),
+        axis.text = element_text(size = 10),
+        strip.text.x = element_text(size = 10),
+        strip.background = element_rect(color = NA, fill = "white"))
+
+```
+
+### Regional
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-height: 5
+
+plot_density <- function(region_i){
+  
+  data_benthic_cover_i <- data_benthic_cover %>% 
+  filter(region == region_i)
+
+  ggplot() +
+    geom_density(data = data_benthic_cover, aes(x = measurementValue), fill = "lightgrey", alpha = 0.7) +
+    geom_density(data = data_benthic_cover_i, aes(x = measurementValue), fill = "#89c4f4", alpha = 0.7) +
+    facet_wrap(~category, scales = "free") +
+    theme_graph() + 
+    lims(x = c(0, 100)) +
+    labs(x = "Cover", y = "Density", title = region_i) +
+    theme(strip.text = element_text(hjust = 0.5, face = "bold"),
+          text = element_text(size = 9),
+          axis.text = element_text(size = 10),
+          strip.text.x = element_text(size = 10),
+          plot.title = element_text(color = "#89c4f4", size = 15, face = "bold"),
+          strip.background = element_rect(color = NA, fill = "white"))
+  
+}
+
+map(sort(unique(data_benthic_cover$region)), ~plot_density(region_i = .x))
+
+```
+
+## Raw trends
+
+### Global
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+data_benthic_cover_year <- data_benthic_cover %>% 
+  # Subregion
+  group_by(category, year, region, subregion) %>% 
+  summarise(mean = mean(measurementValue),
+            sd = sd(measurementValue)) %>% 
+  ungroup() %>% 
+  # Region
+  bind_rows(., data_benthic_cover %>% 
+  group_by(category, year, region) %>% 
+  summarise(mean = mean(measurementValue),
+            sd = sd(measurementValue)) %>% 
+  ungroup()) %>% 
+  # Global
+  bind_rows(., data_benthic_cover %>% 
+              group_by(category, year) %>% 
+              summarise(mean = mean(measurementValue),
+                        sd = sd(measurementValue)) %>% 
+              ungroup() %>% mutate(region = "Global")) %>% 
+  mutate(ymin = mean - sd,
+         ymin = ifelse(ymin < 0, 0, ymin),
+         ymax = mean + sd) %>% 
+  add_colors()
+
+plot_trends <- function(region_i, scale){
+  
+  if(scale == "subregional"){
+    
+    data_i <- data_benthic_cover_year %>% 
+      filter(region == region_i & !(is.na(subregion)))
+      
+  }else{
+    
+    data_i <- data_benthic_cover_year %>% 
+      filter(region == region_i & is.na(subregion))
+    
+  }
+  
+  height_figure <- length(unique(data_i$subregion))*3.2
+
+  plot_i <- ggplot(data = data_i) +
+    geom_pointrange(aes(x = year, y = mean, ymin = ymin, ymax = ymax, color = color),
+                    size = 0.25) +
+    scale_color_identity() +
+    theme_graph() +
+    lims(y = c(0, NA), x = c(1980, 2025)) +
+    labs(x = "Year", y = "Cover (%)") +
+    {if(scale == "subregional")
+      facet_grid(subregion~text_title)
+      else facet_wrap(~text_title)} +
+    theme(strip.text.x = element_markdown(hjust = 0, size = rel(1.3)),
+          strip.text.y = element_markdown(hjust = 0.5, size = rel(1.3)),
+          strip.background = element_blank(),
+          panel.spacing = unit(2, "lines"))
+  
+  # Save the plot
+  
+  if(scale == "global"){
+    
+    ggsave(plot = plot_i,
+           filename = "../figs/06_additional/04_benthic-trends/raw-trends_global.png",
+           width = 10, height = 5)
+    
+    return(plot_i)
+
+  }else if(scale == "regional"){
+    
+    ggsave(plot = plot_i,
+           filename = paste0("../figs/06_additional/04_benthic-trends/raw-trends_region_",
+                             str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"),
+                                                                   "---", "-"),
+                             ".png"),
+           width = 10, height = 5)
+
+  }else if(scale == "subregional"){
+    
+    ggsave(plot = plot_i,
+           filename = paste0("../figs/06_additional/04_benthic-trends/raw-trends_subregion_",
+                             str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"),
+                                                                   "---", "-"),
+                             ".png"),
+           width = 10, height = height_figure)
+    
+  }else{
+    
+    stop("scale must be 'global', 'regional', or 'subregional'")
+    
+  }
+
+}
+
+plot_trends(scale = "global", region_i = "Global")
+
+```
+
+### Regional
+
+```{r}
+
+map(setdiff(unique(data_benthic_cover_year$region), "Global"),
+    ~plot_trends(scale = "regional", region_i = .x))
+
+```
+
+### Subregional
+
+```{r}
+
+map(setdiff(unique(data_benthic_cover_year$region), "Global"),
+    ~plot_trends(scale = "subregional", region_i = .x))
+
+```

@@ -20,7 +20,7 @@ data_benthic <- synthetic_data %>%
   filter(!(datasetID %in% c("0009"))) %>%
   filter(!(region == "Brazil" & datasetID == "0015")) %>% 
   # Filter data on the period of interest
-  filter(year >= 1980 & year <= 2024) %>% 
+  filter(year >= 1980 & year <= 2025) %>% 
   # Filter depth of shallow coral reefs
   filter(is.na(verbatimDepth) | verbatimDepth <= 30)
 
