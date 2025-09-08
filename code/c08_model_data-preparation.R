@@ -14,16 +14,36 @@ load("data/02_misc/data-benthic.RData")
 
 # 3. Load and combine predictors ----
 
-## 3.1 Add area to each site ----
+## 3.1 Add spatial variables to each site ----
 
-### 3.1.1 First assignation ----
+### 3.1.1 Region and subregion ----
 
 data_region <- st_read("data/01_maps/02_clean/04_subregions/gcrmn_subregions.shp")
 
 data_predictors <- st_read("data/03_site-coords/site-coords_all.shp") %>% 
   st_join(., data_region)
 
-### 3.1.2 Generate all years ----
+### 3.1.2 Ecoregion ----
+
+data_ecoregion <- st_read("data/01_maps/02_clean/05_ecoregions/gcrmn_ecoregions.shp")
+
+data_predictors <- st_join(data_predictors, data_ecoregion)
+
+### 3.1.3 Country and territory ----
+
+data_eez <- st_read("data/01_maps/01_raw/05_eez/eez_v12.shp") %>% 
+  rename(country = SOVEREIGN1, territory = TERRITORY1) %>% 
+  select(country, territory)
+
+data_predictors <- st_join(data_predictors, data_eez) %>% 
+  bind_cols(., st_coordinates(.)) %>% 
+  rename(decimalLatitude = Y, decimalLongitude = X) %>% 
+  st_drop_geometry() %>% 
+  left_join(data_predictors, .)
+
+rm(data_region, data_ecoregion, data_eez)
+
+## 3.2 Generate all years ----
 
 data_predictors <- data_predictors %>% 
   mutate(decimalLongitude = st_coordinates(.)[,"X"],
@@ -32,7 +52,8 @@ data_predictors <- data_predictors %>%
   mutate(site_id = as.numeric(site_id),
          year = 2000) %>% 
   tidyr::complete(year = seq(1980, 2024), nesting(site_id, type, region,
-                                                  subregion, decimalLongitude, decimalLatitude))
+                                                  subregion, ecoregion, country, territory,
+                                                  decimalLongitude, decimalLatitude))
 
 ## 3.3 Estimate human population for missing years ----
 
@@ -135,7 +156,8 @@ data_predictors <- read.csv("data/08_predictors/pred_ssta_mean.csv") %>%
   left_join(data_predictors, .)
 
 data_predictors <- read.csv("data/08_predictors/pred_cyclones.csv") %>% 
-  left_join(data_predictors, .)
+  left_join(data_predictors, .) %>% 
+  mutate(across(c("nb_cyclones_y1", "windspeed_y1", "cyclones_freq"), ~ifelse(is.na(.x), 0, .x)))
 
 data_predictors <- read.csv("data/08_predictors/pred_reef-type.csv") %>%
   # See https://developers.google.com/earth-engine/datasets/catalog/ACA_reef_habitat_v2_0
@@ -175,7 +197,8 @@ data_predictors <- data_predictors %>%
 ## 4.1 Find correlation coefficients between predictors ----
 
 data_correlation <- data_predictors %>% 
-  select(-site_id, -year, -type, -region, -subregion, -reef_type) %>% 
+  select(-site_id, -year, -type, -region, -subregion,
+         -ecoregion, -country, -territory, -reef_type) %>% 
   cor(., use = "complete.obs") %>% 
   round(., 2) %>% 
   as_tibble(.) %>% 
@@ -215,7 +238,7 @@ data_benthic <- data_benthic %>%
   # 1. Prepare benthic data
   prepare_benthic_data(data = .) %>% 
   # 2. Remove useless variables
-  select(-region, -subregion, -locality, -habitat, -eventDate) %>% 
+  select(-locality, -habitat, -eventDate) %>% 
   # 3. Convert to factors
   mutate(month = as.factor(month)) %>% 
   mutate_if(is.character, factor) %>% 
@@ -225,7 +248,8 @@ data_benthic <- data_benthic %>%
   left_join(., data_predictors %>%
               filter(type == "obs") %>% 
               # Remove lat and long because GEE slightly modify these, which break the join
-              select(-decimalLongitude, -decimalLatitude),
+              select(-decimalLongitude, -decimalLatitude, -region,
+                     -subregion, -ecoregion, -country, -territory),
             by = c("site_id", "year", "type")) %>% 
   select(-site_id, -type, -day)
 
@@ -277,7 +301,7 @@ pred_na_pred <- data_predictors_pred %>%
   summarise(across("region":"parentEventID", ~sum(is.na(.x)))) %>% 
   ungroup() %>% 
   pivot_longer(2:ncol(.), names_to = "predictor", values_to = "na") %>% 
-  mutate(perc = (na*100)/10000,
+  mutate(perc = (na*100)/length(unique(data_predictors %>% filter(type == "pred") %>% select(site_id) %>% pull())),
          type = "Predictors (Pred.)")
 
 ## 8.2 Sites for observed data ----
@@ -289,7 +313,7 @@ pred_na_obs <- data_benthic %>%
   summarise(across("datasetID":"reef_type", ~sum(is.na(.x)))) %>% 
   ungroup() %>% 
   pivot_longer(2:ncol(.), names_to = "predictor", values_to = "na") %>% 
-  mutate(perc = (na*100)/10000,
+  mutate(perc = (na*100)/length(unique(data_predictors %>% filter(type == "pred") %>% select(site_id) %>% pull())),
          type = "Predictors (Obs.)")
 
 ## 8.3 Make the plot ----
@@ -301,12 +325,14 @@ ggplot(data = bind_rows(pred_na_obs, pred_na_pred),
   labs(y = NULL, x = "Year", fill = "Percentage of NA") +
   scale_y_discrete(limits = rev) +
   scale_fill_gradientn(colors = c("#74b9ff", "#f1c40f", "#f39c12", "#e74c3c", "#c0392b"),
-                       breaks = c(0, 25, 50, 75, 100)) +
+                       breaks = c(0, 25, 50, 75, 100),
+                       limits = c(0, 100)) +
   scale_x_continuous(expand = c(0, 0), limits = c(1979, 2025)) +
   facet_wrap(~type) +
   theme(legend.title.position = "top",
         legend.title = element_text(hjust = 0.5),
-        legend.key.width = unit(1.5, "cm"))
+        legend.key.width = unit(1.5, "cm"),
+        strip.text.x = element_text(face = "bold"))
 
 ggsave("figs/06_additional/02_data-exploration/na_predictors_year.png", width = 8, height = 12)
 

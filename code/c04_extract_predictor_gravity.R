@@ -7,11 +7,11 @@ sf_use_s2(FALSE)
 
 # 2. Load data ----
 
-# 2.1 Site coordinates ----
+## 2.1 Site coordinates ----
 
 site_coords <- st_read("data/03_site-coords/site-coords_all.shp")
 
-# 2.2 Gravity ----
+## 2.2 Gravity ----
 
 data_gravity <- st_read("data/02_misc/gravity/Total Gravity of Coral Reefs 1.0.shp") %>% 
   rename(pred_gravity = Grav_tot) %>% 
