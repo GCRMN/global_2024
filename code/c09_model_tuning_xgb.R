@@ -15,12 +15,18 @@ plan(strategy = multisession, workers = 4)
 
 # 2. Load data ----
 
-load("data/09_model-data/data_benthic_prepared.RData")
-load("data/09_model-data/data_predictors_pred.RData")
+load("data/11_model-data/data_benthic_prepared.RData")
+load("data/11_model-data/data_predictors_pred.RData")
+
+data_benthic <- data_benthic %>% 
+  select(-datasetID, -month, -parentEventID, -verbatimDepth, -reef_type)
+
+data_predictors_pred <- data_predictors_pred %>% 
+  select(-datasetID, -month, -parentEventID, -verbatimDepth, -reef_type)
 
 # 3. Create the function ----
 
-hyperparam_tuning <- function(category_i){
+hyperparam_tuning <- function(category_i, vfolds = 3, gridsize = 10){
   
   hp_start <- Sys.time()
   
@@ -43,15 +49,21 @@ hyperparam_tuning <- function(category_i){
   ## 2.1 Define the recipe
   
   tune_recipe <- recipe(measurementValue ~ ., data = data_train) %>% 
-    step_novel("territory") %>% 
-    step_dummy(all_nominal_predictors())
+    # Selecting the correct step_x() is very important
+    #step_unknown(all_nominal_predictors()) %>%
+    #step_novel(all_nominal_predictors()) %>%
+    #step_dummy(all_nominal_predictors()) %>% # Those lines are for qualitative predictors
+    update_role(c("region", "subregion", "ecoregion", "country", "territory"),
+                new_role = "ID") %>% # Variables not used as predictors
+    step_zv(all_predictors()) # Remove zero variance predictors (i.e. uninformative predictors)
   
   ## 2.2 Define the model
   
   tune_model <- boost_tree(learn_rate = tune(),
                            trees = tune(), 
+                           tree_depth = tune(),
                            min_n = tune(), 
-                           tree_depth = tune()) %>% # Model type
+                           loss_reduction = tune()) %>% # Model type
     set_engine("xgboost") %>% # Model engine
     set_mode("regression") # Model mode
   
@@ -61,27 +73,31 @@ hyperparam_tuning <- function(category_i){
     add_recipe(tune_recipe) %>% 
     add_model(tune_model)
   
+  ## 2.4 Define the grid
+  
   tune_grid_values <- grid_space_filling(learn_rate(),
                                          trees(),
                                          tree_depth(),
                                          min_n(),
-                                         size = 15,
+                                         loss_reduction(),
+                                         size = gridsize,
                                          type = "max_entropy")
   
-  ## 2.4 Run the hyper parameters tuning
+  ## 2.5 Run the tuning
   
   tuned_results <- tune_grid(tune_workflow,
-                             resamples = vfold_cv(data_train, v = 5),
+                             resamples = vfold_cv(data_train, v = vfolds),
                              grid = tune_grid_values)
   
-  ## 2.5 Get best set of parameters
+  ## 2.6 Get best set of parameters
   
   model_hyperparams <- select_best(tuned_results, metric = "rmse") %>% 
     select(-".config") %>% 
     as_tibble(.) %>%
     mutate(nb_training = nrow(data_train),
            nb_testing = nrow(data_test),
-           grid_size = nrow(tune_grid_values)) %>% 
+           grid_size = gridsize,
+           v_folds = vfolds) %>% 
     mutate(category = category_i)
   
   # 3. Final model
@@ -89,9 +105,10 @@ hyperparam_tuning <- function(category_i){
   ## 3.1 Redefine the model (with hyper parameters)
   
   tune_model <- boost_tree(learn_rate = model_hyperparams$learn_rate,
-                           trees = model_hyperparams$trees, 
-                           min_n = model_hyperparams$min_n, 
-                           tree_depth = model_hyperparams$tree_depth) %>% # Model type
+                           trees = model_hyperparams$trees,
+                           tree_depth = model_hyperparams$tree_depth,
+                           min_n = model_hyperparams$min_n,
+                           loss_reduction = model_hyperparams$loss_reduction) %>% # Model type
     set_engine("xgboost") %>% # Model engine
     set_mode("regression") # Model mode
   
@@ -103,8 +120,7 @@ hyperparam_tuning <- function(category_i){
   
   ## 3.3 Fit the final model
   
-  final_model <- tune_workflow %>%
-    last_fit(data_split)
+  final_model <- last_fit(tune_workflow, data_split)
   
   final_fitted <- final_model$.workflow[[1]]
   
@@ -120,12 +136,13 @@ hyperparam_tuning <- function(category_i){
   result_pred_obs <- data_test %>% 
     mutate(yhat = predict(final_fitted, data_test)$.pred) %>% 
     rename(y = measurementValue) %>% 
-    select(area, y, yhat) %>% 
+    select(region, y, yhat) %>% 
     mutate(category = category_i)
   
   # 4. Running time
   
-  model_time <- tibble(hp_start = hp_start,
+  model_time <- tibble(category = category_i,
+                       hp_start = hp_start,
                        hp_end = Sys.time()) %>%
     mutate(hp_duration = hp_end - hp_start)
   
@@ -140,12 +157,11 @@ hyperparam_tuning <- function(category_i){
 
 # 4. Map over the function ----
 
-tuning_results <- future_map(c("Algae", "Hard coral", "Other fauna",
-                               "Coralline algae", "Macroalgae", "Turf algae"),
-                             ~hyperparam_tuning(category_i = .)) %>% 
+tuning_results <- furrr::future_map(c("Algae", "Hard coral", "Turf algae"),
+                                    ~hyperparam_tuning(category_i = .)) %>% 
   map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
   map(., bind_rows)
 
 # 5. Export the data ----
 
-save(tuning_results, file = "data/10_model-output/model_tuning_xgb.RData")
+save(tuning_results, file = "data/12_model-output/model_tuning_xgb.RData")
