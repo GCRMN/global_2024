@@ -11,7 +11,7 @@ library(future)
 library(furrr)
 
 options(future.globals.maxSize = 100000*1024^2) # 100 Gb
-plan(strategy = multisession, workers = 4)
+plan(strategy = multisession, workers = 6)
 
 # 2. Load data ----
 
@@ -28,7 +28,7 @@ data_predictors_pred <- data_predictors_pred %>%
 
 hyperparam_tuning <- function(category_i, vfolds = 3, gridsize = 10){
   
-  hp_start <- Sys.time()
+  start <- Sys.time()
   
   # 1. Data preparation
   
@@ -56,6 +56,10 @@ hyperparam_tuning <- function(category_i, vfolds = 3, gridsize = 10){
     update_role(c("region", "subregion", "ecoregion", "country", "territory"),
                 new_role = "ID") %>% # Variables not used as predictors
     step_zv(all_predictors()) # Remove zero variance predictors (i.e. uninformative predictors)
+  
+  # Check of the recipe
+  #prep_rec <- prep(tune_recipe)
+  #summary(prep_rec) # roles of each variables
   
   ## 2.2 Define the model
   
@@ -142,9 +146,9 @@ hyperparam_tuning <- function(category_i, vfolds = 3, gridsize = 10){
   # 4. Running time
   
   model_time <- tibble(category = category_i,
-                       hp_start = hp_start,
-                       hp_end = Sys.time()) %>%
-    mutate(hp_duration = hp_end - hp_start)
+                       start = start,
+                       end = Sys.time()) %>%
+    mutate(hp_duration = end - start)
   
   # 5. Return the results
   
@@ -157,7 +161,9 @@ hyperparam_tuning <- function(category_i, vfolds = 3, gridsize = 10){
 
 # 4. Map over the function ----
 
-tuning_results <- furrr::future_map(c("Algae", "Hard coral", "Turf algae"),
+tuning_results <- furrr::future_map(c("Algae", "Hard coral",
+                                      "Other fauna", "Macroalgae",
+                                      "Coralline algae", "Turf algae"),
                                     ~hyperparam_tuning(category_i = .)) %>% 
   map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
   map(., bind_rows)
