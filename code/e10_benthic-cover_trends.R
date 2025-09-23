@@ -127,3 +127,65 @@ plot <- ggplot(data = data_all, aes(x = year, y = mean, ymin = lower_ci_95,
   labs(x = "Year", y = "Benthic cover (%)")
 
 ggsave("figs/06_additional/04_benthic-trends/comparison-trends_2020-2025.png", width = 18, height = 8)
+
+## 4.2 Trends per region ----
+
+plot_trends_region <- function(region_i){
+  
+  plot_i <- data_trends$raw_trends %>% 
+    filter(is.na(subregion) & is.na(territory)) %>% 
+    filter(region == region_i) %>% 
+    select(category, region, year, mean, lower_ci_95, upper_ci_95) %>% 
+    filter(category %in% c("Hard coral", "Coralline algae", "Macroalgae", "Turf algae")) %>% 
+    mutate(category = factor(category, levels = c("Hard coral", "Coralline algae", "Macroalgae", "Turf algae"))) %>% 
+    ggplot(data = ., aes(x = year, y = mean, ymin = lower_ci_95,
+                               ymax = upper_ci_95)) +
+    geom_ribbon(alpha = 0.35, color = NA) +
+    geom_line() +
+    facet_wrap(~category) +
+    theme_graph() +
+    theme(strip.text = element_text(face = "bold"),
+          legend.title.position = "top",
+          legend.title = element_text(face = "bold", hjust = 0.5)) +
+    scale_x_continuous(breaks = c(1980, 1990, 2000, 2010, 2020)) +
+    scale_y_continuous(limits = c(0, NA)) +
+    labs(x = "Year", y = "Benthic cover (%)")
+
+  ggsave(filename = paste0("figs/02_part-2/fig-5/",
+                           str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
+         plot = plot_i, height = 6, width = 8, dpi = fig_resolution)
+  
+}
+
+map(unique(data_benthic$region), ~plot_trends_region(region_i = .))
+
+## 4.3 Trends per subregion ----
+
+plot_trends_subregion <- function(region_i){
+  
+  plot_i <- data_trends$raw_trends %>% 
+    filter(!(is.na(region)) & !(is.na(subregion)) & is.na(territory) & is.na(ecoregion)) %>% 
+    filter(region == region_i) %>% 
+    select(category, region, subregion, year, mean, lower_ci_95, upper_ci_95) %>% 
+    filter(category %in% c("Hard coral", "Coralline algae", "Macroalgae", "Turf algae")) %>% 
+    mutate(category = factor(category, levels = c("Hard coral", "Coralline algae", "Macroalgae", "Turf algae"))) %>% 
+    ggplot(data = ., aes(x = year, y = mean, ymin = lower_ci_95,
+                         ymax = upper_ci_95)) +
+    geom_ribbon(alpha = 0.35, color = NA) +
+    geom_line() +
+    facet_grid(subregion~category) +
+    theme_graph() +
+    theme(strip.text = element_text(face = "bold"),
+          legend.title.position = "top",
+          legend.title = element_text(face = "bold", hjust = 0.5)) +
+    scale_x_continuous(breaks = c(1980, 2000, 2020)) +
+    scale_y_continuous(limits = c(0, NA)) +
+    labs(x = "Year", y = "Benthic cover (%)")
+  
+  ggsave(filename = paste0("figs/02_part-2/fig-6/",
+                           str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
+         plot = plot_i, height = 10, width = 8, dpi = fig_resolution)
+  
+}
+
+map(unique(data_benthic$region), ~plot_trends_subregion(region_i = .))

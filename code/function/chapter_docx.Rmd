@@ -400,13 +400,17 @@ figure_path <- paste0("../../figs/02_part-2/fig-7/", str_to_lower(region_name), 
 
 \
 
-<div custom-style="todo">
-The figure will be provided in a future version
-</div>
+```{r echo=FALSE, message=FALSE}
+
+figure_path <- paste0("../../figs/02_part-2/fig-5/", str_to_lower(region_name), ".png")
+
+```
+
+![](`r figure_path`){width=100%}
 
 <div custom-style="text">
 
-**Figure 2.`r nb_chapter`.2.** Modeled temporal trends of benthic percentage cover in the `r region_i` region from 1980 to 2024 for hard coral (A), macroalgae (B), turf algae (C), and coralline algae (D). The bold line represents the estimated average benthic cover, lighter and darker ribbons represent 95% and 80% confidence intervals, respectively.
+**Figure 2.`r nb_chapter`.2.** Modeled temporal trends of benthic percentage cover in the `r region_i` region from 1980 to 2024 for hard coral (A), coralline algae (B), macroalgae (C), and turf algae (D). The bold line represents the estimated average benthic cover while the ribbon represents the 95% confidence intervals.
 
 </div>
 
@@ -420,13 +424,17 @@ The figure will be provided in a future version
 
 \
 
-<div custom-style="todo">
-The figure will be provided in a future version
-</div>
+```{r echo=FALSE, message=FALSE}
+
+figure_path <- paste0("../../figs/02_part-2/fig-6/", str_to_lower(region_name), ".png")
+
+```
+
+![](`r figure_path`){width=100%}
 
 <div custom-style="text">
 
-**Figure 2.`r nb_chapter`.3.** Modeled temporal trends of benthic percentage cover in `r region_i`’s sub-regions from 1980 to 2023 for hard coral (A), macroalgae (B), turf algae (C), and coralline algae (D). The bold line represents the estimated average benthic cover, lighter and darker ribbons represent 95% and 80% confidence intervals, respectively.
+**Figure 2.`r nb_chapter`.3.** Modeled temporal trends of benthic percentage cover in `r region_i`’s sub-regions from 1980 to 2024 for hard coral (A), coralline algae (B), macroalgae (C), and turf algae (D). The bold line represents the estimated average benthic cover while the ribbon represents the 95% confidence intervals.
 
 </div>
 
