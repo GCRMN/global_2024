@@ -12,14 +12,13 @@ add_colors <- function(data){
                                   category == "Algae" ~ 
                                     glue("**B.**<span style='color:{color}'> {category}</span>"),
                                   category == "Other fauna" ~ 
-                                    glue("**C.**<span style='color:{color}'> {category}</span>"),
-                                  
+                                    glue("**E.**<span style='color:{color}'> {category}</span>"),
                                   category == "Coralline algae" ~ 
-                                    glue("**A.**<span style='color:{color}'> {category}</span>"),
+                                    glue("**C.**<span style='color:{color}'> {category}</span>"),
                                   category == "Macroalgae" ~ 
-                                    glue("**B.**<span style='color:{color}'> {category}</span>"),
+                                    glue("**D.**<span style='color:{color}'> {category}</span>"),
                                   category == "Turf algae" ~ 
-                                    glue("**C.**<span style='color:{color}'> {category}</span>")))
+                                    glue("**E.**<span style='color:{color}'> {category}</span>")))
   
   return(data)
   

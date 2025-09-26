@@ -111,10 +111,14 @@ ggplot() +
                      labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
                      drop = FALSE,
                      name = "Number of years with data") +
-  guides(color = guide_legend(override.aes = list(size = 3.5))) +
-  theme_map()
+  theme_map()+
+  theme(axis.text.y = element_text(hjust = 0.5),
+        axis.text = element_text(size = 16),
+        legend.text = element_text(size = 16),
+        legend.title = element_text(size = 17)) +
+  guides(color = guide_legend(override.aes = list(size = 4)))
   
-ggsave("figs/01_part-1/fig-1.png", dpi = 600, height = 4.5, width = 12)
+ggsave("figs/01_part-1/fig-1.png", dpi = 600, height = 4, width = 9)
 
 # 5. Monitoring map (regions) ----
 

@@ -41,7 +41,7 @@ plot_i <- ggplot(data_sites, aes(x = region, y = diff)) +
         axis.title.x = element_text(size = 30)) +
   scale_x_discrete(limits = rev)
 
-ggsave("figs/06_additional/comp-2020-2025_barplot.png", height = 4.5, width = 9, dpi = 600)
+ggsave("figs/06_additional/02_data-exploration/comp-2020-2025_barplot.png", height = 4.5, width = 9, dpi = 600)
 
 # 4. Map comparison site distribution 2020 vs 2025 ----
 
@@ -146,7 +146,7 @@ plot_i <- ggplot() +
                      name = NULL) +
   guides(color = guide_legend(override.aes = list(size = 4)))
 
-ggsave("figs/06_additional/comp-2020-2025_global-map.png", height = 4, width = 9, dpi = 600)
+ggsave("figs/06_additional/02_data-exploration/comp-2020-2025_global-map.png", height = 4, width = 9, dpi = 600)
 
 ### 4.5.5 Map (regional) ----
 
@@ -176,7 +176,7 @@ plot_comparison_region <- function(region_i){
     coord_sf(xlim = c(data_bbox$xmin, data_bbox$xmax), ylim = c(data_bbox$ymin, data_bbox$ymax)) +
     theme_map()
   
-  ggsave(paste0("figs/06_additional/comp-2020-2025_regional-map_", region_i, ".png"),
+  ggsave(paste0("figs/06_additional/02_data-exploration/comp-2020-2025_regional-map_", region_i, ".png"),
          dpi = 300, height = 6, width = 6)
   
 }

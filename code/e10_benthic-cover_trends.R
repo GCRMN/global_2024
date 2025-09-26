@@ -126,9 +126,69 @@ plot <- ggplot(data = data_all, aes(x = year, y = mean, ymin = lower_ci_95,
   scale_x_continuous(breaks = c(1980, 2000, 2020)) +
   labs(x = "Year", y = "Benthic cover (%)")
 
-ggsave("figs/06_additional/04_benthic-trends/comparison-trends_2020-2025.png", width = 18, height = 8)
+ggsave("figs/06_additional/04_benthic-trends/comparison-trends_2020-2025_full.png", width = 18, height = 8)
 
-## 4.2 Trends per region ----
+## 4.2 Yearly raw average ----
+
+load("data/11_model-data/data_benthic_prepared.RData")
+
+data_benthic <- data_benthic %>% 
+  bind_rows(., data_benthic %>% 
+              mutate(region = "All")) %>%
+  group_by(year, region, category) %>% 
+  summarise(mean = mean(measurementValue),
+            sd = sd(measurementValue)) %>% 
+  ungroup() %>% 
+  mutate(ymin = mean - sd,
+         ymin = ifelse(ymin < 0, 0, ymin),
+         ymax = mean + sd) %>% 
+  bind_rows(., data_benthic %>% 
+              group_by(year, category) %>% 
+              summarise(mean = mean(measurementValue),
+                        sd = sd(measurementValue)) %>% 
+              ungroup() %>% 
+              mutate(ymin = mean - sd,
+                     ymin = ifelse(ymin < 0, 0, ymin),
+                     ymax = mean + sd,
+                     region = "Caribbean")) %>% 
+  complete(year, category, nesting(region), fill = list(mean = NA, sd = NA)) %>% 
+  left_join(., data_benthic %>% 
+              select(category) %>% 
+              distinct()) %>% 
+  drop_na(region)
+
+plot_raw_region <- function(region_i){
+  
+  plot_i <- data_benthic %>% 
+    filter(region == region_i) %>% 
+    filter(category %in% c("Hard coral", "Algae", "Coralline algae", "Macroalgae", "Turf algae")) %>% 
+    mutate(category = factor(category, levels = c("Hard coral", "Algae", "Coralline algae",
+                                                  "Macroalgae", "Turf algae"))) %>% 
+    add_colors() %>% 
+    ggplot(data = ., aes(x = year, y = mean, ymin = ymin,
+                         ymax = ymax, fill = color, color = color)) +
+    geom_linerange() +
+    geom_point() +
+    facet_wrap(~text_title, scales = "free") +
+    scale_color_identity() +
+    scale_fill_identity() +
+    theme_graph() +
+    theme(legend.title.position = "top",
+          strip.text = element_markdown(hjust = 0, size = 14),
+          legend.title = element_text(face = "bold", hjust = 0.5)) +
+    scale_x_continuous(breaks = c(1980, 1990, 2000, 2010, 2020), limits = c(1980, 2025)) +
+    scale_y_continuous(limits = c(0, NA)) +
+    labs(x = "Year", y = "Benthic cover (%)")
+  
+  ggsave(filename = paste0("figs/06_additional/02_data-exploration/yearly-raw-average_",
+                           str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
+         plot = plot_i, height = 7, width = 12, dpi = fig_resolution)
+  
+}
+
+map(unique(data_benthic$region), ~plot_raw_region(region_i = .))
+
+## 4.3 Trends per region ----
 
 plot_trends_region <- function(region_i){
   
@@ -136,30 +196,34 @@ plot_trends_region <- function(region_i){
     filter(is.na(subregion) & is.na(territory)) %>% 
     filter(region == region_i) %>% 
     select(category, region, year, mean, lower_ci_95, upper_ci_95) %>% 
-    filter(category %in% c("Hard coral", "Coralline algae", "Macroalgae", "Turf algae")) %>% 
-    mutate(category = factor(category, levels = c("Hard coral", "Coralline algae", "Macroalgae", "Turf algae"))) %>% 
+    filter(category %in% c("Hard coral", "Algae", "Coralline algae", "Macroalgae", "Turf algae")) %>% 
+    mutate(category = factor(category, levels = c("Hard coral", "Algae", "Coralline algae",
+                                                  "Macroalgae", "Turf algae"))) %>% 
+    add_colors() %>% 
     ggplot(data = ., aes(x = year, y = mean, ymin = lower_ci_95,
-                               ymax = upper_ci_95)) +
+                         ymax = upper_ci_95, fill = color, color = color)) +
     geom_ribbon(alpha = 0.35, color = NA) +
     geom_line() +
-    facet_wrap(~category) +
+    facet_wrap(~text_title, scales = "free") +
+    scale_color_identity() +
+    scale_fill_identity() +
     theme_graph() +
-    theme(strip.text = element_text(face = "bold"),
-          legend.title.position = "top",
+    theme(legend.title.position = "top",
+          strip.text = element_markdown(hjust = 0, size = 14),
           legend.title = element_text(face = "bold", hjust = 0.5)) +
-    scale_x_continuous(breaks = c(1980, 1990, 2000, 2010, 2020)) +
+    scale_x_continuous(breaks = c(1980, 1990, 2000, 2010, 2020), limits = c(1980, 2025)) +
     scale_y_continuous(limits = c(0, NA)) +
     labs(x = "Year", y = "Benthic cover (%)")
 
   ggsave(filename = paste0("figs/02_part-2/fig-5/",
                            str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
-         plot = plot_i, height = 6, width = 8, dpi = fig_resolution)
+         plot = plot_i, height = 7, width = 12, dpi = fig_resolution)
   
 }
 
 map(unique(data_benthic$region), ~plot_trends_region(region_i = .))
 
-## 4.3 Trends per subregion ----
+## 4.4 Trends per subregion ----
 
 plot_trends_subregion <- function(region_i){
   
