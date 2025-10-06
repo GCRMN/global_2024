@@ -429,12 +429,12 @@ data_sources <- read_xlsx("C:/Users/jerem/Desktop/Recherche/03_projects/2022-02-
   distinct()
 
 data_year_dataset <- data_benthic %>% 
-  group_by(datasetID, region, year) %>% 
+  group_by(datasetID, subregion, year) %>% 
   data_descriptors() %>% 
   ungroup() %>% 
-  select(datasetID, region, year, nb_sites) %>% 
-  complete(nesting(datasetID, region),
-           year = 1980:2024,
+  select(datasetID, subregion, year, nb_sites) %>% 
+  complete(nesting(datasetID, subregion),
+           year = 1980:2026,
            fill = list(nb_sites = 0)) %>% 
   left_join(., data_sources) %>% 
   mutate(label = paste0("<b>", datasetID,
@@ -443,10 +443,10 @@ data_year_dataset <- data_benthic %>%
 
 ## 9.2 Create a function to produce the plot ----
 
-plot_year_dataset <- function(region_i){
+plot_year_dataset <- function(subregion_i){
   
   data_year_dataset_i <- data_year_dataset %>% 
-    filter(region == region_i)
+    filter(subregion == subregion_i)
   
   nb_datasets_i <- length(unique(data_year_dataset_i$datasetID))
   
@@ -500,6 +500,18 @@ plot_year_dataset <- function(region_i){
                         right = FALSE,
                         name = "NUMBER OF SITES")
     
+  }else if(max(data_year_dataset_i$nb_sites) == 4){
+    
+    plot_i <- plot_i +
+      scale_fill_stepsn(breaks = c(0, 1, 2, 3, 5),
+                        colors = c("lightgrey", "lightgrey", palette_second[2], palette_second[2], palette_second[4]),
+                        limits = c(0, max(data_year_dataset_i$nb_sites)),
+                        values = scales::rescale(c(0, 1, 2, 3, 5)),
+                        labels = scales::label_number(accuracy = 1),
+                        show.limits = TRUE,
+                        right = FALSE,
+                        name = "NUMBER OF SITES")
+    
   }else{
     
     plot_i <- plot_i +
@@ -516,14 +528,14 @@ plot_year_dataset <- function(region_i){
   }
   
   ggsave(filename = paste0("figs/06_additional/02_data-exploration/nb-sites_year-datasetid_",
-                           str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
+                           str_replace_all(str_replace_all(str_to_lower(subregion_i), " ", "-"), "---", "-"), ".png"),
          plot = plot_i, height = (2 + (3*0.3*nb_datasets_i)), width = 9, dpi = fig_resolution)
   
 }
 
 ## 9.3 Map over the function ----
 
-map(unique(data_benthic$region), ~plot_year_dataset(region_i = .))
+map(unique(data_benthic$subregion), ~plot_year_dataset(subregion_i = .))
 
 # 10. Number of sites per dataset and year ----
 

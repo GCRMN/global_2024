@@ -70,7 +70,7 @@ pred_cyclones <- pred_cyclones %>%
   ungroup() %>% 
   select(-ts_id, -ts_name) %>%
   distinct() %>% 
-  tidyr::complete(year = seq(1980, 2024), nesting(site_id, type), 
+  tidyr::complete(year = seq(1980, 2025), nesting(site_id, type), 
                   fill = list(ts_id = NA, ts_name = NA, windspeed = NA)) %>% 
   # Wind speed of cyclones over year n-1 (last year)
   arrange(site_id, type, year) %>% 
@@ -79,7 +79,7 @@ pred_cyclones <- pred_cyclones %>%
   # Number of cyclones over year n-5 (last year)
   mutate(nb_cyclones_y1 = roll_sum(nb_cyclones, n = 1, align = "right", fill = NA, na.rm = TRUE)) %>% 
   group_by(site_id, type) %>% 
-  mutate(cyclones_freq = sum(nb_cyclones, na.rm = TRUE)/(2024-1980)) %>% 
+  mutate(cyclones_freq = sum(nb_cyclones, na.rm = TRUE)/(2025-1980)) %>% 
   ungroup() %>% 
   select(-windspeed, -nb_cyclones)
 

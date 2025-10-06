@@ -161,9 +161,9 @@ plot_raw_region <- function(region_i){
   
   plot_i <- data_benthic %>% 
     filter(region == region_i) %>% 
-    filter(category %in% c("Hard coral", "Algae", "Coralline algae", "Macroalgae", "Turf algae")) %>% 
+    filter(category %in% c("Hard coral", "Algae", "Coralline algae", "Macroalgae", "Turf algae", "Other fauna")) %>% 
     mutate(category = factor(category, levels = c("Hard coral", "Algae", "Coralline algae",
-                                                  "Macroalgae", "Turf algae"))) %>% 
+                                                  "Macroalgae", "Turf algae",  "Other fauna"))) %>% 
     add_colors() %>% 
     ggplot(data = ., aes(x = year, y = mean, ymin = ymin,
                          ymax = ymax, fill = color, color = color)) +
@@ -196,9 +196,9 @@ plot_trends_region <- function(region_i){
     filter(is.na(subregion) & is.na(territory)) %>% 
     filter(region == region_i) %>% 
     select(category, region, year, mean, lower_ci_95, upper_ci_95) %>% 
-    filter(category %in% c("Hard coral", "Algae", "Coralline algae", "Macroalgae", "Turf algae")) %>% 
+    filter(category %in% c("Hard coral", "Algae", "Coralline algae", "Macroalgae", "Turf algae", "Other fauna")) %>% 
     mutate(category = factor(category, levels = c("Hard coral", "Algae", "Coralline algae",
-                                                  "Macroalgae", "Turf algae"))) %>% 
+                                                  "Macroalgae", "Turf algae", "Other fauna"))) %>% 
     add_colors() %>% 
     ggplot(data = ., aes(x = year, y = mean, ymin = lower_ci_95,
                          ymax = upper_ci_95, fill = color, color = color)) +

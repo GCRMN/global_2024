@@ -7,7 +7,7 @@ library(RcppRoll)
 
 read_table("data/02_misc/nino34.long.anom.data.txt", skip = 1, col_names = FALSE, n_max = 154) %>% 
   rename(year = 1) %>% 
-  filter(year >= 1980 & year <= 2024) %>% 
+  filter(year >= 1980 & year <= 2025) %>% 
   pivot_longer(2:ncol(.), values_to = "nino", names_to = "month") %>% 
   mutate(month = str_remove_all(month, "X"),
          month = as.numeric(month)-1,
