@@ -121,7 +121,6 @@ plot_i <- ggplot() +
   geom_sf(data = data_graticules, color = "white", linewidth = 0.02) +
   #coord_sf(ylim = c(-5000000, 5000000), expand = FALSE,
   #         label_axes =  "NWE") +
-  
   coord_sf(expand = FALSE,
            label_axes =  "NWE") +
   scale_x_continuous(expand = c(2000, 2000)) +
@@ -135,3 +134,15 @@ plot_i <- ggplot() +
         axis.text.y.right = element_text(angle = 90, size = 4, hjust = 0.5, color = "black"))
 
 ggsave("figs/01_part-1/fig-2-raw.png", height = 2, width = 6.5)
+
+## 5.3 Map guide for subregion labels ----
+
+ggplot() +
+  geom_sf(data = data_subregions %>% st_transform(crs = crs_selected), aes(fill = region),
+          show.legend = FALSE, alpha = 0.5) +
+  ggsflabel::geom_sf_label(data = data_subregions %>% st_transform(crs = crs_selected),
+                           aes(label = str_sub(subregion, -1, -1), fill = region),
+                           show.legend = FALSE, alpha = 0.75) +
+  labs(x = NULL, y = NULL)
+
+ggsave("figs/02_part-2/fig-1/00_guide-subregions-labels.png", width = 12, height = 3.5)
