@@ -1,6 +1,6 @@
 // 1. Import data ----
 
-var data_reefs = ee.FeatureCollection("users/jeremywicquart/global_2024_reefs");
+var data_reefs = ee.FeatureCollection("users/jeremywicquart/global_2024/global_2024_reefs");
 
 // 2. Create 100 km reef buffer ----
 

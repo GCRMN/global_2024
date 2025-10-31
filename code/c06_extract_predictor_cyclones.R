@@ -10,7 +10,7 @@ library(RcppRoll)
 
 ## 2.1 Site coordinates ----
 
-data_sites <- st_read("data/03_site-coords/site-coords_all.shp") %>% 
+data_sites <- st_read("data/03_site-coords/global_2024_site-coords_all.shp") %>% 
   st_transform(crs = 4326)
 
 ## 2.2 Cyclones lines ----

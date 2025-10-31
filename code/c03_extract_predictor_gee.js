@@ -256,7 +256,7 @@ var data_sst_sd = data_sst.reduce(ee.Reducer.stdDev());
 var result_sst_sd = data_sst_sd.reduceRegions({
   reducer: ee.Reducer.first().setOutputs(["pred_sst_sd"]),
   collection: site_coords,
-  scale: 10000
+  scale: 15000
 });
 
 // 7.4 Export the data ----

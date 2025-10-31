@@ -20,7 +20,7 @@ load("data/02_misc/data-benthic.RData")
 
 data_region <- st_read("data/01_maps/02_clean/04_subregions/gcrmn_subregions.shp")
 
-data_predictors <- st_read("data/03_site-coords/site-coords_all.shp") %>% 
+data_predictors <- st_read("data/03_site-coords/global_2024_site-coords_all.shp") %>% 
   st_join(., data_region)
 
 ### 3.1.2 Ecoregion ----
@@ -51,7 +51,7 @@ data_predictors <- data_predictors %>%
   st_drop_geometry() %>% 
   mutate(site_id = as.numeric(site_id),
          year = 2000) %>% 
-  tidyr::complete(year = seq(1980, 2024), nesting(site_id, type, region,
+  tidyr::complete(year = seq(1980, 2025), nesting(site_id, type, region,
                                                   subregion, ecoregion, country, territory,
                                                   decimalLongitude, decimalLatitude))
 
@@ -87,7 +87,7 @@ pred_human_pop <- pred_human_pop %>%
   ungroup() %>% 
   left_join(pred_human_pop, .) %>% 
   # Estimate human population for all years between 2000 and 2024
-  tidyr::complete(year = seq(2000, 2024), nesting(site_id, type, intercept, slope)) %>% 
+  tidyr::complete(year = seq(2000, 2025), nesting(site_id, type, intercept, slope)) %>% 
   mutate(pred_population = (year*slope)+intercept) %>% 
   select(-intercept, -slope) %>% 
   mutate(pred_population = round(pred_population))
@@ -228,7 +228,7 @@ save(data_predictors_pred, file = "data/11_model-data/data_predictors_pred.RData
 
 # 6. Summarize data and add predictors ----
 
-data_site_coords_obs <- st_read("data/03_site-coords/site-coords_obs.shp") %>% 
+data_site_coords_obs <- st_read("data/03_site-coords/global_2024_site-coords_obs.shp") %>% 
   mutate(site_id = as.numeric(site_id),
          decimalLongitude = st_coordinates(.)[,"X"],
          decimalLatitude = st_coordinates(.)[,"Y"]) %>% 
@@ -236,7 +236,7 @@ data_site_coords_obs <- st_read("data/03_site-coords/site-coords_obs.shp") %>%
 
 data_benthic <- data_benthic %>% 
   # 1. Prepare benthic data
-  prepare_benthic_data(data = .) %>% 
+  prepare_benthic_data(data = ., remove_na = FALSE, regenerate_zero = FALSE) %>% 
   # 2. Remove useless variables
   select(-locality, -habitat, -eventDate) %>% 
   # 3. Convert to factors

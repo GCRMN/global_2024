@@ -9,7 +9,7 @@ sf_use_s2(FALSE)
 
 ## 2.1 Site coordinates ----
 
-site_coords <- st_read("data/03_site-coords/site-coords_all.shp")
+site_coords <- st_read("data/03_site-coords/global_2024_site-coords_all.shp")
 
 ## 2.2 Gravity ----
 

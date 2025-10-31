@@ -137,7 +137,7 @@ ggsave("figs/01_part-1/fig-2-raw.png", height = 2, width = 6.5)
 
 ## 5.3 Map guide for subregion labels ----
 
-ggplot() +
+plot_i <- ggplot() +
   geom_sf(data = data_subregions %>% st_transform(crs = crs_selected), aes(fill = region),
           show.legend = FALSE, alpha = 0.5) +
   ggsflabel::geom_sf_label(data = data_subregions %>% st_transform(crs = crs_selected),
