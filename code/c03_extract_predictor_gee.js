@@ -2,9 +2,9 @@
 
 // 1.1 Load sites with observed data and sites to predict ----
 
-var site_obs = ee.FeatureCollection("users/jeremywicquart/global_2024_site-coords_obs");
+var site_obs = ee.FeatureCollection("users/jeremywicquart/global_2024/global_2024_site-coords_obs");
     
-var site_pred = ee.FeatureCollection("users/jeremywicquart/global_2024_site-coords_pred");
+var site_pred = ee.FeatureCollection("users/jeremywicquart/global_2024/global_2024_site-coords_pred");
 
 // 1.2 Data vizualisation ----
 
@@ -20,9 +20,9 @@ var site_coords = site_pred.merge(site_obs);
 Export.table.toDrive({
   collection:site_coords,
   folder:"GEE",
-  fileNamePrefix:"site-coords_all",
+  fileNamePrefix:"global_2024_site-coords_all",
   fileFormat:"SHP",
-  description:"site-coords_all"
+  description:"global_2024_site-coords_all"
 });
 
 // 2. Extract predictor "human population living within 5 km radius from the site" /////////////////////////
@@ -345,30 +345,4 @@ Export.table.toDrive({
   fileFormat:"CSV",
   description:"pred_reef-extent",
   selectors:["site_id", "type", "pred_reefextent"]
-});
-
-// 10. Extract predictor "reef type" ///////////////////////////////////////////////////////////
-
-// 10.1 Load and Allen Coral Atlas (ACA) data ----
-
-var aca_habitat = ee.Image('ACA/reef_habitat/v2_0')
-  .select('geomorphic');
-
-// 10.2 Extract the reef type for each site ----
-
-var data_reef_type = aca_habitat.reduceRegions({
-  reducer: ee.Reducer.first().setOutputs(["reef_type"]),
-  collection: site_coords,
-  scale: 10,
-});
-
-// 10.3 Export the data ----
-
-Export.table.toDrive({
-  collection:data_reef_type,
-  folder:"GEE",
-  fileNamePrefix:"pred_reef-type",
-  fileFormat:"CSV",
-  description:"pred_reef-type",
-  selectors:["site_id", "type", "reef_type"]
 });
