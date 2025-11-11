@@ -1,8 +1,9 @@
-combine_model_data <- function(model = "xgb"){
+combine_model_data <- function(save_results = FALSE){
   
   # 1. List of RData files to combine
   
-  data_files <- tibble(path = list.files("data/12_model-output/", full.names = TRUE, pattern = "RData"))
+  data_files <- tibble(path = list.files("data/12_model-output/", full.names = TRUE)) %>% 
+    filter(str_detect(path, "RData") == TRUE)
   
   # 2. Create a function to load RData files
   
@@ -20,12 +21,20 @@ combine_model_data <- function(model = "xgb"){
     map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
     map(., bind_rows)
   
-  # 4. Add colors
+  # 4. Return the result
+  
+  if(save_results == TRUE){
+    
+    save(model_results, file = "data/12_model-output/model_results_all.RData")
+    
+  }
+
+  # 5. Add colors
   
   model_results <- model_results %>% 
     map(., ~ .x %>% add_colors)
   
-  # 5. Return results
+  ## 6. Return results ----
   
   return(model_results)
   

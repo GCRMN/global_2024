@@ -34,7 +34,7 @@ data_benthic %>%
   select(decimalLatitude, decimalLongitude) %>% 
   distinct() %>% 
   mutate(type = "obs",
-         site_id = as.character(row_number(.)-1)) %>% 
+         site_id = as.character(row_number(.))) %>% 
   st_as_sf(coords = c("decimalLongitude", "decimalLatitude"), crs = 4326) %>% 
   st_write(., dsn = "data/03_site-coords/global_2024_site-coords_obs.shp",
            delete_dsn = TRUE, delete_layer = TRUE, append = FALSE)

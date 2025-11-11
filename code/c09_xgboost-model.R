@@ -19,10 +19,10 @@ load("data/11_model-data/data_benthic_prepared.RData")
 load("data/11_model-data/data_predictors_pred.RData")
 
 data_benthic <- data_benthic %>% 
-  select(-month, -parentEventID, -verbatimDepth, -reef_type)
+  select(-month, -parentEventID, -verbatimDepth)
 
 data_predictors_pred <- data_predictors_pred %>% 
-  select(-month, -parentEventID, -verbatimDepth, -reef_type)
+  select(-month, -parentEventID, -verbatimDepth)
 
 # 3. Create the function ----
 
@@ -30,26 +30,28 @@ model_xgboost <- function(category_i, bootstrap_i, vfolds = 3, gridsize = 10){
   
   full_start <- Sys.time()
   
-  # 1. Pre-processing #######################################
-  
   ## 1.1 Filter the category
   
-  data_split <- data_benthic %>% 
+  data_benthic_i <- data_benthic %>% 
     filter(category == category_i) %>% 
     select(-category)
   
-  ## 1.2 Sample with replacement by datasetID (for bootstrap)
+  ## 1.2 Sample with replacement by datasetID
   
-  data_split <- data_split %>% 
+  data_boot <- data_benthic_i %>% 
     group_by(datasetID) %>% 
-    slice_sample(., prop = runif(1, min = 0.01, max = 1), replace = TRUE) %>% 
+    group_modify(~ .x[sample.int(nrow(.x), size = nrow(.x), replace = TRUE), ]) %>%
     ungroup()
   
   ## 1.3 Split into training and testing data
   
-  data_split <- initial_split(data_split, prop = 3/4)
+  data_split <- initial_split(data_boot, prop = 3/4)
   data_train <- training(data_split)
   data_test <- testing(data_split)
+  
+  ## 1.4 Remove useless objects
+  
+  rm(data_benthic_i, data_boot)
   
   # 2. HP tuning ############################################
   
@@ -62,9 +64,9 @@ model_xgboost <- function(category_i, bootstrap_i, vfolds = 3, gridsize = 10){
     #step_unknown(all_nominal_predictors()) %>%
     #step_novel(all_nominal_predictors()) %>%
     #step_dummy(all_nominal_predictors()) %>% # Those lines are for qualitative predictors
+    #step_zv(all_predictors()) # Remove zero variance predictors (i.e. uninformative predictors)
     update_role(c("region", "subregion", "ecoregion", "country", "territory", "datasetID"),
-                new_role = "ID") %>% # Variables not used as predictors
-    step_zv(all_predictors()) # Remove zero variance predictors (i.e. uninformative predictors)
+                new_role = "ID") # Variables not used as predictors
   
   # Check of the recipe
   #prep_rec <- prep(tune_recipe)
@@ -182,7 +184,7 @@ model_xgboost <- function(category_i, bootstrap_i, vfolds = 3, gridsize = 10){
     group_by(year) %>% 
     summarise(mean = mean(measurementValuepred)) %>% 
     ungroup() %>% 
-    mutate(category = category_i, bootstrap = bootstrap_i, region = "All")
+    mutate(category = category_i, bootstrap = bootstrap_i, level = "global")
   
   ### 4.2.2 Region
   
@@ -190,7 +192,8 @@ model_xgboost <- function(category_i, bootstrap_i, vfolds = 3, gridsize = 10){
     group_by(year, region) %>% 
     summarise(mean = mean(measurementValuepred)) %>% 
     ungroup() %>% 
-    mutate(category = category_i, bootstrap = bootstrap_i)
+    mutate(category = category_i, bootstrap = bootstrap_i, level = "region") %>% 
+    drop_na(region)
   
   ### 4.2.3 Subregion
   
@@ -198,7 +201,8 @@ model_xgboost <- function(category_i, bootstrap_i, vfolds = 3, gridsize = 10){
     group_by(year, region, subregion) %>% 
     summarise(mean = mean(measurementValuepred)) %>% 
     ungroup() %>% 
-    mutate(category = category_i, bootstrap = bootstrap_i)
+    mutate(category = category_i, bootstrap = bootstrap_i, level = "subregion") %>% 
+    drop_na(subregion)
   
   ### 4.2.4 Ecoregion
   
@@ -206,7 +210,8 @@ model_xgboost <- function(category_i, bootstrap_i, vfolds = 3, gridsize = 10){
     group_by(year, region, subregion, ecoregion) %>% 
     summarise(mean = mean(measurementValuepred)) %>% 
     ungroup() %>% 
-    mutate(category = category_i, bootstrap = bootstrap_i)
+    mutate(category = category_i, bootstrap = bootstrap_i, level = "ecoregion") %>% 
+    drop_na(ecoregion)
   
   ### 4.2.5 Country
   
@@ -214,7 +219,8 @@ model_xgboost <- function(category_i, bootstrap_i, vfolds = 3, gridsize = 10){
     group_by(year, country) %>% 
     summarise(mean = mean(measurementValuepred)) %>% 
     ungroup() %>% 
-    mutate(category = category_i, bootstrap = bootstrap_i)
+    mutate(category = category_i, bootstrap = bootstrap_i, level = "country") %>% 
+    drop_na(country)
   
   ### 4.2.6 Territory
   
@@ -222,9 +228,10 @@ model_xgboost <- function(category_i, bootstrap_i, vfolds = 3, gridsize = 10){
     group_by(year, territory) %>% 
     summarise(mean = mean(measurementValuepred)) %>% 
     ungroup() %>% 
-    mutate(category = category_i, bootstrap = bootstrap_i)
+    mutate(category = category_i, bootstrap = bootstrap_i, level = "territory") %>% 
+    drop_na(territory)
   
-  ### 4.2.7 Combine results 
+  ### 4.2.7 Combine results
   
   result_trends <- bind_rows(results_global, results_region, results_subregion,
                              results_ecoregion, results_country, results_territory)
@@ -245,7 +252,7 @@ model_xgboost <- function(category_i, bootstrap_i, vfolds = 3, gridsize = 10){
   
   model_hyperparams <- model_hyperparams %>% 
     mutate(model = "XGBoost")
-
+  
   return(lst(model_hyperparams,
              model_time,
              model_performance,
@@ -266,18 +273,18 @@ model_results <- future_map(1:20, ~model_xgboost(category_i = "Hard coral",
   map(., bind_rows) %>% 
   map(., ~distinct(.x))
 
-save(model_results, file = "data/12_model-output/model_results_hard-coral_xgb_full.RData")
+save(model_results, file = "data/12_model-output/model-results_hard-coral.RData")
 
-## 4.2 Algae ----
+## 4.2 Macroalgae ----
 
-model_results <- future_map(1:20, ~model_xgboost(category_i = "Algae",
+model_results <- future_map(1:20, ~model_xgboost(category_i = "Macroalgae",
                                                  bootstrap_i = .),
                             .options = furrr_options(seed = TRUE)) %>% 
   map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
   map(., bind_rows) %>% 
   map(., ~distinct(.x))
 
-save(model_results, file = "data/12_model-output/model_results_algae_xgb_full.RData")
+save(model_results, file = "data/12_model-output/model-results_macroalgae.RData")
 
 ## 4.3 Turf algae ----
 
@@ -288,7 +295,7 @@ model_results <- future_map(1:20, ~model_xgboost(category_i = "Turf algae",
   map(., bind_rows) %>% 
   map(., ~distinct(.x))
 
-save(model_results, file = "data/12_model-output/model_results_turf-algae_xgb_full.RData")
+save(model_results, file = "data/12_model-output/model-results_turf-algae.RData")
 
 ## 4.4 Coralline algae ----
 
@@ -299,20 +306,9 @@ model_results <- future_map(1:20, ~model_xgboost(category_i = "Coralline algae",
   map(., bind_rows) %>% 
   map(., ~distinct(.x))
 
-save(model_results, file = "data/12_model-output/model_results_coralline-algae_xgb_full.RData")
+save(model_results, file = "data/12_model-output/model-results_coralline-algae.RData")
 
-## 4.5 Macroalgae ----
-
-model_results <- future_map(1:20, ~model_xgboost(category_i = "Macroalgae",
-                                                 bootstrap_i = .),
-                            .options = furrr_options(seed = TRUE)) %>% 
-  map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
-  map(., bind_rows) %>% 
-  map(., ~distinct(.x))
-
-save(model_results, file = "data/12_model-output/model_results_macroalgae_xgb_full.RData")
-
-## 4.6 Other fauna ----
+## 4.5 Other fauna ----
 
 model_results <- future_map(1:20, ~model_xgboost(category_i = "Other fauna",
                                                  bootstrap_i = .),
@@ -321,4 +317,15 @@ model_results <- future_map(1:20, ~model_xgboost(category_i = "Other fauna",
   map(., bind_rows) %>% 
   map(., ~distinct(.x))
 
-save(model_results, file = "data/12_model-output/model_results_other-fauna_xgb_full.RData")
+save(model_results, file = "data/12_model-output/model-results_other-fauna.RData")
+
+## 4.6 Algae ----
+
+model_results <- future_map(1:20, ~model_xgboost(category_i = "Algae",
+                                                 bootstrap_i = .),
+                            .options = furrr_options(seed = TRUE)) %>% 
+  map_df(., ~ as.data.frame(map(.x, ~ unname(nest(.))))) %>% 
+  map(., bind_rows) %>% 
+  map(., ~distinct(.x))
+
+save(model_results, file = "data/12_model-output/model-results_algae.RData")

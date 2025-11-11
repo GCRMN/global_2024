@@ -35,10 +35,14 @@ data_eez <- st_read("data/01_maps/01_raw/05_eez/eez_v12.shp") %>%
   rename(country = SOVEREIGN1, territory = TERRITORY1) %>% 
   select(country, territory)
 
-data_predictors <- st_join(data_predictors, data_eez) %>% 
+data_predictors <- data_predictors %>% 
+  # In the following line, sites can be duplicated if overclaimed area for territory
+  st_join(., data_eez) %>% 
   bind_cols(., st_coordinates(.)) %>% 
   rename(decimalLatitude = Y, decimalLongitude = X) %>% 
   st_drop_geometry() %>% 
+  # Remove duplicated sites
+  filter(!(site_id %in% c(13603, 13641, 13829) & type == "pred" & territory == "Australia")) %>% 
   left_join(data_predictors, .)
 
 rm(data_region, data_ecoregion, data_eez)
@@ -86,8 +90,8 @@ pred_human_pop <- pred_human_pop %>%
   group_modify(~extract_coeff(data = .x)) %>% 
   ungroup() %>% 
   left_join(pred_human_pop, .) %>% 
-  # Estimate human population for all years between 2000 and 2024
-  tidyr::complete(year = seq(2000, 2025), nesting(site_id, type, intercept, slope)) %>% 
+  # Estimate human population for all years between 2000 and 2020
+  tidyr::complete(year = seq(2000, 2020), nesting(site_id, type, intercept, slope)) %>% 
   mutate(pred_population = (year*slope)+intercept) %>% 
   select(-intercept, -slope) %>% 
   mutate(pred_population = round(pred_population))
@@ -159,21 +163,6 @@ data_predictors <- read.csv("data/08_predictors/pred_cyclones.csv") %>%
   left_join(data_predictors, .) %>% 
   mutate(across(c("nb_cyclones_y1", "windspeed_y1", "cyclones_freq"), ~ifelse(is.na(.x), 0, .x)))
 
-data_predictors <- read.csv("data/08_predictors/pred_reef-type.csv") %>%
-  # See https://developers.google.com/earth-engine/datasets/catalog/ACA_reef_habitat_v2_0
-  mutate(reef_type = str_replace_all(reef_type, c("11" = "Shallow Lagoon",
-                                                  "12"	= "Deep Lagoon",
-                                                  "13"	= "Inner Reef Flat",
-                                                  "14"	= "Outer Reef Flat",
-                                                  "15"	= "Reef Crest",
-                                                  "16"	= "Terrestrial Reef Flat",
-                                                  "21"	= "Sheltered Reef Slope",
-                                                  "22"	= "Reef Slope",
-                                                  "23"	= "Plateau",
-                                                  "24"	= "Back Reef Slope",
-                                                  "25"	= "Patch Reef"))) %>% 
-  left_join(data_predictors, .)
-
 ## 3.5 Round values of predictors ----
 
 data_predictors <- data_predictors %>% 
@@ -190,7 +179,8 @@ data_predictors <- data_predictors %>%
                   pred_enso, pred_chla_mean, pred_chla_sd,
                   pred_sst_skewness, pred_elevation, pred_land,
                   pred_reefextent, cyclones_freq, pred_sst_sd),
-                ~ round(.x, digits = 3)))
+                ~ round(.x, digits = 3))) %>% 
+  distinct()
 
 # 4. Feature selection (remove correlated predictors) ----
 
@@ -198,7 +188,7 @@ data_predictors <- data_predictors %>%
 
 data_correlation <- data_predictors %>% 
   select(-site_id, -year, -type, -region, -subregion,
-         -ecoregion, -country, -territory, -reef_type) %>% 
+         -ecoregion, -country, -territory) %>% 
   cor(., use = "complete.obs") %>% 
   round(., 2) %>% 
   as_tibble(.) %>% 
@@ -310,7 +300,7 @@ pred_na_obs <- data_benthic %>%
   select(-category, -measurementValue) %>% 
   distinct() %>% 
   group_by(year) %>% 
-  summarise(across("datasetID":"reef_type", ~sum(is.na(.x)))) %>% 
+  summarise(across("datasetID":"cyclones_freq", ~sum(is.na(.x)))) %>% 
   ungroup() %>% 
   pivot_longer(2:ncol(.), names_to = "predictor", values_to = "na") %>% 
   mutate(perc = (na*100)/length(unique(data_predictors %>% filter(type == "pred") %>% select(site_id) %>% pull())),
@@ -327,7 +317,7 @@ ggplot(data = bind_rows(pred_na_obs, pred_na_pred),
   scale_fill_gradientn(colors = c("#74b9ff", "#f1c40f", "#f39c12", "#e74c3c", "#c0392b"),
                        breaks = c(0, 25, 50, 75, 100),
                        limits = c(0, 100)) +
-  scale_x_continuous(expand = c(0, 0), limits = c(1979, 2025)) +
+  scale_x_continuous(expand = c(0, 0), limits = c(1979, 2026)) +
   facet_wrap(~type) +
   theme(legend.title.position = "top",
         legend.title = element_text(hjust = 0.5),

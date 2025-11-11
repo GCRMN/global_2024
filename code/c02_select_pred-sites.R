@@ -97,7 +97,7 @@ data_sites_pred %>%
 
 data_sites_pred %>% 
   mutate(type = "pred",
-         site_id = as.character(row_number(.)-1)) %>% 
+         site_id = as.character(row_number(.))) %>% 
   select(-region, -subregion, -territory) %>% 
   st_write(., dsn = "data/03_site-coords/global_2024_site-coords_pred.shp",
            delete_dsn = TRUE, delete_layer = TRUE, append = FALSE)
