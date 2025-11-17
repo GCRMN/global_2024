@@ -24,6 +24,8 @@
 admin/
 data/
 doc/
-misc/
 figs/
+code/c01_explo_benthic-data_files/
 report/
+misc/*
+!misc/2025-11-17_report-page-cover.jpg
