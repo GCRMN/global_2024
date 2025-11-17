@@ -9,16 +9,16 @@ add_colors <- function(data){
                              category == "Coralline algae" ~ "#C5987D"),
            text_title = case_when(category == "Hard coral" ~ 
                                     glue("**A.**<span style='color:{color}'> {category}</span>"),
-                                  category == "Algae" ~ 
-                                    glue("**B.**<span style='color:{color}'> {category}</span>"),
-                                  category == "Other fauna" ~ 
-                                    glue("**E.**<span style='color:{color}'> {category}</span>"),
-                                  category == "Coralline algae" ~ 
-                                    glue("**C.**<span style='color:{color}'> {category}</span>"),
                                   category == "Macroalgae" ~ 
-                                    glue("**D.**<span style='color:{color}'> {category}</span>"),
+                                    glue("**B.**<span style='color:{color}'> {category}</span>"),
                                   category == "Turf algae" ~ 
-                                    glue("**E.**<span style='color:{color}'> {category}</span>")))
+                                    glue("**C.**<span style='color:{color}'> {category}</span>"),
+                                  category == "Coralline algae" ~ 
+                                    glue("**D.**<span style='color:{color}'> {category}</span>"),
+                                  category == "Algae" ~ 
+                                    glue("**E.**<span style='color:{color}'> {category}</span>"),
+                                  category == "Other fauna" ~ 
+                                    glue("**F.**<span style='color:{color}'> {category}</span>")))
   
   return(data)
   

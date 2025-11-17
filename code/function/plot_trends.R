@@ -1,140 +1,85 @@
-plot_trends <- function(region_i, categories, icons = FALSE, raw_data = TRUE,
-                        modelled_data = TRUE, scales = "fixed"){
+plot_trends <- function(region_i, level_i){
   
-  # Filter data
-  
-
-  
-  data_raw_i <- data_benthic %>% 
-    filter(region == region_i) %>% 
-    filter(category %in% categories)
-  
-  # Base plot
-  
-  plot_trends <- ggplot() +
-    {if(raw_data == TRUE)
-      geom_pointrange(data = data_raw_i,
-                      aes(x = year, y = mean, ymin = ymin,
-                          ymax = ymax, color = color), size = 0.25)} +
-    {if(modelled_data == TRUE)
-      geom_ribbon(data = data_trends_i,
-                  aes(x = year, ymin = lower_ci_95, ymax = upper_ci_95,
-                      fill = color), alpha = 0.5, show.legend = FALSE)} +
-    {if(modelled_data == TRUE)
-      geom_line(data = data_trends_i,
-                aes(x = year, y = mean, color = color),
-                linewidth = 1, show.legend = FALSE)} +
-    scale_color_identity() +
-    scale_fill_identity() +
-    facet_wrap(~text_title, scales = scales) +
-    theme(strip.text = element_markdown(hjust = 0, size = rel(1.3)),
-          strip.background = element_blank(),
-          panel.spacing = unit(2, "lines")) +
-    labs(x = "Year", y = "Cover (%)") +
-    lims(x = c(1980, 2024), y = c(0, NA))
-  
-  # Icons
-  
-  if(icons == FALSE){
+  if(level_i == "region"){
     
-    plot_results <- plot_trends
+    data_i <- data_trends$raw_trends %>% 
+      filter(level == "global")
     
-  }else if(icons == TRUE){
-      
-    require(cowplot)
+    plot_i <- ggplot(data = data_i, aes(x = year, y = mean, ymin = lower_ci_95,
+                                        ymax = upper_ci_95, fill = color, color = color)) +
+      geom_ribbon(alpha = 0.35, color = NA) +
+      geom_line() +
+      facet_wrap(~text_title, scales = "free", ncol = 2) +
+      scale_color_identity() +
+      scale_fill_identity() +
+      theme_graph() +
+      theme(legend.title.position = "top",
+            strip.text = element_markdown(hjust = 0, size = 14),
+            legend.title = element_text(face = "bold", hjust = 0.5)) +
+      scale_x_continuous(breaks = c(1980, 1990, 2000, 2010, 2020), limits = c(1980, 2025)) +
+      scale_y_continuous(limits = c(0, floor(max(data_i$upper_ci_95)/10)*10+10)) +
+      labs(x = "Year", y = "Benthic cover (%)")
     
-    data_icons <- tibble(category = c("Hard coral",
-                                      "Algae"),
-                         path = c("figs/00_misc/icon_coral.png",
-                                  "figs/00_misc/icon_algae.png")) %>% 
-      filter(category %in% categories)
+    ggsave(filename = paste0("figs/01_part-1/fig-6.png"),
+           plot = plot_i, height = 7, width = 9, dpi = fig_resolution)
     
-    plot_results <- ggdraw(plot_trends) + 
-      draw_image(as.character(data_icons[1, 2]),
-                 x = 0.365, y = 0.95, # Position above right
-                 hjust = 1, vjust = 1,
-                 width = 0.11, height = 0.11) +
-      draw_image(as.character(data_icons[2, 2]),
-                 x = 0.6835, y = 0.95, # Position above right
-                 hjust = 1, vjust = 1,
-                 width = 0.11, height = 0.11) + # Relative proportion of the image
-      draw_image(as.character(data_icons[3, 2]),
-                 x = 1.005, y = 0.95, # Position above right
-                 hjust = 1, vjust = 1,
-                 width = 0.11, height = 0.11) # Relative proportion of the image
-      
+  }else if(level_i == "region"){
+    
+    data_i <- data_trends$raw_trends %>% 
+      filter(region == region_i & level == "region")
+    
+    plot_i <- ggplot(data = data_i, aes(x = year, y = mean, ymin = lower_ci_95,
+                                        ymax = upper_ci_95, fill = color, color = color)) +
+      geom_ribbon(alpha = 0.35, color = NA) +
+      geom_line() +
+      facet_wrap(~text_title, scales = "free", ncol = 2) +
+      scale_color_identity() +
+      scale_fill_identity() +
+      theme_graph() +
+      theme(legend.title.position = "top",
+            strip.text = element_markdown(hjust = 0, size = 14),
+            legend.title = element_text(face = "bold", hjust = 0.5)) +
+      scale_x_continuous(breaks = c(1980, 1990, 2000, 2010, 2020), limits = c(1980, 2025)) +
+      scale_y_continuous(limits = c(0, floor(max(data_i$upper_ci_95)/10)*10+10)) +
+      labs(x = "Year", y = "Benthic cover (%)")
+    
+    ggsave(filename = paste0("figs/02_part-2/fig-5/",
+                             str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
+           plot = plot_i, height = 7, width = 9, dpi = fig_resolution)
+    
+  }else if(level_i == "subregion"){
+    
+    data_i <- data_trends$raw_trends %>% 
+      filter(region == region_i & level == "subregion")
+    
+    plot_i <- ggplot(data = data_i, aes(x = year, y = mean, ymin = lower_ci_95,
+                                        ymax = upper_ci_95, fill = color, color = color)) +
+      geom_ribbon(alpha = 0.35, color = NA) +
+      geom_line() +
+      facet_grid(subregion~text_title, scales = "free") +
+      scale_color_identity() +
+      scale_fill_identity() +
+      theme_graph() +
+      theme(legend.title.position = "top",
+            strip.text = element_markdown(hjust = 0, size = 14),
+            legend.title = element_text(face = "bold", hjust = 0.5)) +
+      scale_x_continuous(breaks = c(1980, 1990, 2000, 2010, 2020), limits = c(1980, 2025)) +
+      scale_y_continuous(limits = c(0, floor(max(data_i$upper_ci_95)/10)*10+10)) +
+      labs(x = "Year", y = "Benthic cover (%)")
+    
+    ggsave(filename = paste0("figs/02_part-2/fig-6/",
+                             str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
+           plot = plot_i, height = 10, width = 8, dpi = fig_resolution)
+    
+  }else if(level_i == "ecoregion"){
+    
+    
+    
+    
   }else{
-      
-    stop("icons must be TRUE or FALSE")
-      
-  }
     
- # Save plots
+    stop("The level argument must be region, subregion, or ecoregion.")
     
-  if(all.equal(categories, c("Hard coral", "Algae", "Other fauna")) == TRUE){
-      
-    if(area_i == "All"){
-      
-      ggsave(plot = plot_results, filename = "figs/01_part-1/fig-12.png", width = 14, height = 5)
-      
-    }else{
-      
-      if(modelled_data == TRUE){
-        
-        ggsave(plot = plot_results, filename = paste0("figs/02_part-2/fig-5/",
-                                                      str_replace_all(str_replace_all(str_to_lower(area_i), " ", "-"),
-                                                                      "---", "-"),
-                                                      ".png"),
-               width = 14, height = 5)
-        
-      }else{
-        
-        ggsave(plot = plot_results, filename = paste0("figs/02_part-2/fig-5b/",
-                                                      str_replace_all(str_replace_all(str_to_lower(area_i), " ", "-"),
-                                                                      "---", "-"),
-                                                      ".png"),
-               width = 14, height = 5)
-        
-      }
-      
-    }
-      
-  }else if(all.equal(categories, c("Coralline algae", "Macroalgae", "Turf algae")) == TRUE){
-      
-    if(area_i == "All"){
-      
-      ggsave(plot = plot_results, filename = "figs/01_part-1/fig-13.png", width = 14, height = 5)
-      
-    }else{
-      
-      ggsave(plot = plot_results, filename = paste0("figs/06_additional/04_benthic-trends/algae_",
-                                                   str_replace_all(str_replace_all(str_to_lower(area_i), " ", "-"),
-                                                                   "---", "-"),
-                                                   ".png"),
-             width = 14, height = 5)
-      
-    }
-      
-  }else if(all.equal(categories, c("Acropora", "Orbicella", "Porites")) == TRUE){
-      
-    if(area_i == "All"){
-      
-      ggsave(plot = plot_results, filename = "figs/01_part-1/fig-14.png", width = 14, height = 5)
-      
-    }else{
-      
-      ggsave(plot = plot_results, filename = paste0("figs/06_additional/04_benthic-trends/coral_",
-                                                   str_replace_all(str_replace_all(str_to_lower(area_i), " ", "-"),
-                                                                   "---", "-"),
-                                                   ".png"),
-             width = 14, height = 5)
-      
-    }
-      
-  }else{
-      
-   stop("Sequence of categories is not valid")
-      
   }
-
+  
 }
