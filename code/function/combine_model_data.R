@@ -29,12 +29,7 @@ combine_model_data <- function(save_results = FALSE){
     
   }
 
-  # 5. Add colors
-  
-  model_results <- model_results %>% 
-    map(., ~ .x %>% add_colors)
-  
-  ## 6. Return results ----
+  ## 5. Return results ----
   
   return(model_results)
   

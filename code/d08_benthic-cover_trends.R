@@ -7,82 +7,182 @@ library(ggtext)
 library(ggrepel)
 library(scales)
 library(zoo)
-library(Kendall)
 library(sf)
-sf_use_s2(FALSE)
-library(cowplot) # For the function draw_image()
 
 # 2. Source functions ----
 
 source("code/function/graphical_par.R")
 source("code/function/theme_graph.R")
-source("code/function/add_colors.R")
-source("code/function/combine_model_data.R")
 source("code/function/plot_trends.R")
-source("code/function/extract_mannkendall.R")
 
-# 3. Data preparation ----
+# 3. Load data ----
 
-## 3.1 Combine model results ----
+load("data/model-results.RData")
 
-model_results <- combine_model_data(save_results = FALSE)
+# 4. Figures for Part 1 ----
 
-model_results$result_trends <- model_results$result_trends %>% 
-  # Filter years
-  filter(year >= 1980 & year <= 2024) %>% 
-  # Filter spatial levels
-  filter(level %in% c("global", "region", "subregion", "ecoregion")) %>% 
-  # Filter categories
-  filter(category %in% c("Hard coral", "Macroalgae", "Turf algae", "Coralline algae"))
+## 4.1 Global - Hard coral and macroalgae ----
+
+plot_trends(level_i = "global", range = "obs")
+
+## 4.2 Global map (for the two regional figures) ----
+
+data_country <- st_read("data/01_maps/01_raw/03_natural-earth/ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp") %>% 
+  st_transform(crs = "+proj=eqearth")
+
+data_graticules <- st_read("data/01_maps/01_raw/03_natural-earth/ne_10m_graticules_20/ne_10m_graticules_20.shp") %>% 
+  st_transform(crs = "+proj=eqearth")
+
+data_gcrmn_regions <- st_read("data/01_maps/02_clean/03_regions/gcrmn_regions.shp") %>% 
+  st_transform(crs = "+proj=eqearth")
+
+lats <- c(90:-90, -90:90, 90)
+longs <- c(rep(c(180, -180), each = 181), 180)
+
+background_map_border <- list(cbind(longs, lats)) %>%
+  st_polygon() %>%
+  st_sfc(crs = 4326) %>% 
+  st_sf() %>%
+  st_transform(crs = "+proj=eqearth")
+
+plot <- ggplot() +
+  geom_sf(data = background_map_border, fill = "white", color = "grey30", linewidth = 0.25) +
+  geom_sf(data = data_graticules, color = "#ecf0f1", linewidth = 0.25) +
+  geom_sf(data = background_map_border, fill = NA, color = "grey30", linewidth = 0.25) +
+  geom_sf(data = data_gcrmn_regions, aes(fill = region), show.legend = FALSE) +
+  geom_sf(data = data_country, color = "#24252a", fill = "#dadfe1") +
+  theme(text = element_text(family = "Open Sans"),
+        legend.position = "bottom",
+        legend.background = element_rect(fill = "transparent", color = NA),
+        legend.title = element_blank(),
+        panel.background = element_blank(),
+        axis.title = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text = element_blank(),
+        plot.background = element_rect(fill = "transparent", color = NA)) +
+  guides(fill = guide_legend(override.aes = list(size = 5, color = NA)))
+
+ggsave(filename = "figs/01_part-1/global_map.png", plot = plot,
+       bg = "transparent", height = 5, width = 8, dpi = 300)
+
+rm(background_map_border, data_country, data_gcrmn_regions, data_graticules, lats, longs)
+
+## 4.3 Regional - Hard coral and macroalgae ----
+
+export_subplots <- function(region_i, category_i){
   
-## 3.2 Confidence intervals ----
+  data_i <- data_models %>% 
+    group_by(category, level, region, subregion, ecoregion) %>% 
+    filter(year >= first_year & year <= last_year) %>% 
+    ungroup() %>% 
+    filter(category == category_i & level == "region" & model == "HBM")
+  
+  plot_i <- ggplot(data = data_i %>% filter(region == region_i)) +
+    geom_ribbon(aes(x = year, ymin = lower_ci_95, ymax = upper_ci_95), alpha = 0.2) +
+    geom_line(aes(x = year, y = mean)) +
+    lims(x = c(1980, 2025), y = c(0, max(data_i$upper_ci_95))) +
+    labs(x = "Year", y = "Cover (%)", title = region_i) +
+    theme_graph() +
+    theme(plot.title = element_text(size = 27, color = "white", face = "bold"),
+          axis.title = element_text(size = 18),
+          axis.text = element_text(size = 16),
+          plot.background = element_rect(fill = "transparent", color = NA))
+  
+  if(category_i == "Hard coral"){
+    
+    ggsave(filename = paste0("figs/01_part-1/fig-7_", str_to_lower(region_i), ".png"), plot = plot_i,
+           bg = "transparent", height = 5, width = 6, dpi = 300)
+    
+  }else{
+    
+    ggsave(filename = paste0("figs/01_part-1/fig-8_", str_to_lower(region_i), ".png"), plot = plot_i,
+           bg = "transparent", height = 5, width = 6, dpi = 300)
+    
+  }
+  
+}
 
-raw_trends <- model_results$result_trends %>% 
-  # Calculate mean and confidence interval
-  rename(cover = mean) %>% 
-  group_by(category, level, region, subregion, ecoregion, year, color, text_title) %>% 
-  summarise(mean = mean(cover),
-            lower_ci_95 = quantile(cover, 0.025),
-            upper_ci_95 = quantile(cover, 0.975)) %>% 
-  ungroup() %>% 
-  # Replace negative values by 0
-  mutate(across(c(mean, lower_ci_95, upper_ci_95), ~ifelse(.x < 0, 0, .x)))
+map(setdiff(unique(data_models$region), NA),
+    ~export_subplots(category_i = "Hard coral", region_i = .x))
 
-## 3.4 Long-term average ----
+map(setdiff(unique(data_models$region), NA),
+    ~export_subplots(category_i = "Macroalgae", region_i = .x))
 
-long_term_average <- raw_trends %>% 
-  group_by(category, level, region, subregion, ecoregion) %>% 
-  summarise(across(c(mean, lower_ci_95, upper_ci_95), ~mean(.x, na.rm = TRUE))) %>% 
-  ungroup()
+# 5. Figures for Part 2 ----
 
-## 3.5 Long-term trend ----
+## 5.1 Trends (regions) ----
 
-long_term_trend <- raw_trends %>% 
-  group_by(category, level, region, subregion, ecoregion) %>% 
-  group_modify(~extract_mannkendall(data = .x, var_y = "mean")) %>% 
-  ungroup()
+map(setdiff(unique(data_models$region), NA),
+    ~plot_trends(level_i = "region", region_i = .x, range = "obs"))
 
-## 3.6 Combine into a list ----
+## 5.2 Trends (subregions) ----
 
-data_trends <- lst(raw_trends, long_term_average, long_term_trend)
 
-rm(raw_trends, long_term_average, long_term_trend)
 
-# 4. Trends ----
 
-## 4.1 Global trends ----
 
-plot_trends(level_i = "region")
+## 5.3 Trends for ecoregions ----
 
-## 4.2 Region trends ----
+map(setdiff(unique(data_models$region), NA),
+    ~plot_trends(level_i = "ecoregion", region_i = .x, category_i = "Hard coral", range = "obs"))
 
-map(setdiff(unique(data_trends$raw_trends$region), NA),
-    ~plot_trends(region_i = .x, level_i = "region"))
+map(setdiff(unique(data_models$region), NA),
+    ~plot_trends(level_i = "ecoregion", region_i = .x, category_i = "Macroalgae", range = "obs"))
 
-## 4.3 Subregion trends ----
 
-map(setdiff(unique(data_trends$raw_trends$region), NA),
-    ~plot_trends(region_i = .x, level_i = "subregion"))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## 5.4 Values per region for writing ----
+
+
+
+
+
+# 6. Comparison previous trends ----
+
+
+# 7. Average raw values ?????? ----
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
