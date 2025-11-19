@@ -34,6 +34,7 @@ data_graticules <- st_read("data/01_maps/01_raw/03_natural-earth/ne_10m_graticul
   st_transform(crs = "+proj=eqearth")
 
 data_gcrmn_regions <- st_read("data/01_maps/02_clean/03_regions/gcrmn_regions.shp") %>% 
+  left_join(., color_regions) %>% 
   st_transform(crs = "+proj=eqearth")
 
 lats <- c(90:-90, -90:90, 90)
@@ -49,7 +50,8 @@ plot <- ggplot() +
   geom_sf(data = background_map_border, fill = "white", color = "grey30", linewidth = 0.25) +
   geom_sf(data = data_graticules, color = "#ecf0f1", linewidth = 0.25) +
   geom_sf(data = background_map_border, fill = NA, color = "grey30", linewidth = 0.25) +
-  geom_sf(data = data_gcrmn_regions, aes(fill = region), show.legend = FALSE) +
+  geom_sf(data = data_gcrmn_regions, aes(fill = color), show.legend = FALSE) +
+  scale_fill_identity() +
   geom_sf(data = data_country, color = "#24252a", fill = "#dadfe1") +
   theme(text = element_text(family = "Open Sans"),
         legend.position = "bottom",
@@ -75,13 +77,19 @@ export_subplots <- function(region_i, category_i){
     group_by(category, level, region, subregion, ecoregion) %>% 
     filter(year >= first_year & year <= last_year) %>% 
     ungroup() %>% 
-    filter(category == category_i & level == "region" & model == "HBM")
+    filter(category == category_i & level == "region" & model == "HBM") %>% 
+    left_join(., color_regions)
   
   plot_i <- ggplot(data = data_i %>% filter(region == region_i)) +
-    geom_ribbon(aes(x = year, ymin = lower_ci_95, ymax = upper_ci_95), alpha = 0.2) +
-    geom_line(aes(x = year, y = mean)) +
+    geom_ribbon(aes(x = year, ymin = lower_ci_95, ymax = upper_ci_95, fill = color), alpha = 0.5) +
+    geom_line(aes(x = year, y = mean, color = color)) +
+    scale_color_identity() +
+    scale_fill_identity() +
     lims(x = c(1980, 2025), y = c(0, max(data_i$upper_ci_95))) +
-    labs(x = "Year", y = "Cover (%)", title = region_i) +
+    labs(x = "Year", y = "Cover (%)", title = case_when(region_i == "EAS" ~ "East Asian Seas",
+                                                        region_i == "ETP" ~ "Eastern Tropical Pacific",
+                                                        region_i == "WIO" ~ "Western Indian Ocean",
+                                                        TRUE ~ region_i)) +
     theme_graph() +
     theme(plot.title = element_text(size = 27, color = "white", face = "bold"),
           axis.title = element_text(size = 18),
@@ -103,224 +111,46 @@ export_subplots <- function(region_i, category_i){
 }
 
 map(setdiff(unique(data_models$region), NA),
-    ~export_subplots(category_i = "Hard coral", region_i = .x))
+    ~export_subplots(region_i = .x,
+                     category_i = "Hard coral"))
 
 map(setdiff(unique(data_models$region), NA),
-    ~export_subplots(category_i = "Macroalgae", region_i = .x))
+    ~export_subplots(region_i = .x,
+                     category_i = "Macroalgae"))
 
 # 5. Figures for Part 2 ----
 
 ## 5.1 Trends (regions) ----
 
 map(setdiff(unique(data_models$region), NA),
-    ~plot_trends(level_i = "region", region_i = .x, range = "obs"))
+    ~plot_trends(region_i = .x,
+                 level_i = "region", range = "obs"))
 
 ## 5.2 Trends (subregions) ----
 
+map(setdiff(unique(data_models$region), NA),
+    ~plot_trends(region_i = .x,
+                 level_i = "subregion", category_i = "Hard coral", range = "obs"))
 
-
-
+map(setdiff(unique(data_models$region), NA),
+    ~plot_trends(region_i = .x,
+                 level_i = "subregion", category_i = "Macroalgae", range = "obs"))
 
 ## 5.3 Trends for ecoregions ----
 
 map(setdiff(unique(data_models$region), NA),
-    ~plot_trends(level_i = "ecoregion", region_i = .x, category_i = "Hard coral", range = "obs"))
+    ~plot_trends(region_i = .x,
+                 level_i = "ecoregion", category_i = "Hard coral", range = "full"))
 
 map(setdiff(unique(data_models$region), NA),
-    ~plot_trends(level_i = "ecoregion", region_i = .x, category_i = "Macroalgae", range = "obs"))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    ~plot_trends(region_i = .x,
+                 level_i = "ecoregion", category_i = "Macroalgae", range = "obs"))
 
 ## 5.4 Values per region for writing ----
 
 
 
-
-
 # 6. Comparison previous trends ----
-
-
-# 7. Average raw values ?????? ----
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-################## TO SORT #######################
-
-# Export model results for Murray
-
-data_xgboost <- data_trends$raw_trends %>% 
-  select(-color, -text_title)
-
-save(data_xgboost, file = "data/02_misc/data_xgboost.RData")
-
-
-
-
-
-
-
-
-
-# Other
-
-data_trends$raw_trends %>% 
-  filter(level == "global") %>% 
-  ggplot(data = ., aes(x = year, y = mean, ymin = lower_ci_95,
-                       ymax = upper_ci_95)) +
-  geom_ribbon(alpha = 0.35, color = NA) +
-  scale_fill_manual(values = c("#d63031", "#0984e3")) +
-  geom_line() +
-  facet_grid(~category) +
-  theme_graph() +
-  theme(strip.text = element_text(face = "bold"),
-        legend.title.position = "top",
-        legend.title = element_text(face = "bold", hjust = 0.5)) +
-  scale_x_continuous(breaks = c(1980, 2000, 2020)) +
-  labs(x = "Year", y = "Benthic cover (%)")
-
-
-data_trends$raw_trends %>% 
-  filter(level == "region") %>% 
-  ggplot(data = ., aes(x = year, y = mean, ymin = lower_ci_95,
-                       ymax = upper_ci_95)) +
-  geom_ribbon(alpha = 0.35, color = NA) +
-  scale_fill_manual(values = c("#d63031", "#0984e3")) +
-  geom_line() +
-  facet_grid(category~region) +
-  theme_graph() +
-  theme(strip.text = element_text(face = "bold"),
-        legend.title.position = "top",
-        legend.title = element_text(face = "bold", hjust = 0.5)) +
-  scale_x_continuous(breaks = c(1980, 2000, 2020)) +
-  labs(x = "Year", y = "Benthic cover (%)")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## 4.1 Comparison with 2020 data ----
 
 data_2020 <- read.csv("../../2025-08-25_time-series/time_series/data/01_raw-data/ModelledTrends.all.sum.csv") %>% 
   rename(category = Var, region = GCRMN_region, year = Year,
@@ -357,7 +187,7 @@ plot <- ggplot(data = data_all, aes(x = year, y = mean, ymin = lower_ci_95,
 
 ggsave("figs/06_additional/04_benthic-trends/comparison-trends_2020-2025_full.png", width = 18, height = 8)
 
-## 4.2 Yearly raw average ----
+# 7. Average raw values ----
 
 load("data/11_model-data/data_benthic_prepared.RData")
 

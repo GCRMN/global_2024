@@ -23,3 +23,8 @@ palette_first <- scico(5, palette = "oslo", begin = 0.8, end = 0)
 palette_second <- c("#fac484", "#f8a07e", "#ce6693", "#a059a0", "#5c53a5")
 
 # palette_second taken from https://carto.com/carto-colors/ (SunsetDark)
+
+color_regions <- tibble(region = c("Australia", "Brazil", "Caribbean", "EAS", "ETP",
+                                   "PERSGA", "Pacific", "ROPME", "South Asia", "WIO"),
+                        color = c("#16a085", "#c0392b", "#e67e22", "#9b59b6", "#34495e",
+                                  "#e74c3c", "#2980b9", "#27ae60", "#3498db", "#f1c40f"))
