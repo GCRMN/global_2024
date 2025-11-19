@@ -4,11 +4,21 @@ library(tidyverse) # Core tidyverse packages
 
 # 2. Source functions ----
 
-source("code/function/combine_model_data.R")
+source("code/function/combine_ml_output.R")
 
 # 3.1 Combine Hierarchical Bayesian Model (HBM) results ----
 
-data_hbm_region <- readRDS(file = "data/13_model-murray/benthic_regions.rds")
+data_hbm_global <- readRDS(file = "data/13_model-output_hbm/benthic_global.rds")
+
+data_hbm_global <- data_hbm_global %>% 
+  select(-name, -data_years, -xgboost) %>% 
+  unnest(stan) %>% 
+  select(-variable, -upper_80, -lower_80) %>% 
+  mutate(across(c(median, lower, upper), ~.x*100)) %>% 
+  rename(year = Year, mean = median, lower_ci_95 = lower, upper_ci_95 = upper) %>% 
+  mutate(level = "global", model = "HBM")
+
+data_hbm_region <- readRDS(file = "data/13_model-output_hbm/benthic_regions.rds")
 
 data_hbm_region <- data_hbm_region %>% 
   select(-name, -data_years, -xgboost) %>% 
@@ -16,9 +26,9 @@ data_hbm_region <- data_hbm_region %>%
   select(-variable, -upper_80, -lower_80) %>% 
   mutate(across(c(median, lower, upper), ~.x*100)) %>% 
   rename(year = Year, mean = median, lower_ci_95 = lower, upper_ci_95 = upper) %>% 
-  mutate(level = "region", model = "HBM", subregion = NA)
+  mutate(level = "region", model = "HBM")
 
-data_hbm_subregion <- readRDS(file = "data/13_model-murray/benthic_subregions.rds")
+data_hbm_subregion <- readRDS(file = "data/13_model-output_hbm/benthic_subregions.rds")
 
 data_hbm_subregion <- data_hbm_subregion %>% 
   select(-name, -data_years, -xgboost) %>% 
@@ -28,11 +38,22 @@ data_hbm_subregion <- data_hbm_subregion %>%
   rename(year = Year, mean = median, lower_ci_95 = lower, upper_ci_95 = upper) %>% 
   mutate(level = "subregion", model = "HBM")
 
-data_hbm <- bind_rows(data_hbm_region, data_hbm_subregion)
+data_hbm_ecoregion <- readRDS(file = "data/13_model-output_hbm/benthic_ecoregions.rds")
+
+data_hbm_ecoregion <- data_hbm_ecoregion %>% 
+  select(-name, -data_years, -xgboost, -data) %>% 
+  unnest(stan) %>% 
+  select(-variable, -upper_80, -lower_80) %>% 
+  mutate(across(c(median, lower, upper), ~.x*100)) %>% 
+  rename(year = Year, mean = median, lower_ci_95 = lower, upper_ci_95 = upper) %>% 
+  mutate(level = "ecoregion", model = "HBM")
+
+data_hbm <- bind_rows(data_hbm_global, data_hbm_region,
+                      data_hbm_subregion, data_hbm_ecoregion)
 
 # 3.2 Combine Machine Learning Model (ML) results ----
 
-data_ml_results <- combine_model_data(save_results = FALSE)
+data_ml_results <- combine_ml_output()
 
 data_ml <- data_ml_results$result_trends %>% 
   # Calculate mean and confidence interval
@@ -44,14 +65,15 @@ data_ml <- data_ml_results$result_trends %>%
   ungroup() %>% 
   # Replace negative values by 0
   mutate(across(c(mean, lower_ci_95, upper_ci_95), ~ifelse(.x < 0, 0, .x))) %>% 
-  mutate(model = "ML")
+  mutate(model = "ML") %>% 
+  filter(level != "country")
 
 # 3.3 Combine data from both models ----
 
 data_models <- bind_rows(data_ml, data_hbm) %>% 
-  mutate(across(c(mean, lower_ci_95, upper_ci_95), ~round(.x, 2)))
-
-rm(data_hbm_region, data_hbm_subregion, data_hbm, data_ml)
+  mutate(across(c(mean, lower_ci_95, upper_ci_95), ~round(.x, 2))) %>% 
+  select(model, category, level, region, subregion, ecoregion,
+         year, mean, lower_ci_95, upper_ci_95)
 
 # 3.4 Add observed data, first year, and last year variables ----
 
