@@ -79,13 +79,17 @@ export_subplots <- function(region_i, category_i){
     ungroup() %>% 
     filter(category == category_i & level == "region" & model == "HBM") %>% 
     left_join(., color_regions)
-  
+
   plot_i <- ggplot(data = data_i %>% filter(region == region_i)) +
-    geom_ribbon(aes(x = year, ymin = lower_ci_95, ymax = upper_ci_95, fill = color), alpha = 0.5) +
+    geom_ribbon(aes(x = year, ymin = lower_ci_95, ymax = upper_ci_95, fill = color), alpha = 0.35) +
+    geom_ribbon(aes(x = year, ymin = lower_ci_80, ymax = upper_ci_80, fill = color), alpha = 0.45) +
     geom_line(aes(x = year, y = mean, color = color)) +
     scale_color_identity() +
     scale_fill_identity() +
-    lims(x = c(1980, 2025), y = c(0, max(data_i$upper_ci_95))) +
+    scale_x_continuous(breaks = c(1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020),
+                       limits = c(1979, 2026),
+                       labels = c("1980", "", "1990", "", "2000", "", "2010", "", "2020")) +
+    lims(y = c(0, max(data_i$upper_ci_95))) +
     labs(x = "Year", y = "Cover (%)", title = case_when(region_i == "EAS" ~ "East Asian Seas",
                                                         region_i == "ETP" ~ "Eastern Tropical Pacific",
                                                         region_i == "WIO" ~ "Western Indian Ocean",
@@ -140,7 +144,7 @@ map(setdiff(unique(data_models$region), NA),
 
 map(setdiff(unique(data_models$region), NA),
     ~plot_trends(region_i = .x,
-                 level_i = "ecoregion", category_i = "Hard coral", range = "full"))
+                 level_i = "ecoregion", category_i = "Hard coral", range = "obs"))
 
 map(setdiff(unique(data_models$region), NA),
     ~plot_trends(region_i = .x,

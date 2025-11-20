@@ -38,10 +38,10 @@ plot_trends <- function(region_i, level_i, category_i = NA, range = NA){
       } %>% 
       ungroup()
     
-    plot_i <- ggplot(data = data_i, aes(x = year, y = mean, ymin = lower_ci_95,
-                                        ymax = upper_ci_95, fill = color, color = color)) +
-      geom_ribbon(alpha = 0.35, color = NA) +
-      geom_line() +
+    plot_i <- ggplot(data = data_i, aes(x = year, fill = color, color = color)) +
+      geom_ribbon(aes(ymin = lower_ci_95, ymax = upper_ci_95), alpha = 0.35, color = NA) +
+      geom_ribbon(aes(ymin = lower_ci_80, ymax = upper_ci_80), alpha = 0.45, color = NA) +
+      geom_line(aes(y = mean)) +
       facet_wrap(~text_title, scales = "free", ncol = 2) +
       scale_color_identity() +
       scale_fill_identity() +
@@ -49,7 +49,9 @@ plot_trends <- function(region_i, level_i, category_i = NA, range = NA){
       theme(legend.title.position = "top",
             strip.text = element_markdown(hjust = 0, size = 14),
             legend.title = element_text(face = "bold", hjust = 0.5)) +
-      scale_x_continuous(breaks = c(1980, 1990, 2000, 2010, 2020), limits = c(1979, 2026)) +
+      scale_x_continuous(breaks = c(1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020),
+                         limits = c(1979, 2026),
+                         labels = c("1980", "", "1990", "", "2000", "", "2010", "", "2020")) +
       scale_y_continuous(limits = c(0, floor(max(data_i$upper_ci_95)/10)*10+10)) +
       labs(x = "Year", y = "Benthic cover (%)")
     
@@ -73,10 +75,10 @@ plot_trends <- function(region_i, level_i, category_i = NA, range = NA){
       ungroup() %>% 
       filter(category %in% c("Hard coral", "Macroalgae") & region == region_i)
     
-    plot_i <- ggplot(data = data_i, aes(x = year, y = mean, ymin = lower_ci_95,
-                                        ymax = upper_ci_95, fill = color, color = color)) +
-      geom_ribbon(alpha = 0.35, color = NA) +
-      geom_line() +
+    plot_i <- ggplot(data = data_i, aes(x = year, fill = color, color = color)) +
+      geom_ribbon(aes(ymin = lower_ci_95, ymax = upper_ci_95), alpha = 0.35, color = NA) +
+      geom_ribbon(aes(ymin = lower_ci_80, ymax = upper_ci_80), alpha = 0.45, color = NA) +
+      geom_line(aes(y = mean)) +
       facet_wrap(~text_title, scales = "free", ncol = 2) +
       scale_color_identity() +
       scale_fill_identity() +
@@ -84,7 +86,9 @@ plot_trends <- function(region_i, level_i, category_i = NA, range = NA){
       theme(legend.title.position = "top",
             strip.text = element_markdown(hjust = 0, size = 14),
             legend.title = element_text(face = "bold", hjust = 0.5)) +
-      scale_x_continuous(breaks = c(1980, 1990, 2000, 2010, 2020), limits = c(1979, 2026)) +
+      scale_x_continuous(breaks = c(1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020),
+                         limits = c(1979, 2026),
+                         labels = c("1980", "", "1990", "", "2000", "", "2010", "", "2020")) +
       scale_y_continuous(limits = c(0, floor(max(data_i$upper_ci_95)/10)*10+10)) +
       labs(x = "Year", y = "Benthic cover (%)")
     
@@ -111,10 +115,10 @@ plot_trends <- function(region_i, level_i, category_i = NA, range = NA){
     
     nb_subregions <- length(unique(data_i$subregion))
     
-    plot_i <- ggplot(data = data_i, aes(x = year, y = mean, ymin = lower_ci_95,
-                                        ymax = upper_ci_95, color = color, fill = color)) +
-      geom_ribbon(alpha = 0.35, color = NA) +
-      geom_line() +
+    plot_i <- ggplot(data = data_i, aes(x = year, fill = color, color = color)) +
+      geom_ribbon(aes(ymin = lower_ci_95, ymax = upper_ci_95), alpha = 0.35, color = NA) +
+      geom_ribbon(aes(ymin = lower_ci_80, ymax = upper_ci_80), alpha = 0.45, color = NA) +
+      geom_line(aes(y = mean)) +
       facet_wrap(~subregion, scales = "free", ncol = case_when(nb_subregions == 3 ~ 3,
                                                                nb_subregions == 4 ~ 2,
                                                                nb_subregions == 5 ~ 3,
@@ -126,7 +130,9 @@ plot_trends <- function(region_i, level_i, category_i = NA, range = NA){
       theme(legend.title.position = "top",
             strip.text = element_markdown(hjust = 0, size = 12, face = "bold"),
             legend.title = element_text(face = "bold", hjust = 0.5)) +
-      scale_x_continuous(breaks = c(1980, 2000, 2020), limits = c(1979, 2026)) +
+      scale_x_continuous(breaks = c(1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020),
+                         limits = c(1979, 2026),
+                         labels = c("1980", "", "1990", "", "2000", "", "2010", "", "2020")) +
       scale_y_continuous(limits = c(0, floor(max(data_i$upper_ci_95)/10)*10+10)) +
       labs(x = "Year", y = "Benthic cover (%)")
     
@@ -209,10 +215,10 @@ plot_trends <- function(region_i, level_i, category_i = NA, range = NA){
                                    TRUE ~ ecoregion)) %>% 
       select(-length_more_20, -slash_present)
     
-    plot_i <- ggplot(data = data_i, aes(x = year, y = mean, ymin = lower_ci_95,
-                                        ymax = upper_ci_95, color = color, fill = color)) +
-      geom_ribbon(alpha = 0.35, color = NA) +
-      geom_line() +
+    plot_i <- ggplot(data = data_i, aes(x = year, fill = color, color = color)) +
+      geom_ribbon(aes(ymin = lower_ci_95, ymax = upper_ci_95), alpha = 0.35, color = NA) +
+      geom_ribbon(aes(ymin = lower_ci_80, ymax = upper_ci_80), alpha = 0.45, color = NA) +
+      geom_line(aes(y = mean)) +
       facet_wrap(~ecoregion, scales = "free", ncol = 4) +
       scale_color_identity() +
       scale_fill_identity() +
@@ -220,11 +226,13 @@ plot_trends <- function(region_i, level_i, category_i = NA, range = NA){
       theme(legend.title.position = "top",
             strip.text = element_text(face = "bold", hjust = 0),
             legend.title = element_text(face = "bold", hjust = 0.5)) +
-      scale_x_continuous(breaks = c(1980, 2000, 2020), limits = c(1979, 2026)) +
+      scale_x_continuous(breaks = c(1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020),
+                         limits = c(1979, 2026),
+                         labels = c("1980", "", "1990", "", "2000", "", "2010", "", "2020")) +
       scale_y_continuous(limits = c(0, floor(max(data_i$upper_ci_95)/10)*10+10)) +
       labs(x = "Year", y = "Benthic cover (%)")
     
-    ggsave(filename = paste0("figs/06_additional/04_benthic-trends/ecoregion_",
+    ggsave(filename = paste0("figs/06_additional/04_ecoregion-trends/ecoregion_",
                              str_replace_all(str_replace_all(str_to_lower(category_i), " ", "-"), "---", "-"),
                              "_",
                              str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"),

@@ -13,9 +13,10 @@ data_hbm_global <- readRDS(file = "data/13_model-output_hbm/benthic_global.rds")
 data_hbm_global <- data_hbm_global %>% 
   select(-name, -data_years, -xgboost) %>% 
   unnest(stan) %>% 
-  select(-variable, -upper_80, -lower_80) %>% 
-  mutate(across(c(median, lower, upper), ~.x*100)) %>% 
-  rename(year = Year, mean = median, lower_ci_95 = lower, upper_ci_95 = upper) %>% 
+  select(-variable) %>% 
+  mutate(across(c(median, lower, upper, lower_80, upper_80), ~.x*100)) %>% 
+  rename(year = Year, mean = median, lower_ci_95 = lower, upper_ci_95 = upper,
+         upper_ci_80 = upper_80, lower_ci_80 = lower_80) %>% 
   mutate(level = "global", model = "HBM")
 
 data_hbm_region <- readRDS(file = "data/13_model-output_hbm/benthic_regions.rds")
@@ -23,9 +24,10 @@ data_hbm_region <- readRDS(file = "data/13_model-output_hbm/benthic_regions.rds"
 data_hbm_region <- data_hbm_region %>% 
   select(-name, -data_years, -xgboost) %>% 
   unnest(stan) %>% 
-  select(-variable, -upper_80, -lower_80) %>% 
-  mutate(across(c(median, lower, upper), ~.x*100)) %>% 
-  rename(year = Year, mean = median, lower_ci_95 = lower, upper_ci_95 = upper) %>% 
+  select(-variable) %>% 
+  mutate(across(c(median, lower, upper, lower_80, upper_80), ~.x*100)) %>% 
+  rename(year = Year, mean = median, lower_ci_95 = lower, upper_ci_95 = upper,
+         upper_ci_80 = upper_80, lower_ci_80 = lower_80) %>% 
   mutate(level = "region", model = "HBM")
 
 data_hbm_subregion <- readRDS(file = "data/13_model-output_hbm/benthic_subregions.rds")
@@ -33,9 +35,10 @@ data_hbm_subregion <- readRDS(file = "data/13_model-output_hbm/benthic_subregion
 data_hbm_subregion <- data_hbm_subregion %>% 
   select(-name, -data_years, -xgboost) %>% 
   unnest(stan) %>% 
-  select(-variable, -upper_80, -lower_80) %>% 
-  mutate(across(c(median, lower, upper), ~.x*100)) %>% 
-  rename(year = Year, mean = median, lower_ci_95 = lower, upper_ci_95 = upper) %>% 
+  select(-variable) %>% 
+  mutate(across(c(median, lower, upper, lower_80, upper_80), ~.x*100)) %>% 
+  rename(year = Year, mean = median, lower_ci_95 = lower, upper_ci_95 = upper,
+         upper_ci_80 = upper_80, lower_ci_80 = lower_80) %>% 
   mutate(level = "subregion", model = "HBM")
 
 data_hbm_ecoregion <- readRDS(file = "data/13_model-output_hbm/benthic_ecoregions.rds")
@@ -43,9 +46,10 @@ data_hbm_ecoregion <- readRDS(file = "data/13_model-output_hbm/benthic_ecoregion
 data_hbm_ecoregion <- data_hbm_ecoregion %>% 
   select(-name, -data_years, -xgboost, -data) %>% 
   unnest(stan) %>% 
-  select(-variable, -upper_80, -lower_80) %>% 
-  mutate(across(c(median, lower, upper), ~.x*100)) %>% 
-  rename(year = Year, mean = median, lower_ci_95 = lower, upper_ci_95 = upper) %>% 
+  select(-variable) %>% 
+  mutate(across(c(median, lower, upper, lower_80, upper_80), ~.x*100)) %>% 
+  rename(year = Year, mean = median, lower_ci_95 = lower, upper_ci_95 = upper,
+         upper_ci_80 = upper_80, lower_ci_80 = lower_80) %>% 
   mutate(level = "ecoregion", model = "HBM")
 
 data_hbm <- bind_rows(data_hbm_global, data_hbm_region,
@@ -61,19 +65,22 @@ data_ml <- data_ml_results$result_trends %>%
   group_by(category, level, region, subregion, ecoregion, year) %>% 
   summarise(mean = mean(cover),
             lower_ci_95 = quantile(cover, 0.025),
-            upper_ci_95 = quantile(cover, 0.975)) %>% 
+            upper_ci_95 = quantile(cover, 0.975),
+            lower_ci_80 = quantile(cover, 0.100),
+            upper_ci_80 = quantile(cover, 0.900)) %>% 
   ungroup() %>% 
   # Replace negative values by 0
-  mutate(across(c(mean, lower_ci_95, upper_ci_95), ~ifelse(.x < 0, 0, .x))) %>% 
+  mutate(across(c(mean, lower_ci_95, upper_ci_95, lower_ci_80, upper_ci_80),
+                ~ifelse(.x < 0, 0, .x))) %>% 
   mutate(model = "ML") %>% 
   filter(level != "country")
 
 # 3.3 Combine data from both models ----
 
 data_models <- bind_rows(data_ml, data_hbm) %>% 
-  mutate(across(c(mean, lower_ci_95, upper_ci_95), ~round(.x, 2))) %>% 
+  mutate(across(c(mean, lower_ci_95, upper_ci_95, lower_ci_80, upper_ci_80), ~round(.x, 2))) %>% 
   select(model, category, level, region, subregion, ecoregion,
-         year, mean, lower_ci_95, upper_ci_95)
+         year, mean, lower_ci_95, upper_ci_95, lower_ci_80, upper_ci_80)
 
 # 3.4 Add observed data, first year, and last year variables ----
 
@@ -121,5 +128,5 @@ data_obs <-
 data_models <- left_join(data_models, data_obs) 
   
 # 3.5 Export the results ----
-  
+
 save(data_models, file = "data/model-results.RData")
