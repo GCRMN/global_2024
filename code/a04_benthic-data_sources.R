@@ -6,9 +6,18 @@ library(sf)
 
 # 2. Load data ----
 
-data_region <- st_read("data/01_maps/02_clean/03_regions/gcrmn_regions.shp")
+data_subregion <- st_read("data/01_maps/02_clean/04_subregions/gcrmn_subregions.shp") %>% 
+  st_drop_geometry()
+
+data_region <- data_subregion %>% 
+  select(region) %>% 
+  distinct()
 
 load("data/02_misc/data-benthic.RData")
+
+data_sources <- read_xlsx("C:/Users/jerem/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benthos/gcrmndb_benthos/data/05_data-sources.xlsx") %>% 
+  select(datasetID, rightsHolder) %>% 
+  distinct()
 
 # 3. DatasetID per region ----
 
@@ -16,20 +25,42 @@ data_benthic %>%
   select(region, datasetID) %>% 
   distinct() %>% 
   arrange(region, datasetID) %>% 
+  # To add datasets names
+  left_join(., data_sources) %>% 
+  mutate(datasetID = paste0(rightsHolder, " (", datasetID, ")")) %>% 
+  # Collapse
   group_by(region) %>% 
   summarise(datasetID = paste0(datasetID, collapse = ", ")) %>% 
-  left_join(data_region %>% st_drop_geometry(), .) %>% 
+  ungroup() %>% 
+  left_join(data_region, .) %>%
   arrange(region) %>% 
   openxlsx::write.xlsx(., file = "figs/05_supp-mat/tbl-1_datasetid-per-region.xlsx")
 
-# 4. List of contributors per datasetID ----
+# 4. DatasetID per subregion ----
+
+data_benthic %>% 
+  select(subregion, datasetID) %>% 
+  distinct() %>% 
+  arrange(subregion, datasetID) %>% 
+  # To add datasets names
+  left_join(., data_sources) %>% 
+  mutate(datasetID = paste0(rightsHolder, " (", datasetID, ")")) %>% 
+  # Collapse
+  group_by(subregion) %>% 
+  summarise(datasetID = paste0(datasetID, collapse = ", ")) %>% 
+  ungroup() %>% 
+  left_join(data_subregion %>% select(-region), .) %>%
+  arrange(subregion) %>% 
+  openxlsx::write.xlsx(., file = "figs/05_supp-mat/tbl-2_datasetid-per-subregion.xlsx")
+
+# 5. List of contributors per datasetID ----
 
 read_xlsx("C:/Users/jerem/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benthos/gcrmndb_benthos/data/05_data-sources.xlsx") %>% 
   filter(datasetID %in% unique(data_benthic$datasetID)) %>% 
   select(datasetID, rightsHolder, last_name, first_name, email) %>% 
   openxlsx::write.xlsx(., file = "figs/06_additional/05_contributors/contributors_datasetid.xlsx")
 
-# 5. List of contributors emails ----
+# 6. List of contributors emails ----
 
 read_xlsx("C:/Users/jerem/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benthos/gcrmndb_benthos/data/05_data-sources.xlsx") %>% 
   filter(datasetID %in% unique(data_benthic$datasetID)) %>% 
@@ -38,7 +69,7 @@ read_xlsx("C:/Users/jerem/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benth
   arrange(last_name) %>% 
   openxlsx::write.xlsx(., file = "figs/06_additional/05_contributors/contributors_contacts.xlsx")
 
-# 6. List of contributors' names per region ----
+# 7. List of contributors' names per region ----
 
 read_xlsx("C:/Users/jerem/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benthos/gcrmndb_benthos/data/05_data-sources.xlsx") %>% 
   filter(datasetID %in% unique(data_benthic$datasetID)) %>% 
@@ -58,7 +89,7 @@ read_xlsx("C:/Users/jerem/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benth
   distinct() %>% 
   openxlsx::write.xlsx(., file = "figs/06_additional/05_contributors/contributors_region.xlsx")
 
-# 7. List of contributors' contacts per region ----
+# 8. List of contributors' contacts per region ----
 
 read_xlsx("C:/Users/jerem/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benthos/gcrmndb_benthos/data/05_data-sources.xlsx") %>% 
   filter(datasetID %in% unique(data_benthic$datasetID)) %>% 
