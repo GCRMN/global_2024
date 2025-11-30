@@ -38,6 +38,8 @@ data_benthic %>%
 
 # 4. DatasetID per subregion ----
 
+## 4.1 Supplementary Materials ----
+
 data_benthic %>% 
   select(subregion, datasetID) %>% 
   distinct() %>% 
@@ -52,6 +54,31 @@ data_benthic %>%
   left_join(data_subregion %>% select(-region), .) %>%
   arrange(subregion) %>% 
   openxlsx::write.xlsx(., file = "figs/05_supp-mat/tbl-2_datasetid-per-subregion.xlsx")
+
+## 4.2 Additional materials ----
+
+data_subregion <- data_benthic %>% 
+  select(region, subregion, datasetID) %>% 
+  distinct() %>% 
+  arrange(region, subregion, datasetID) %>% 
+  # To add datasets names
+  left_join(., data_sources) %>% 
+  rename(datasetName = rightsHolder)
+
+export_datasetID <- function(region_i){
+  
+  data_subregion %>%
+    filter(region == region_i) %>% 
+    select(-region) %>% 
+    openxlsx::write.xlsx(., file = paste0("figs/06_additional/01_misc/list-datasetid_",
+                                          str_replace_all(str_to_lower(region_i), " ", "-"),
+                                          ".xlsx"))
+  
+}
+
+map(data_region$region, ~export_datasetID(region_i = .x))
+
+rm(data_subregion, export_datasetID)
 
 # 5. List of contributors per datasetID ----
 
