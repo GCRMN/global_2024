@@ -16,7 +16,7 @@ load("data/07_cyclones/01_cyclones_points.RData")
 
 ## 2.3 Coral reef distribution ----
 
-data_reef <- st_read("data/01_maps/02_clean/01_reefs/reefs.shp")
+data_reef <- st_read("data/01_maps/02_clean/01_reefs/global_2024_reefs.shp")
 
 ## 2.4 Coral reef distribution 100 km buffer --
 

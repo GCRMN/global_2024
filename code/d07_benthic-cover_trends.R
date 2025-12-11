@@ -86,9 +86,9 @@ export_subplots <- function(region_i, category_i){
     geom_line(aes(x = year, y = mean, color = color)) +
     scale_color_identity() +
     scale_fill_identity() +
-    scale_x_continuous(breaks = c(1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020),
+    scale_x_continuous(breaks = c(1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020, 2025),
                        limits = c(1979, 2026),
-                       labels = c("1980", "", "1990", "", "2000", "", "2010", "", "2020")) +
+                       labels = c("1980", "", "1990", "", "2000", "", "2010", "", "2020", "")) +
     lims(y = c(0, max(data_i$upper_ci_95))) +
     labs(x = "Year", y = "Cover (%)", title = case_when(region_i == "EAS" ~ "East Asian Seas",
                                                         region_i == "ETP" ~ "Eastern Tropical Pacific",
@@ -140,7 +140,7 @@ map(setdiff(unique(data_models$region), NA),
     ~plot_trends(region_i = .x,
                  level_i = "subregion", category_i = "Macroalgae", range = "obs"))
 
-## 5.3 Trends for ecoregions ----
+## 5.3 Trends (ecoregions) ----
 
 map(setdiff(unique(data_models$region), NA),
     ~plot_trends(region_i = .x,
@@ -194,6 +194,82 @@ ggsave("figs/06_additional/04_benthic-trends/comparison-trends_2020-2025_full.pn
 # 7. Average raw values ----
 
 load("data/11_model-data/data_benthic_prepared.RData")
+
+
+
+
+
+
+
+
+
+
+# Supplementary Figure X -------------
+
+data_yearly_raw <- data_benthic %>% 
+  filter(category %in% c("Hard coral", "Macroalgae")) %>% 
+  group_by(year, region, category) %>% 
+  summarise(mean = mean(measurementValue)) %>% 
+  ungroup() %>% 
+  mutate(color = case_when(category == "Hard coral" ~ "#c44d56",
+                           category == "Macroalgae" ~ "#03a678"))
+
+# Ajouter totre colorés
+# Ajouter points transects
+
+data_yearly_raw %>% 
+  filter(region %in% c("Australia", "Brazil", "Caribbean", "EAS", "ETP")) %>% 
+  ggplot(data = ., aes(x = year, y = mean, fill = color)) +
+  geom_point(color = "black", shape = 23, size = 2) +
+  scale_fill_identity() +
+  facet_grid(region~category) +
+  theme_graph() +
+  lims(x = c(1979, 2026), y = c(0, NA))
+
+data_yearly_raw %>% 
+  filter(region %in% c("Pacific", "PERSGA", "ROPME", "South Asia", "WIO")) %>% 
+  ggplot(data = ., aes(x = year, y = mean, fill = color)) +
+  geom_point(color = "black", shape = 23, size = 2) +
+  scale_fill_identity() +
+  facet_grid(region~category) +
+  theme_graph() +
+  lims(x = c(1979, 2026), y = c(0, NA))
+
+
+
+
+
+
+
+################
+
+
+ggplot() +
+  geom_point(data = data_benthic_raw_i,
+             aes(x = year, y = measurementValue, color = "#b2bec3"), size = 0.8, alpha = 0.7) +
+  geom_point(data = data_benthic_raw_mean_i,
+             aes(x = year, y = mean, fill = color), color = "black", shape = 23, size = 2) +
+  scale_color_identity() +
+  scale_fill_identity() +
+  facet_wrap(~text_title, scales = scales) +
+  theme(strip.text = element_markdown(hjust = 0, size = rel(1.3)),
+        strip.background = element_blank(),
+        panel.spacing = unit(2, "lines")) +
+  labs(x = "Year", y = "Cover (%)") +
+  lims(x = c(1980, 2024), y = c(0, NA))
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 data_benthic <- data_benthic %>% 
   bind_rows(., data_benthic %>% 

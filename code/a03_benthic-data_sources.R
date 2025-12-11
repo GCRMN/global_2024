@@ -70,7 +70,7 @@ export_datasetID <- function(region_i){
   data_subregion %>%
     filter(region == region_i) %>% 
     select(-region) %>% 
-    openxlsx::write.xlsx(., file = paste0("figs/06_additional/01_misc/list-datasetid_",
+    openxlsx::write.xlsx(., file = paste0("figs/07_additional/01_misc/list-datasetid_",
                                           str_replace_all(str_to_lower(region_i), " ", "-"),
                                           ".xlsx"))
   
@@ -85,7 +85,7 @@ rm(data_subregion, export_datasetID)
 read_xlsx("C:/Users/jerem/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benthos/gcrmndb_benthos/data/05_data-sources.xlsx") %>% 
   filter(datasetID %in% unique(data_benthic$datasetID)) %>% 
   select(datasetID, rightsHolder, last_name, first_name, email) %>% 
-  openxlsx::write.xlsx(., file = "figs/06_additional/05_contributors/contributors_datasetid.xlsx")
+  openxlsx::write.xlsx(., file = "figs/07_additional/05_contributors/contributors_datasetid.xlsx")
 
 # 6. List of contributors emails ----
 
@@ -94,7 +94,7 @@ read_xlsx("C:/Users/jerem/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benth
   select(last_name, first_name, email) %>% 
   distinct() %>% 
   arrange(last_name) %>% 
-  openxlsx::write.xlsx(., file = "figs/06_additional/05_contributors/contributors_contacts.xlsx")
+  openxlsx::write.xlsx(., file = "figs/07_additional/05_contributors/contributors_contacts.xlsx")
 
 # 7. List of contributors' names per region ----
 
@@ -114,7 +114,7 @@ read_xlsx("C:/Users/jerem/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benth
   group_by(region) %>% 
   mutate(name = paste0(name, collapse = ", ")) %>% 
   distinct() %>% 
-  openxlsx::write.xlsx(., file = "figs/06_additional/05_contributors/contributors_region.xlsx")
+  openxlsx::write.xlsx(., file = "figs/07_additional/05_contributors/contributors_region.xlsx")
 
 # 8. List of contributors' contacts per region ----
 
@@ -129,4 +129,4 @@ read_xlsx("C:/Users/jerem/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benth
   arrange(region, last_name) %>% 
   distinct() %>% 
   drop_na(last_name) %>% 
-  openxlsx::write.xlsx(., file = "figs/06_additional/05_contributors/contributors_region_contacts.xlsx")
+  openxlsx::write.xlsx(., file = "figs/07_additional/05_contributors/contributors_region_contacts.xlsx")

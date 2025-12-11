@@ -8,7 +8,7 @@ sf_use_s2(TRUE)
 
 download_data <- TRUE
 
-if(download_data == TRUE){
+if(download_data == FALSE){
   
   download.file(url = "https://www.ncei.noaa.gov/data/international-best-track-archive-for-climate-stewardship-ibtracs/v04r01/access/shapefile/IBTrACS.since1980.list.v04r01.points.zip",
                 destfile = "data/07_cyclones/IBTrACS.since1980.list.v04r01.points.zip", mode = "wb")

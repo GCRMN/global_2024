@@ -10,7 +10,7 @@ source("code/function/graphical_par.R")
 
 # 3. Load GCRMN subregions ----
 
-data_subregion <- st_read("data/01_maps/02_clean//04_subregions/gcrmn_subregions.shp") %>% 
+data_subregion <- st_read("data/01_maps/02_clean/04_subregions/gcrmn_subregions.shp") %>% 
   st_transform(crs = 4326)
 
 # 4. Load coral reef distribution ----
