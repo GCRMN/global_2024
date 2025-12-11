@@ -45,7 +45,7 @@ map_region_monitoring <- function(region_i, color_scalebar = "white"){
       theme(legend.position = "inside",
             legend.position.inside = c(0.8, 0.8))
     
-    ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
+    ggsave(paste0("figs/03_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
            height = 5.4, width = 5.5, bg = "transparent")
     
   }else if(region_i == "EAS"){
@@ -61,7 +61,7 @@ map_region_monitoring <- function(region_i, color_scalebar = "white"){
       theme(legend.position = "inside",
             legend.position.inside = c(0.2, 0.8))
     
-    ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
+    ggsave(paste0("figs/03_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
            height = 5.5, width = 6, bg = "transparent")
     
   }else if(region_i == "Caribbean"){
@@ -75,7 +75,7 @@ map_region_monitoring <- function(region_i, color_scalebar = "white"){
                        line_col = color_scalebar, pad_x = unit(0.5, "cm"), pad_y = unit(0.5, "cm"),
                        bar_cols = c(color_scalebar, color_scalebar))
     
-    ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
+    ggsave(paste0("figs/03_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
            height = 5.3, width = 8, bg = "transparent")
     
   }else if(region_i == "WIO"){
@@ -90,7 +90,7 @@ map_region_monitoring <- function(region_i, color_scalebar = "white"){
                        line_col = color_scalebar, pad_x = unit(0.5, "cm"), pad_y = unit(0.5, "cm"),
                        bar_cols = c(color_scalebar, color_scalebar))
     
-    ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
+    ggsave(paste0("figs/03_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
            height = 6.1, width = 5.4, bg = "transparent")
     
   }else if(region_i == "ROPME"){
@@ -104,7 +104,7 @@ map_region_monitoring <- function(region_i, color_scalebar = "white"){
                        line_col = color_scalebar, pad_x = unit(0.5, "cm"), pad_y = unit(0.5, "cm"),
                        bar_cols = c(color_scalebar, color_scalebar))
     
-    ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
+    ggsave(paste0("figs/03_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
            height = 5.6, width = 5.9, bg = "transparent")
     
   }else if(region_i == "PERSGA"){
@@ -119,7 +119,7 @@ map_region_monitoring <- function(region_i, color_scalebar = "white"){
                        line_col = color_scalebar, pad_x = unit(0.5, "cm"), pad_y = unit(0.5, "cm"),
                        bar_cols = c(color_scalebar, color_scalebar))
     
-    ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
+    ggsave(paste0("figs/03_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
            height = 5.9, width = 5.9, bg = "transparent")
     
   }else if(region_i == "Australia"){
@@ -133,7 +133,7 @@ map_region_monitoring <- function(region_i, color_scalebar = "white"){
                        line_col = color_scalebar, pad_x = unit(0.5, "cm"), pad_y = unit(0.5, "cm"),
                        bar_cols = c(color_scalebar, color_scalebar))
     
-    ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
+    ggsave(paste0("figs/03_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
            height = 4.2, width = 8.5, bg = "transparent")
     
   }else if(region_i == "ETP"){
@@ -147,7 +147,7 @@ map_region_monitoring <- function(region_i, color_scalebar = "white"){
                        line_col = color_scalebar, pad_x = unit(0.5, "cm"), pad_y = unit(0.5, "cm"),
                        bar_cols = c(color_scalebar, color_scalebar))
     
-    ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
+    ggsave(paste0("figs/03_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
            height = 4.8, width = 7.2, bg = "transparent")
     
   }else if(region_i == "Brazil"){
@@ -161,7 +161,7 @@ map_region_monitoring <- function(region_i, color_scalebar = "white"){
                        line_col = color_scalebar, pad_x = unit(0.5, "cm"), pad_y = unit(0.5, "cm"),
                        bar_cols = c(color_scalebar, color_scalebar))
     
-    ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
+    ggsave(paste0("figs/03_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
            height = 4.9, width = 5.5, bg = "transparent")
     
   }else if(region_i == "Pacific"){
@@ -227,7 +227,7 @@ map_region_monitoring <- function(region_i, color_scalebar = "white"){
                        line_col = color_scalebar, pad_x = unit(0.5, "cm"), pad_y = unit(0.5, "cm"),
                        bar_cols = c(color_scalebar, color_scalebar))
     
-    ggsave(paste0("figs/02_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
+    ggsave(paste0("figs/03_part-2/fig-2/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
            height = 4.5, width = 8, bg = "transparent")
     
   }else{

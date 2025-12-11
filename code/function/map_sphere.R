@@ -39,8 +39,14 @@ map_sphere <- function(region_i){
     geom_sf(data = data_graticules, color = "white") +
     geom_sf(data = data_region_i, color = NA, fill = "#c44d56", alpha = 0.75) +
     geom_sf(data = b, fill = NA, col = "#363737", linewidth = 0.4) +
-    theme_minimal()
+    theme_minimal() +
+    theme(axis.text = element_blank(),
+          axis.ticks = element_blank(),
+          plot.background = element_rect(fill = "transparent", color = NA),
+          panel.background = element_rect(fill = "transparent", color = NA))
   
-  ggsave(paste0("figs/02_part-2/fig-1/", str_replace_all(str_to_lower(region_i), " ", "-"), "_sphere.png"))
+  ggsave(paste0("figs/03_part-2/fig-1/",
+                str_replace_all(str_to_lower(region_i), " ", "-"), "_sphere.png"),
+         bg = "transparent")
   
 }

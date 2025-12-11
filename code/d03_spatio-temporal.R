@@ -118,7 +118,7 @@ ggplot() +
         legend.title = element_text(size = 17)) +
   guides(color = guide_legend(override.aes = list(size = 4)))
   
-ggsave("figs/01_part-1/fig-1.png", dpi = 600, height = 4, width = 9)
+ggsave("figs/02_part-1/fig-1.png", dpi = 600, height = 4, width = 9)
 
 # 5. Monitoring map (regions) ----
 
@@ -166,7 +166,7 @@ ggplot(data = tibble(color = palette_second,
         axis.text = element_blank(),
         axis.ticks = element_blank())
 
-ggsave("figs/02_part-2/fig-2/legend.png", width = 2.5, height = 3, bg = "transparent")
+ggsave("figs/03_part-2/fig-2/legend.png", width = 2.5, height = 3, bg = "transparent")
 
 # 6. Monitoring descriptors ----
 
@@ -178,23 +178,23 @@ data_benthic %>%
   # Add locale to avoid having uppercase first (reverse PERSGA and Pacific)
   arrange(region, .locale = "en") %>% 
   bind_rows(., data_descriptors(data_benthic) %>% mutate(region = "Global")) %>% 
-  write.csv(., file = paste0("figs/01_part-1/tbl-1.csv"),
+  write.csv(., file = paste0("figs/02_part-1/tbl-1.csv"),
             row.names = FALSE)
 
 ## 6.2 Regional (individual table export) ----
 
 ### 6.2.1 Make the function to export the descriptors ----
 
-export_descriptors <- function(gcrmn_region){
+export_descriptors <- function(region_i){
   
   data_benthic %>% 
-    filter(region == gcrmn_region) %>% 
+    filter(region == region_i) %>% 
     group_by(subregion) %>% 
     data_descriptors() %>% 
     ungroup() %>% 
     # Add subregion with no data
     complete(subregion = data_region %>% 
-               filter(region == gcrmn_region) %>% 
+               filter(region == region_i) %>% 
                select(subregion) %>% 
                st_drop_geometry() %>% 
                distinct() %>% 
@@ -207,12 +207,12 @@ export_descriptors <- function(gcrmn_region){
                          surveys_90_perc = NA)) %>% 
     mutate(region = str_trim(str_remove_all(subregion, "[0-9]"))) %>% 
     bind_rows(., data_benthic %>% 
-                filter(region == gcrmn_region) %>% 
+                filter(region == region_i) %>% 
                 data_descriptors() %>% 
                 mutate(subregion = "All")) %>% 
     mutate(across(c(nb_sites, nb_surveys), ~format(.x, big.mark = ",", scientific = FALSE))) %>% 
-    write.csv(., file = paste0("figs/02_part-2/tbl-1/",
-                               str_replace_all(str_to_lower(gcrmn_region), " ", "-"),
+    write.csv(., file = paste0("figs/03_part-2/tbl-1/",
+                               str_replace_all(str_to_lower(region_i), " ", "-"),
                                ".csv"),
               row.names = FALSE)
   
@@ -220,7 +220,7 @@ export_descriptors <- function(gcrmn_region){
 
 ### 6.2.2 Map over the function ----
 
-map(unique(data_region$region), ~export_descriptors(gcrmn_region = .))
+map(unique(data_region$region), ~export_descriptors(region_i = .))
 
 ## 6.3 Regional (full table export) ----
 
@@ -251,7 +251,7 @@ data_benthic %>%
   mutate(across(c(nb_sites, nb_surveys), ~format(.x, big.mark = ",", scientific = FALSE))) %>% 
   relocate(region, .before = subregion) %>% 
   arrange(region, subregion, .locale = "en") %>% 
-  openxlsx::write.xlsx(., file = "figs/05_supp-mat/supp-tbl-4_monitoring.xlsx", rowNames = FALSE)
+  openxlsx::write.xlsx(., file = "figs/06_supp-mat/supp-tbl-4_monitoring.xlsx", rowNames = FALSE)
 
 ## 6.4 By region and country ----
 
@@ -260,7 +260,7 @@ data_benthic %>%
   data_descriptors() %>% 
   ungroup() %>% 
   mutate(across(c(nb_sites, nb_surveys), ~format(.x, big.mark = ",", scientific = FALSE))) %>% 
-  write.csv(., file = "figs/06_additional/02_data-exploration/monitoring_region-country.csv",
+  write.csv(., file = "figs/07_additional/02_data-exploration/monitoring_region-country.csv",
             row.names = FALSE)
 
 ## 6.5 By country ----
@@ -270,7 +270,7 @@ data_benthic %>%
   data_descriptors() %>% 
   ungroup() %>% 
   mutate(across(c(nb_sites, nb_surveys), ~format(.x, big.mark = ",", scientific = FALSE))) %>% 
-  write.csv(., file = "figs/06_additional/02_data-exploration/monitoring_country.csv",
+  write.csv(., file = "figs/07_additional/02_data-exploration/monitoring_country.csv",
             row.names = FALSE)
 
 # 7. Number of surveys per year ----
@@ -294,7 +294,7 @@ data_benthic %>%
   theme_graph() +
   scale_x_continuous(expand = c(0, 0), limits = c(1979, 2026))
 
-ggsave("figs/01_part-1/fig-2.png", width = 5, height = 4, dpi = fig_resolution)
+ggsave("figs/02_part-1/fig-2.png", width = 5, height = 4, dpi = fig_resolution)
 
 ## 7.2 Regional ----
 
@@ -320,7 +320,7 @@ plot_surveys_year <- function(gcrmn_region){
     theme_graph() +
     scale_x_continuous(expand = c(0, 0), limits = c(1979, 2026))
   
-  ggsave(paste0("figs/06_additional/02_data-exploration/surveys-year_",
+  ggsave(paste0("figs/07_additional/02_data-exploration/surveys-year_",
                 str_replace_all(str_to_lower(gcrmn_region), " ", "-"), ".png"),
          width = 5, height = 4, dpi = fig_resolution)
   
@@ -351,7 +351,7 @@ plot_i <- data_benthic %>%
   facet_wrap(~region, ncol = 2) +
   scale_x_continuous(expand = c(0, 0), limits = c(1979, 2026))
 
-ggsave("figs/05_supp-mat/surveys-year.png", width = 7, height = 10, dpi = fig_resolution)
+ggsave("figs/06_supp-mat/surveys-year.png", width = 7, height = 10, dpi = fig_resolution)
 
 # 8. Number of surveys per depth ----
 
@@ -370,7 +370,7 @@ data_benthic %>%
   theme_graph() +
   scale_x_continuous(expand = c(0, 0), limits = c(-1, 40))
 
-ggsave("figs/01_part-1/fig-3.png", width = 5, height = 4, dpi = fig_resolution)
+ggsave("figs/02_part-1/fig-3.png", width = 5, height = 4, dpi = fig_resolution)
 
 ## 8.2 Regional ----
 
@@ -392,7 +392,7 @@ plot_surveys_depth <- function(gcrmn_region){
     theme_graph() +
     scale_x_continuous(expand = c(0, 0), limits = c(-1, 40))
   
-  ggsave(paste0("figs/06_additional/02_data-exploration/surveys-depth_",
+  ggsave(paste0("figs/07_additional/02_data-exploration/surveys-depth_",
                 str_replace_all(str_to_lower(gcrmn_region), " ", "-"), ".png"),
          width = 5, height = 4, dpi = fig_resolution)
   
@@ -418,7 +418,7 @@ plot_i <- data_benthic %>%
   facet_wrap(~region, ncol = 2) +
   scale_x_continuous(expand = c(0, 0), limits = c(-1, 40))
 
-ggsave("figs/05_supp-mat/surveys-depth.png", width = 7, height = 10, dpi = fig_resolution)
+ggsave("figs/06_supp-mat/surveys-depth.png", width = 7, height = 10, dpi = fig_resolution)
 
 # 9. Number of sites per datasetID and year ----
 
@@ -527,7 +527,7 @@ plot_year_dataset <- function(subregion_i){
     
   }
   
-  ggsave(filename = paste0("figs/06_additional/02_data-exploration/nb-sites_year-datasetid_",
+  ggsave(filename = paste0("figs/07_additional/02_data-exploration/nb-sites_year-datasetid_",
                            str_replace_all(str_replace_all(str_to_lower(subregion_i), " ", "-"), "---", "-"), ".png"),
          plot = plot_i, height = (2 + (3*0.3*nb_datasets_i)), width = 9, dpi = fig_resolution)
   
@@ -623,7 +623,7 @@ plot_year_region <- function(region_i){
     
   }
   
-  ggsave(filename = paste0("figs/02_part-2/fig-6/",
+  ggsave(filename = paste0("figs/03_part-2/fig-6/",
                            str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
          plot = plot_i, height = 3, width = 9, dpi = fig_resolution)
   
@@ -668,4 +668,4 @@ ggplot(data = data_benthic_sites, aes(x = int_class, y = perc, fill = int_class,
   facet_wrap(~region, ncol = 2) +
   lims(y = c(0, 100))
 
-ggsave("figs/05_supp-mat/surveys-per-category.png", width = 7, height = 10, dpi = fig_resolution)
+ggsave("figs/06_supp-mat/surveys-per-category.png", width = 7, height = 10, dpi = fig_resolution)
