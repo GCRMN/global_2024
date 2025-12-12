@@ -166,7 +166,7 @@ ggplot(data = tibble(color = palette_second,
         axis.text = element_blank(),
         axis.ticks = element_blank())
 
-ggsave("figs/03_part-2/fig-2/legend.png", width = 2.5, height = 3, bg = "transparent")
+ggsave("figs/03_part-2/fig-9/legend.png", width = 2.5, height = 3, bg = "transparent")
 
 # 6. Monitoring descriptors ----
 
@@ -178,51 +178,10 @@ data_benthic %>%
   # Add locale to avoid having uppercase first (reverse PERSGA and Pacific)
   arrange(region, .locale = "en") %>% 
   bind_rows(., data_descriptors(data_benthic) %>% mutate(region = "Global")) %>% 
-  write.csv(., file = paste0("figs/02_part-1/tbl-1.csv"),
+  write.csv(., file = paste0("figs/02_part-1/tbl-1_monitoring.csv"),
             row.names = FALSE)
 
-## 6.2 Regional (individual table export) ----
-
-### 6.2.1 Make the function to export the descriptors ----
-
-export_descriptors <- function(region_i){
-  
-  data_benthic %>% 
-    filter(region == region_i) %>% 
-    group_by(subregion) %>% 
-    data_descriptors() %>% 
-    ungroup() %>% 
-    # Add subregion with no data
-    complete(subregion = data_region %>% 
-               filter(region == region_i) %>% 
-               select(subregion) %>% 
-               st_drop_geometry() %>% 
-               distinct() %>% 
-               pull(),
-             fill = list(nb_sites = 0,
-                         nb_surveys = 0,
-                         nb_datasets = 0,
-                         first_year = NA,
-                         last_year = NA,
-                         surveys_90_perc = NA)) %>% 
-    mutate(region = str_trim(str_remove_all(subregion, "[0-9]"))) %>% 
-    bind_rows(., data_benthic %>% 
-                filter(region == region_i) %>% 
-                data_descriptors() %>% 
-                mutate(subregion = "All")) %>% 
-    mutate(across(c(nb_sites, nb_surveys), ~format(.x, big.mark = ",", scientific = FALSE))) %>% 
-    write.csv(., file = paste0("figs/03_part-2/tbl-1/",
-                               str_replace_all(str_to_lower(region_i), " ", "-"),
-                               ".csv"),
-              row.names = FALSE)
-  
-}
-
-### 6.2.2 Map over the function ----
-
-map(unique(data_region$region), ~export_descriptors(region_i = .))
-
-## 6.3 Regional (full table export) ----
+## 6.2 Regional ----
 
 data_benthic %>% 
   group_by(region, subregion) %>% 
@@ -245,15 +204,12 @@ data_benthic %>%
               group_by(region) %>% 
               data_descriptors() %>% 
               mutate(subregion = "All")) %>% 
-  bind_rows(., data_benthic %>% 
-              data_descriptors() %>% 
-              mutate(region = "All", subregion = "All")) %>% 
   mutate(across(c(nb_sites, nb_surveys), ~format(.x, big.mark = ",", scientific = FALSE))) %>% 
   relocate(region, .before = subregion) %>% 
   arrange(region, subregion, .locale = "en") %>% 
-  openxlsx::write.xlsx(., file = "figs/06_supp-mat/supp-tbl-4_monitoring.xlsx", rowNames = FALSE)
+  write.csv(., file = "figs/08_text-gen/monitoring.csv", row.names = FALSE)
 
-## 6.4 By region and country ----
+## 6.3 By region and country ----
 
 data_benthic %>% 
   group_by(region, country) %>% 
@@ -263,7 +219,7 @@ data_benthic %>%
   write.csv(., file = "figs/07_additional/02_data-exploration/monitoring_region-country.csv",
             row.names = FALSE)
 
-## 6.5 By country ----
+## 6.4 By country ----
 
 data_benthic %>% 
   group_by(country) %>% 
@@ -420,7 +376,7 @@ plot_i <- data_benthic %>%
 
 ggsave("figs/06_supp-mat/surveys-depth.png", width = 7, height = 10, dpi = fig_resolution)
 
-# 9. Number of sites per datasetID and year ----
+# 9. Number of sites per datasetID and year (per subregion) ----
 
 ## 9.1 Transform data ----
 
@@ -537,7 +493,7 @@ plot_year_dataset <- function(subregion_i){
 
 map(unique(data_benthic$subregion), ~plot_year_dataset(subregion_i = .))
 
-# 10. Number of sites per dataset and year ----
+# 10. Number of sites per dataset and year (per region) ----
 
 ## 10.1 Transform data ----
 
@@ -623,7 +579,7 @@ plot_year_region <- function(region_i){
     
   }
   
-  ggsave(filename = paste0("figs/03_part-2/fig-6/",
+  ggsave(filename = paste0("figs/07_additional/02_data-exploration/nb-sites_year-datasetid_",
                            str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
          plot = plot_i, height = 3, width = 9, dpi = fig_resolution)
   

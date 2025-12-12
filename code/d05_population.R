@@ -25,24 +25,8 @@ data_population %>%
   select(-pop_2000) %>% 
   mutate(across(c(pop_2020, pop_change_abs), ~format(round(.x, 0), big.mark = ",", scientific = FALSE)),
          pop_change_rel = format(round(pop_change_rel, 2))) %>% 
-  openxlsx::write.xlsx(., file = "figs/05_supp-mat/supp-tbl-2_population.xlsx")
+  openxlsx::write.xlsx(., file = "figs/06_supp-mat/supp-tbl-2_population.xlsx")
 
 # 4. Export the table per region ----
 
-## 4.1 Create the function ----
-
-export_descriptors <- function(gcrmn_region){
-  
-  data_population %>% 
-    filter(region == gcrmn_region) %>% 
-    select(-region) %>% 
-    write.csv(., file = paste0("figs/02_part-2/tbl-2/",
-                               str_replace_all(str_to_lower(gcrmn_region), " ", "-"),
-                               ".csv"),
-              row.names = FALSE)
-  
-}
-
-## 4.2 Map over the function ----
-
-map(setdiff(unique(data_population$region), "All"), ~export_descriptors(gcrmn_region = .))
+write.csv(data_population, file = "figs/08_text-gen/human_population.csv", row.names = FALSE)

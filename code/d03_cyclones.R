@@ -82,7 +82,7 @@ cyclone_intensity <- function(region_i){
   
   # 3. Save the plot
   
-  ggsave(filename = paste0("figs/02_part-2/fig-7/",
+  ggsave(filename = paste0("figs/03_part-2/fig-5/",
                            str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
          plot = plot_i, height = 3.5, width = 9, dpi = fig_resolution)
   
@@ -145,7 +145,7 @@ cyclone_frequency <- function(region_i){
   
   # 3. Save the plot
   
-  ggsave(filename = paste0("figs/02_part-2/fig-8/",
+  ggsave(filename = paste0("figs/03_part-2/fig-4/",
                            str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
          plot = plot_i, height = 4, width = 8, dpi = fig_resolution)
   

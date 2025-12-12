@@ -6,7 +6,7 @@ sf_use_s2(FALSE)
 
 # 2. Load and transform data ----
 
-data_reefs <- st_read("data/01_maps/02_clean/01_reefs/reefs.shp")
+data_reefs <- st_read("data/01_maps/02_clean/01_reefs/global_2024_reefs.shp")
 
 data_reef_extent <- data_reefs %>% 
   group_by(region, subregion) %>% 
@@ -41,28 +41,15 @@ data_reef_extent %>%
   select(region, subregion, reef_extent_abs, reef_extent_rel_region, reef_extent_rel_world) %>% 
   mutate(reef_extent_abs = format(round(reef_extent_abs, 0), big.mark = ",", scientific = FALSE),
          across(c(reef_extent_rel_region, reef_extent_rel_world), ~format(round(.x, 2)))) %>% 
-  openxlsx::write.xlsx(., file = "figs/05_supp-mat/supp-tbl-1_reef-extent.xlsx")
+  openxlsx::write.xlsx(., file = "figs/06_supp-mat/supp-tbl-1_reef-extent.xlsx")
 
 # 4. Export the table with all variables (additional) ----
 
-openxlsx::write.xlsx(data_reef_extent, file = "figs/06_additional/reef_extent.xlsx")
+openxlsx::write.xlsx(data_reef_extent, file = "figs/07_additional/reef_extent.xlsx")
 
 # 5. Export the table per region ----
 
-## 5.1 Create the function ----
-
-export_descriptors <- function(gcrmn_region){
+write.csv(data_reef_extent,
+          file = "figs/08_text-gen/reefs_extent.csv",
+          row.names = FALSE)
   
-  data_reef_extent %>% 
-    filter(region == gcrmn_region) %>% 
-    select(-region) %>% 
-    write.csv(., file = paste0("figs/02_part-2/tbl-3/",
-                               str_replace_all(str_to_lower(gcrmn_region), " ", "-"),
-                               ".csv"),
-              row.names = FALSE)
-  
-}
-
-## 5.2 Map over the function ----
-
-map(setdiff(unique(data_reef_extent$region), "All"), ~export_descriptors(gcrmn_region = .))

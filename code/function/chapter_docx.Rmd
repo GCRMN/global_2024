@@ -54,7 +54,8 @@ require(flextable)
 
 ```{r echo=FALSE, message=FALSE}
 
-data_reef_extent <- read.csv(paste0("../../figs/02_part-2/tbl-3/", str_to_lower(region_name), ".csv"))
+data_reef_extent <- read.csv("../../figs/08_text-gen/reefs_extent.csv") %>% 
+  filter(region == region_i)
 
 extent_rank <- data_reef_extent %>% 
   filter(subregion == "All") %>% 
@@ -76,37 +77,45 @@ extent_rel <- data_reef_extent %>%
   select(reef_extent_rel_world) %>% 
   mutate(reef_extent_rel_world = format(round(reef_extent_rel_world, 1))) %>% pull()
 
-axis_lat <- read.csv(paste0("../../figs/02_part-2/tbl-5/", str_to_lower(region_name), ".csv")) %>% 
+axis_lat <- read.csv("../../figs/08_text-gen/region_characteristics.csv") %>% 
+  filter(region == region_i) %>% 
   select(lat_axis) %>% 
   mutate(lat_axis = format(lat_axis, big.mark = ",", scientific = FALSE)) %>% 
   pull()
 
-axis_long <- read.csv(paste0("../../figs/02_part-2/tbl-5/", str_to_lower(region_name), ".csv")) %>% 
+axis_long <- read.csv("../../figs/08_text-gen/region_characteristics.csv") %>% 
+  filter(region == region_i) %>% 
   select(long_axis) %>% 
   mutate(long_axis = format(long_axis, big.mark = ",", scientific = FALSE)) %>% 
   pull()
 
-nb_countries <- read.csv(paste0("../../figs/02_part-2/tbl-5/", str_to_lower(region_name), ".csv")) %>% 
+nb_countries <- read.csv("../../figs/08_text-gen/region_characteristics.csv") %>% 
+  filter(region == region_i) %>% 
   select(nb_countries) %>% 
   pull()
 
-border_north <- read.csv(paste0("../../figs/02_part-2/tbl-5/", str_to_lower(region_name), ".csv")) %>% 
+border_north <- read.csv("../../figs/08_text-gen/region_characteristics.csv") %>% 
+  filter(region == region_i) %>% 
   select(border_north) %>% 
   pull()
 
-border_south <- read.csv(paste0("../../figs/02_part-2/tbl-5/", str_to_lower(region_name), ".csv")) %>% 
+border_south <- read.csv("../../figs/08_text-gen/region_characteristics.csv") %>% 
+  filter(region == region_i) %>% 
   select(border_south) %>% 
   pull()
 
-border_east <- read.csv(paste0("../../figs/02_part-2/tbl-5/", str_to_lower(region_name), ".csv")) %>% 
+border_east <- read.csv("../../figs/08_text-gen/region_characteristics.csv") %>% 
+  filter(region == region_i) %>% 
   select(border_east) %>% 
   pull()
 
-border_west <- read.csv(paste0("../../figs/02_part-2/tbl-5/", str_to_lower(region_name), ".csv")) %>% 
+border_west <- read.csv("../../figs/08_text-gen/region_characteristics.csv") %>% 
+  filter(region == region_i) %>% 
   select(border_west) %>% 
   pull()
 
-denomination <- read.csv(paste0("../../figs/02_part-2/tbl-5/", str_to_lower(region_name), ".csv")) %>% 
+denomination <- read.csv("../../figs/08_text-gen/region_characteristics.csv") %>% 
+  filter(region == region_i) %>% 
   select(denomination) %>% 
   pull()
 
@@ -116,7 +125,7 @@ The `r region_i` GCRMN region ranges over a longitudinal axis of `r axis_long` k
 
 ```{r echo=FALSE, message=FALSE}
 
-figure_path <- paste0("../../figs/02_part-2/fig-1/", str_to_lower(region_name), ".png")
+figure_path <- paste0("../../figs/03_part-2/fig-1/", str_to_lower(region_name), ".png")
 
 ```
 
@@ -177,7 +186,8 @@ The `r region_i` region is divided into `r nb_subregions` subregions (**Fig. 2.`
 
 ```{r echo=FALSE, message=FALSE}
 
-data_population <- read.csv(paste0("../../figs/02_part-2/tbl-2/", str_to_lower(region_name), ".csv"))
+data_population <- read.csv("../../figs/08_text-gen/human_population.csv") %>% 
+  filter(region == region_i)
 
 pop_2020 <- data_population %>% filter(subregion == "All") %>% select(pop_2020) %>% 
   mutate(pop_2020 = format(round(pop_2020, 0), big.mark = ",", scientific = FALSE)) %>% pull()
@@ -201,12 +211,6 @@ pop_2020_max <- data_population %>% filter(subregion != "All") %>%
 
 As of 2020, a total of `r pop_2020` inhabitants were living within 5 km of coral reefs. From 2000 to 2020, the region recorded a `r pop_change_rel`% increase in populations residing within 5 km of coral reefs, representing an average annual increase of `r pop_change_abs` inhabitants. The greatest increase in populations over this period was recorded in sub-region `r pop_change_abs_max`, although the highest number of inhabitants in 2020 was located in sub-region `r pop_2020_max` (**Supp. Table 2**).
 
-<div custom-style="todo">
-A paragraph about percentage of coral reefs within MPAs will be added in a future version
-</div>
-
-\
-
 </div>
 
 \newpage
@@ -223,7 +227,8 @@ A paragraph about percentage of coral reefs within MPAs will be added in a futur
 
 ```{r echo=FALSE, message=FALSE}
 
-data_sst <- read.csv(paste0("../../figs/02_part-2/tbl-4/", str_to_lower(region_name), ".csv")) %>% 
+data_sst <- read.csv("../../figs/08_text-gen/thermal_regime.csv") %>% 
+  filter(region == region_i) %>% 
   filter(subregion == "All")
 
 mean_sst <- data_sst %>% select(mean_sst) %>%
@@ -243,13 +248,13 @@ From 1985 to 2024, the long-term average of Sea Surface Temperature (SST) record
 
 ```{r echo=FALSE, message=FALSE}
 
-figure_path <- paste0("../../figs/02_part-2/fig-3/", str_to_lower(region_name), ".png")
+figure_path <- paste0("../../figs/03_part-2/fig-2/", str_to_lower(region_name), ".png")
 
 ```
 
 ![](`r figure_path`){width=100%}
 
-**Figure 2.`r nb_chapter`.5.** Annual mean Sea Surface Temperature (SST) anomalies (°C) over the coral reefs of `r region_i` from 1986 to 2024. SST anomalies were calculated based on the long-term average over the period 1986-2024. Positive values (red bars) indicate SST warmer than the long-term average, whereas negative values (blue bars) indicate SST cooler than the long-term average.
+**Figure 2.`r nb_chapter`.2.** Annual mean Sea Surface Temperature (SST) anomalies (°C) over the coral reefs of `r region_i` from 1986 to 2024. SST anomalies were calculated based on the long-term average over the period 1986-2024. Positive values (red bars) indicate SST warmer than the long-term average, whereas negative values (blue bars) indicate SST cooler than the long-term average.
 
 \newpage
 
@@ -259,13 +264,13 @@ From 1986 to 2024, periods of major heat stress occurred in ...
 
 ```{r echo=FALSE, message=FALSE}
 
-figure_path <- paste0("../../figs/02_part-2/fig-4/", str_to_lower(region_name), ".png")
+figure_path <- paste0("../../figs/03_part-2/fig-3/", str_to_lower(region_name), ".png")
 
 ```
 
 ![](`r figure_path`){width=100%}
 
-**Figure 2.`r nb_chapter`.6.** Percentage of the coral reefs within the `r region_i` region experiencing heat stress levels per year, from 1986 to 2024. No stress (DHW = 0); Warning (possible bleaching, 0–4 DHW); Alert 1 (reef-wide bleaching, 4–8 DHW); Alert 2 (reef-wide bleaching and mortality of heat-sensitive corals, 8–12 DHW); Alert 3 (multi-species mortality, 12–16 DHW); Alert 4 (severe multi-species mortality, 16–20 DHW); and Alert 5 (near-complete mortality, ≥20 DHW).
+**Figure 2.`r nb_chapter`.3.** Percentage of the coral reefs within the `r region_i` region experiencing heat stress levels per year, from 1986 to 2024. No stress (DHW = 0); Warning (possible bleaching, 0–4 DHW); Alert 1 (reef-wide bleaching, 4–8 DHW); Alert 2 (reef-wide bleaching and mortality of heat-sensitive corals, 8–12 DHW); Alert 3 (multi-species mortality, 12–16 DHW); Alert 4 (severe multi-species mortality, 16–20 DHW); and Alert 5 (near-complete mortality, ≥20 DHW).
 
 </div>
 
@@ -352,19 +357,19 @@ data_cyclones_highest_dist <- data_cyclones_highest %>%
 
 ```
 
-`r first_sentence`From 1980 to 2025, a total of `r data_cyclones_nb` `r regional_cyclone_name` have passed within 100 km of coral reefs within the `r region_i` region, representing an average of `r data_cyclones_mean` ± `r data_cyclones_sd` SD `r regional_cyclone_name` per year (**Fig. 2.`r nb_chapter`.7**). The `r gsub('.{1}$', '', regional_cyclone_name)` with the highest sustained wind speed over the studied period was the `r gsub('.{1}$', '', regional_cyclone_name)` `r data_cyclones_highest_name`, in `r data_cyclones_highest_date`, which passed `r data_cyclones_highest_dist` km from a coral reef with sustained wind speed of `r data_cyclones_highest_speed` km.h^-1^ (**Fig. 2.`r nb_chapter`.8**). Although the 100 km threshold was selected, `r regional_cyclone_name` passing at a greater distance from a coral reef, not represented within this figure, may also have had an impact on coral reefs [1].
+`r first_sentence`From 1980 to 2025, a total of `r data_cyclones_nb` `r regional_cyclone_name` has passed within 100 km of coral reefs within the `r region_i` region, representing an average of `r data_cyclones_mean` ± `r data_cyclones_sd` SD `r regional_cyclone_name` per year (**Fig. 2.`r nb_chapter`.4**). The `r gsub('.{1}$', '', regional_cyclone_name)` with the highest sustained wind speed over the studied period was the `r gsub('.{1}$', '', regional_cyclone_name)` `r data_cyclones_highest_name`, in `r data_cyclones_highest_date`, which passed `r data_cyclones_highest_dist` km from a coral reef with sustained wind speed of `r data_cyclones_highest_speed` km.h^-1^ (**Fig. 2.`r nb_chapter`.5**). Although the 100 km threshold was selected, `r regional_cyclone_name` passing at a greater distance from a coral reef, not represented within this figure, may also have had an impact on coral reefs [1].
 
 \
 
 ```{r echo=FALSE, message=FALSE}
 
-figure_path <- paste0("../../figs/02_part-2/fig-8/", str_to_lower(region_name), ".png")
+figure_path <- paste0("../../figs/03_part-2/fig-4/", str_to_lower(region_name), ".png")
 
 ```
 
 ![](`r figure_path`){width=100%}
 
-**Figure 2.`r nb_chapter`.7.** Number of tropical storms that passed within 100 km of the coral reefs of the `r region_i` region from 1980 to 2025. Colors correspond to the cyclone’s Saffir-Simpson category along the entire cyclone’s track.
+**Figure 2.`r nb_chapter`.4.** Number of tropical storms that passed within 100 km of the coral reefs of the `r region_i` region from 1980 to 2025. Colors correspond to the cyclone’s Saffir-Simpson category along the entire cyclone’s track.
 
 \
 
@@ -372,13 +377,13 @@ figure_path <- paste0("../../figs/02_part-2/fig-8/", str_to_lower(region_name), 
 
 ```{r echo=FALSE, message=FALSE}
 
-figure_path <- paste0("../../figs/02_part-2/fig-7/", str_to_lower(region_name), ".png")
+figure_path <- paste0("../../figs/03_part-2/fig-5/", str_to_lower(region_name), ".png")
 
 ```
 
 ![](`r figure_path`){width=100%}
 
-**Figure 2.`r nb_chapter`.8.**  Maximum sustained wind speed of tropical storms passed within 100 km of a coral reef in the `r region_i` region between 1980 and 2025. Colors correspond to the cyclone’s Saffir-Simpson category along the entire cyclone’s track. However, the values of sustained wind speed are extracted from the nearest tropical storm position from a coral reef. For this reason, some sustained wind speed values are below the lower threshold of category 1 Saffir-Simpson scale (*i.e.* 119 km.h^-1^).
+**Figure 2.`r nb_chapter`.5.**  Maximum sustained wind speed of tropical storms passed within 100 km of a coral reef in the `r region_i` region between 1980 and 2025. Colors correspond to the cyclone’s Saffir-Simpson category along the entire cyclone’s track. However, the values of sustained wind speed are extracted from the nearest tropical storm position from a coral reef. For this reason, some sustained wind speed values are below the lower threshold of category 1 Saffir-Simpson scale (*i.e.* 119 km.h^-1^).
 
 </div>
 
@@ -402,7 +407,7 @@ figure_path <- paste0("../../figs/02_part-2/fig-7/", str_to_lower(region_name), 
 
 ```{r echo=FALSE, message=FALSE}
 
-figure_path <- paste0("../../figs/02_part-2/fig-5/", str_to_lower(region_name), ".png")
+figure_path <- paste0("../../figs/03_part-2/fig-6/", str_to_lower(region_name), ".png")
 
 ```
 
@@ -410,7 +415,7 @@ figure_path <- paste0("../../figs/02_part-2/fig-5/", str_to_lower(region_name), 
 
 <div custom-style="text">
 
-**Figure 2.`r nb_chapter`.2.** Modeled temporal trends of benthic percentage cover in the `r region_i` region from 1980 to 2024 for hard coral (A), coralline algae (B), macroalgae (C), and turf algae (D). The bold line represents the estimated average benthic cover while the ribbon represents the 95% confidence intervals.
+**Figure 2.`r nb_chapter`.6.** Modeled temporal trends of benthic percentage cover in the `r region_i` region from 1980 to 2024 for hard coral (A) and macroalgae (B). The bold line represents the estimated average benthic cover while darker and lighter ribbons represent 80% and 95% credible intervals, respectively.
 
 </div>
 
@@ -426,7 +431,7 @@ figure_path <- paste0("../../figs/02_part-2/fig-5/", str_to_lower(region_name), 
 
 ```{r echo=FALSE, message=FALSE}
 
-figure_path <- paste0("../../figs/02_part-2/fig-6/", str_to_lower(region_name), ".png")
+figure_path <- paste0("../../figs/03_part-2/fig-7/", str_to_lower(region_name), ".png")
 
 ```
 
@@ -434,7 +439,25 @@ figure_path <- paste0("../../figs/02_part-2/fig-6/", str_to_lower(region_name), 
 
 <div custom-style="text">
 
-**Figure 2.`r nb_chapter`.3.** Modeled temporal trends of benthic percentage cover in `r region_i`’s sub-regions from 1980 to 2024 for hard coral (A), coralline algae (B), macroalgae (C), and turf algae (D). The bold line represents the estimated average benthic cover while the ribbon represents the 95% confidence intervals.
+**Figure 2.`r nb_chapter`.7.** Modeled temporal trends of hard coral cover in `r region_i`’s sub-regions from 1980 to 2024. The bold line represents the estimated average benthic cover while darker and lighter ribbons represent 80% and 95% credible intervals, respectively.
+
+</div>
+
+\newpage
+
+\
+
+```{r echo=FALSE, message=FALSE}
+
+figure_path <- paste0("../../figs/03_part-2/fig-8/", str_to_lower(region_name), ".png")
+
+```
+
+![](`r figure_path`){width=100%}
+
+<div custom-style="text">
+
+**Figure 2.`r nb_chapter`.8.** Modeled temporal trends of macroalgae cover in `r region_i`’s sub-regions from 1980 to 2024. The bold line represents the estimated average benthic cover while darker and lighter ribbons represent 80% and 95% credible intervals, respectively.
 
 </div>
 
@@ -450,7 +473,8 @@ figure_path <- paste0("../../figs/02_part-2/fig-6/", str_to_lower(region_name), 
 
 ```{r echo=FALSE, message=FALSE}
 
-data_monitoring <- read.csv(paste0("../../figs/02_part-2/tbl-1/", str_to_lower(region_name), ".csv")) %>% 
+data_monitoring <- read.csv("../../figs/08_text-gen/monitoring.csv") %>% 
+  filter(region == region_i) %>% 
   filter(subregion == "All")
 
 nb_datasets <- data_monitoring %>% select(nb_datasets) %>% pull()
@@ -465,7 +489,8 @@ last_year <- data_monitoring %>% select(last_year) %>% pull()
 
 surveys_90_perc <- data_monitoring %>% select(surveys_90_perc) %>% pull()
 
-surveys_sites_value <- read.csv(paste0("../../figs/02_part-2/tbl-1/", str_to_lower(region_name), ".csv")) %>% 
+surveys_sites_value <- read.csv("../../figs/08_text-gen/monitoring.csv") %>% 
+  filter(region == region_i) %>% 
   filter(subregion != "All") %>% 
   mutate(across(c(nb_surveys, nb_sites), ~as.numeric(str_replace_all(.x, ",", "")))) %>% 
   mutate(perc_surveys = nb_surveys*100/(sum(nb_surveys)),
@@ -509,13 +534,13 @@ Temporal trends in the percentage cover of benthic categories from 1980 to 2024 
 
 ```{r echo=FALSE, message=FALSE}
 
-figure_path <- paste0("../../figs/02_part-2/fig-2/", str_to_lower(region_name), ".png")
+figure_path <- paste0("../../figs/03_part-2/fig-9/", str_to_lower(region_name), ".png")
 
 ```
 
 ![](`r figure_path`){width=100%}
 
-**Figure 2.`r nb_chapter`.4.** Spatio-temporal distribution of benthic cover monitoring sites across the `r region_i` region. Sites that were monitored for the longest period are represented at the top of the sites monitored for fewer years. The scale bar provides distance at the equator and may not accurately represent distance over the entire latitudinal range of the region. The borders and nomenclature represented on this map are not endorsed by the GCRMN.
+**Figure 2.`r nb_chapter`.9.** Spatio-temporal distribution of benthic cover monitoring sites across the `r region_i` region. Sites that were monitored for the longest period are represented at the top of the sites monitored for fewer years. The scale bar provides distance at the equator and may not accurately represent distance over the entire latitudinal range of the region. The borders and nomenclature represented on this map are not endorsed by the GCRMN.
 
 </div>
 

@@ -30,7 +30,7 @@ plot_i <- ggplot(data = data_ssta_mean_year %>% filter(region == "All")) +
   theme_graph() +
   lims(y = c(-1.5, 1.5))
 
-ggsave("figs/01_part-1/fig-10.png", height = 5.3, width = 7.2, dpi = fig_resolution)
+ggsave("figs/02_part-1/fig-10.png", height = 5.3, width = 7.2, dpi = fig_resolution)
 
 ## 3.2 Regional ----
 
@@ -45,7 +45,7 @@ plot_ssta <- function(region_i){
     labs(x = "Year", y = "SST anomaly (°C)") +
     theme_graph()
 
-  ggsave(filename = paste0("figs/02_part-2/fig-3/",
+  ggsave(filename = paste0("figs/03_part-2/fig-2/",
                            str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
          plot = plot_i, height = 5, width = 9, dpi = fig_resolution)
   
@@ -93,7 +93,7 @@ plot_i <- ggplot(data = data_dhw_freq %>% filter(region == "All")) +
   theme_graph() +
   labs(x = "Year", y = "Percentage of coral reefs")
 
-ggsave("figs/01_part-1/fig-11.png", height = 5.3, width = 7.2, dpi = fig_resolution)
+ggsave("figs/02_part-1/fig-11.png", height = 5.3, width = 7.2, dpi = fig_resolution)
 
 ## 4.2 Regional ----
 
@@ -113,7 +113,7 @@ plot_dhw <- function(region_i){
     theme_graph() +
     labs(x = "Year", y = "Percentage of coral reefs")
   
-  ggsave(filename = paste0("figs/02_part-2/fig-4/",
+  ggsave(filename = paste0("figs/03_part-2/fig-3/",
                            str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
          plot = plot_i, height = 5.3, width = 7.2, dpi = fig_resolution)
   
@@ -127,7 +127,7 @@ plot_dhw <- function(region_i){
     select("subregion", "year", "No Stress", "Warning",
            "Alert 1", "Alert 2", "Alert 3", "Alert 4", "Alert 5") %>% 
     arrange(subregion, year) %>% 
-    openxlsx::write.xlsx(., paste0("figs/06_additional/06_threats/data-heatstress_",
+    openxlsx::write.xlsx(., paste0("figs/07_additional/06_threats/data-heatstress_",
                                    str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"),
                                                    "---", "-"), ".xlsx"))
   
@@ -149,7 +149,7 @@ plot_i <- data_sst %>%
   theme_graph() +
   facet_wrap(~region, ncol = 2, scales = "free")
 
-ggsave("figs/05_supp-mat/sst.png", width = 7, height = 10, dpi = fig_resolution)
+ggsave("figs/06_supp-mat/sst.png", width = 7, height = 10, dpi = fig_resolution)
 
 # 6. Long-term SST average and trend ----
 
@@ -189,24 +189,9 @@ data_sst <- data_sst %>%
 data_sst %>% 
   mutate(across(c(sst_increase, mean_sst), ~format(round(.x, 2))),
          warming_rate = format(round(warming_rate, 3))) %>% 
-  openxlsx::write.xlsx(., file = "figs/05_supp-mat/supp-tbl-3_reef-extent_sst-mean-trend.xlsx")
+  openxlsx::write.xlsx(., file = "figs/06_supp-mat/supp-tbl-3_reef-extent_sst-mean-trend.xlsx")
 
 ## 6.4. Export the table per region ----
 
-### 6.4.1 Create the function ----
-
-export_descriptors <- function(gcrmn_region){
+write.csv(data_sst, file = "figs/08_text-gen/thermal_regime.csv", row.names = FALSE)
   
-  data_sst %>% 
-    filter(region == gcrmn_region) %>% 
-    select(-region) %>% 
-    write.csv(., file = paste0("figs/02_part-2/tbl-4/",
-                               str_replace_all(str_to_lower(gcrmn_region), " ", "-"),
-                               ".csv"),
-              row.names = FALSE)
-  
-}
-
-### 6.4.2 Map over the function ----
-
-map(setdiff(unique(data_sst$region), "All"), ~export_descriptors(gcrmn_region = .))

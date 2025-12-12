@@ -7,7 +7,7 @@ library(units)
 
 # 2. Load data ----
 
-data_reefs <- st_read("data/01_maps/02_clean/01_reefs/reefs.shp")
+data_reefs <- st_read("data/01_maps/02_clean/01_reefs/global_2024_reefs.shp")
 
 data_regions <- st_read("data/01_maps/02_clean/03_regions/gcrmn_regions.shp")
 
@@ -112,18 +112,11 @@ data_distance <- map(unique(data_countries$region), ~distance_points(region_i = 
   # Correction for Pacific
   mutate(long_axis = ifelse(region == "Pacific", 11400, long_axis))
 
-# 6. Combine data ----
+# 6. Combine and export data ----
 
-data_summary <- data_countries %>%
+data_countries %>%
   select(region, nb_countries, denomination) %>% 
   distinct() %>% 
   left_join(., data_orientation) %>% 
-  left_join(., data_distance)
-
-# 7. Export data per region ----
-
-map(unique(data_countries$region), ~ data_summary %>%
-      filter(region == .x) %>% 
-      write.csv(., file = paste0("figs/02_part-2/tbl-5/",
-                                 str_replace_all(str_to_lower(.x), " ", "-"),
-                                 ".csv"), row.names = FALSE))
+  left_join(., data_distance) %>% 
+  write.csv(., file = "figs/08_text-gen/region_characteristics.csv", row.names = FALSE)
