@@ -248,7 +248,7 @@ data_benthic %>%
   labs(x = "Year", y = "Surveys (%)") +
   coord_cartesian(clip = "off") +
   theme_graph() +
-  scale_x_continuous(expand = c(0, 0), limits = c(1979, 2026))
+  scale_x_continuous(expand = c(0, 0), limits = c(1969, 2026))
 
 ggsave("figs/02_part-1/fig-2.png", width = 5, height = 4, dpi = fig_resolution)
 
@@ -274,7 +274,7 @@ plot_surveys_year <- function(gcrmn_region){
     labs(x = "Year", y = "Surveys (%)") +
     coord_cartesian(clip = "off") +
     theme_graph() +
-    scale_x_continuous(expand = c(0, 0), limits = c(1979, 2026))
+    scale_x_continuous(expand = c(0, 0), limits = c(1969, 2026))
   
   ggsave(paste0("figs/07_additional/02_data-exploration/surveys-year_",
                 str_replace_all(str_to_lower(gcrmn_region), " ", "-"), ".png"),
@@ -305,7 +305,7 @@ plot_i <- data_benthic %>%
   coord_cartesian(clip = "off") +
   theme_graph() +
   facet_wrap(~region, ncol = 2) +
-  scale_x_continuous(expand = c(0, 0), limits = c(1979, 2026))
+  scale_x_continuous(expand = c(0, 0), limits = c(1969, 2026))
 
 ggsave("figs/06_supp-mat/surveys-year.png", width = 7, height = 10, dpi = fig_resolution)
 
@@ -324,7 +324,7 @@ data_benthic %>%
   labs(x = "Depth (m)", y = "Surveys (%)") +
   coord_cartesian(clip = "off") +
   theme_graph() +
-  scale_x_continuous(expand = c(0, 0), limits = c(-1, 40))
+  scale_x_continuous(expand = c(0, 0), limits = c(-1, 31))
 
 ggsave("figs/02_part-1/fig-3.png", width = 5, height = 4, dpi = fig_resolution)
 
@@ -346,7 +346,7 @@ plot_surveys_depth <- function(gcrmn_region){
     labs(x = "Depth (m)", y = "Surveys (%)") +
     coord_cartesian(clip = "off") +
     theme_graph() +
-    scale_x_continuous(expand = c(0, 0), limits = c(-1, 40))
+    scale_x_continuous(expand = c(0, 0), limits = c(-1, 31))
   
   ggsave(paste0("figs/07_additional/02_data-exploration/surveys-depth_",
                 str_replace_all(str_to_lower(gcrmn_region), " ", "-"), ".png"),
@@ -372,7 +372,7 @@ plot_i <- data_benthic %>%
   coord_cartesian(clip = "off") +
   theme_graph() +
   facet_wrap(~region, ncol = 2) +
-  scale_x_continuous(expand = c(0, 0), limits = c(-1, 40))
+  scale_x_continuous(expand = c(0, 0), limits = c(-1, 31))
 
 ggsave("figs/06_supp-mat/surveys-depth.png", width = 7, height = 10, dpi = fig_resolution)
 
@@ -624,4 +624,24 @@ ggplot(data = data_benthic_sites, aes(x = int_class, y = perc, fill = int_class,
   facet_wrap(~region, ncol = 2) +
   lims(y = c(0, 100))
 
-ggsave("figs/06_supp-mat/surveys-per-category.png", width = 7, height = 10, dpi = fig_resolution)
+ggsave("figs/06_supp-mat/sites-range.png", width = 7, height = 10, dpi = fig_resolution)
+
+# 12 Monitoring descriptors per subregions ----
+
+load("data/02_misc/data-benthic.RData")
+
+data_benthic %>% 
+  group_by(region) %>% 
+  data_descriptors() %>% 
+  ungroup() %>% 
+  mutate(subregion = "All", .after = "region") %>% 
+  bind_rows(., data_benthic %>% 
+                group_by(region, subregion) %>% 
+                data_descriptors() %>% 
+                ungroup()) %>% 
+  arrange(region, subregion) %>% 
+  bind_rows(., data_benthic %>% 
+              data_descriptors() %>% 
+              mutate(region = "All", subregion = "All", .before = "nb_datasets")) %>% 
+  select(-surveys_90_perc) %>% 
+  openxlsx::write.xlsx(., file = "figs/06_supp-mat/monitoring-descriptors.xlsx")

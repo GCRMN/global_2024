@@ -149,7 +149,7 @@ plot_i <- data_sst %>%
   theme_graph() +
   facet_wrap(~region, ncol = 2, scales = "free")
 
-ggsave("figs/06_supp-mat/sst.png", width = 7, height = 10, dpi = fig_resolution)
+#ggsave("figs/06_supp-mat/sst.png", width = 7, height = 10, dpi = fig_resolution)
 
 # 6. Long-term SST average and trend ----
 
@@ -182,14 +182,18 @@ data_sst <- data_sst %>%
   left_join(., data_sst %>% 
               select(region, subregion, mean_sst) %>% 
               distinct()) %>% 
-  select(-intercept, -slope)
+  select(-intercept, -slope) %>% 
+  mutate(across(c(sst_increase, mean_sst), ~format(round(.x, 2))),
+         warming_rate = format(round(warming_rate, 3)))
 
 ## 6.3. Export the full table ----
 
-data_sst %>% 
-  mutate(across(c(sst_increase, mean_sst), ~format(round(.x, 2))),
-         warming_rate = format(round(warming_rate, 3))) %>% 
-  openxlsx::write.xlsx(., file = "figs/06_supp-mat/supp-tbl-3_reef-extent_sst-mean-trend.xlsx")
+data_sst <- data_sst %>% 
+  filter(row_number() != 1) %>% 
+  bind_rows(., data_sst %>% 
+              slice(1))
+
+openxlsx::write.xlsx(data_sst, file = "figs/06_supp-mat/sst.xlsx")
 
 ## 6.4. Export the table per region ----
 

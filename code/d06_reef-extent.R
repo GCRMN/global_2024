@@ -41,7 +41,7 @@ data_reef_extent %>%
   select(region, subregion, reef_extent_abs, reef_extent_rel_region, reef_extent_rel_world) %>% 
   mutate(reef_extent_abs = format(round(reef_extent_abs, 0), big.mark = ",", scientific = FALSE),
          across(c(reef_extent_rel_region, reef_extent_rel_world), ~format(round(.x, 2)))) %>% 
-  openxlsx::write.xlsx(., file = "figs/06_supp-mat/supp-tbl-1_reef-extent.xlsx")
+  openxlsx::write.xlsx(., file = "figs/06_supp-mat/reef-extent.xlsx")
 
 # 4. Export the table with all variables (additional) ----
 

@@ -1,5 +1,6 @@
 ---
 title: "Supplementary Materials"
+subtitle: "Status of Coral reefs of the world: 2025"
 output:
   word_document:
     reference_docx: styles.docx
@@ -24,14 +25,71 @@ tbl_counter <- 1
 
 <div custom-style="text">
 
-**Supplementary Table `r tbl_counter`.** Title.
+**Supplementary Table `r tbl_counter`.** Comparison of coral reef extent indicators across the 53 GCRMN subregions and associated regions.
 
 ```{r echo=FALSE, message=FALSE}
 
-table <- read_xlsx("../../figs/06_supp-mat/supp-tbl-1_reef-extent.xlsx")
+table <- read_xlsx("../../figs/06_supp-mat/reef-extent.xlsx")
 
 flextable(table, cwidth = c(1.26, 1.26, 1.26, 1.26, 1.26)) %>%
   bold(part = "header") %>% 
+  set_header_labels(region = "Region",
+                    subregion = "Subregion",
+                    reef_extent_abs = "Coral reef extent\n(km²)",
+                    reef_extent_rel_region = "Coral reef extent\nrelative to the region (%)",
+                    reef_extent_rel_world = "Coral reef extent\nrelative to the world (%)") %>% 
+  set_table_properties(opts_word = list(repeat_header = FALSE)) %>% 
+  border(border = officer::fp_border())
+
+tbl_counter <- tbl_counter + 1
+
+```
+
+</div>
+
+\newpage
+
+<div custom-style="text">
+
+**Supplementary Table `r tbl_counter`.** Comparison of human population living within 20 km from coral reefs across the 53 GCRMN subregions and associated regions.
+
+```{r echo=FALSE, message=FALSE}
+
+table <- read_xlsx("../../figs/06_supp-mat/population.xlsx")
+
+flextable(table, cwidth = rep(1.26, 5)) %>%
+  bold(part = "header") %>% 
+  set_header_labels(region = "Region",
+                    subregion = "Subregion",
+                    pop_2020 = "Population (2020)",
+                    pop_change_abs = "Absolute change in population between 2000 and 2020",
+                    pop_change_rel = "Relative change in population between 2000 and 2020 (%)") %>% 
+  set_table_properties(opts_word = list(repeat_header = FALSE)) %>% 
+  border(border = officer::fp_border())
+
+tbl_counter <- tbl_counter + 1
+
+```
+
+</div>
+
+\newpage
+
+<div custom-style="text">
+
+**Supplementary Table `r tbl_counter`.** Comparison of thermal regime indicators across the 53 GCRMN subregions and associated regions.
+
+```{r echo=FALSE, message=FALSE}
+
+table <- read_xlsx("../../figs/06_supp-mat/sst.xlsx")
+
+flextable(table, cwidth = rep(1.26, 5)) %>%
+  bold(part = "header") %>% 
+  set_header_labels(region = "Region",
+                    subregion = "Subregion",
+                    sst_increase = "Average change in SST from 1985 to 2024 (°C)",
+                    warming_rate = "Warming rate (°C/year)",
+                    mean_sst = "Long-term SST average from 1985 to 2024 (°C)") %>% 
   set_table_properties(opts_word = list(repeat_header = FALSE)) %>% 
   border(border = officer::fp_border())
 
@@ -53,7 +111,7 @@ figure_path <- "../../figs/06_supp-mat/surveys-year.png"
 
 <div custom-style="text">
 
-**Supplementary Figure `r fig_counter`.** Title.
+**Supplementary Figure `r fig_counter`.** Percentage of benthic cover surveys conducted annually across the ten GCRMN regions from 1970 to 2025, relative to all surveys conducted in each region during this period.
 
 </div>
 
@@ -71,7 +129,7 @@ fig_counter <- fig_counter + 1
 
 <div custom-style="text">
 
-**Supplementary Figure `r fig_counter`.** Title.
+**Supplementary Figure `r fig_counter`.** Percentage of benthic cover surveys by depth across the 10 GCRMN regions from 1970 to 2025, relative to all surveys conducted in each region between 0 and 30 m.
 
 </div>
 
@@ -79,7 +137,7 @@ fig_counter <- fig_counter + 1
 
 ```{r echo=FALSE, message=FALSE}
 
-figure_path <- "../../figs/06_supp-mat/fig-X_a.png"
+figure_path <- "../../figs/06_supp-mat/raw-average_a.png"
 
 fig_counter <- fig_counter + 1
 
@@ -89,7 +147,7 @@ fig_counter <- fig_counter + 1
 
 <div custom-style="text">
 
-**Supplementary Figure `r fig_counter`.** Title.
+**Supplementary Figure `r fig_counter`.** Annual means of observed data (*i.e.* monitoring data) for hard coral and macroalgae cover across five out of ten GCRMN region (Australia, Brazil, Caribbean, East Asian Seas, and Eastern Tropical Pacific) from 1980 to 2024. Grey dots in the background represent the mean values of individual transects conducted each year.
 
 </div>
 
@@ -97,7 +155,7 @@ fig_counter <- fig_counter + 1
 
 ```{r echo=FALSE, message=FALSE}
 
-figure_path <- "../../figs/06_supp-mat/fig-X_b.png"
+figure_path <- "../../figs/06_supp-mat/raw-average_b.png"
 
 fig_counter <- fig_counter + 1
 
@@ -107,7 +165,7 @@ fig_counter <- fig_counter + 1
 
 <div custom-style="text">
 
-**Supplementary Figure `r fig_counter`.** Title.
+**Supplementary Figure `r fig_counter`.** Annual means of observed data (*i.e.* monitoring data) for hard coral and macroalgae cover across five out of ten GCRMN region (Pacific, PERSGA, ROPME, South Asia, Western Indian Ocean) from 1980 to 2024. Grey dots in the background represent the mean values of individual transects conducted each year.
 
 </div>
 
@@ -115,11 +173,58 @@ fig_counter <- fig_counter + 1
 
 <div custom-style="text">
 
-**Supplementary Table `r tbl_counter`.** List of individual datasets used to estimate benthic cover trends in hard coral and macroalgae cover in the ten GCRMN regions.
+**Supplementary Table `r tbl_counter`.** Comparison of benthic cover monitoring indicators across the 53 GCRMN subregions and associated regions.
 
 ```{r echo=FALSE, message=FALSE}
 
-table <- read_xlsx("../../figs/06_supp-mat/tbl-1_datasetid-per-region.xlsx")
+table <- read_xlsx("../../figs/06_supp-mat/monitoring-descriptors.xlsx") %>% 
+  mutate(across(c("first_year", "last_year"), ~as.character(.x)))
+
+flextable(table, cwidth = rep(0.9, 7)) %>%
+  bold(part = "header") %>% 
+  set_header_labels(region = "Region",
+                    subregion = "Subregion",
+                    nb_datasets = "Number of datasets",
+                    nb_sites = "Number of sites",
+                    nb_surveys = "Number of surveys",
+                    first_year = "First year\nwith data",
+                    last_year = "Last year\nwith data") %>% 
+  set_table_properties(opts_word = list(repeat_header = FALSE)) %>% 
+  border(border = officer::fp_border())
+
+tbl_counter <- tbl_counter + 1
+
+```
+
+</div>
+
+\newpage
+
+```{r echo=FALSE, message=FALSE}
+
+figure_path <- "../../figs/06_supp-mat/sites-range.png"
+
+fig_counter <- fig_counter + 1
+
+```
+
+![](`r figure_path`){width=80%}
+
+<div custom-style="text">
+
+**Supplementary Figure `r fig_counter`.** Comparison of the percentage of sites per number of years with monitoring data across the 10 GCRMN regions.
+
+</div>
+
+\newpage
+
+<div custom-style="text">
+
+**Supplementary Table `r tbl_counter`.** List of individual datasets used to estimate benthic cover trends in hard coral and macroalgae cover in the 10 GCRMN regions.
+
+```{r echo=FALSE, message=FALSE}
+
+table <- read_xlsx("../../figs/06_supp-mat/datasetid-region.xlsx")
 
 flextable(table, cwidth = c(1.6, 4.7)) %>%
   bold(part = "header") %>% 

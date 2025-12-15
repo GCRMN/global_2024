@@ -34,7 +34,7 @@ data_benthic %>%
   ungroup() %>% 
   left_join(data_region, .) %>%
   arrange(region) %>% 
-  openxlsx::write.xlsx(., file = "figs/05_supp-mat/tbl-1_datasetid-per-region.xlsx")
+  openxlsx::write.xlsx(., file = "figs/06_supp-mat/datasetid-region.xlsx")
 
 # 4. DatasetID per subregion ----
 
@@ -53,7 +53,7 @@ data_benthic %>%
   ungroup() %>% 
   left_join(data_subregion %>% select(-region), .) %>%
   arrange(subregion) %>% 
-  openxlsx::write.xlsx(., file = "figs/05_supp-mat/tbl-2_datasetid-per-subregion.xlsx")
+  openxlsx::write.xlsx(., file = "figs/06_supp-mat/datasetid-subregion.xlsx")
 
 ## 4.2 Additional materials ----
 
