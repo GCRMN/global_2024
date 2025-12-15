@@ -8,6 +8,7 @@ library(ggrepel)
 library(scales)
 library(zoo)
 library(sf)
+library(openxlsx)
 
 # 2. Source functions ----
 
@@ -64,7 +65,7 @@ plot <- ggplot() +
         plot.background = element_rect(fill = "transparent", color = NA)) +
   guides(fill = guide_legend(override.aes = list(size = 5, color = NA)))
 
-ggsave(filename = "figs/01_part-1/global_map.png", plot = plot,
+ggsave(filename = "figs/02_part-1/global_map.png", plot = plot,
        bg = "transparent", height = 5, width = 8, dpi = 300)
 
 rm(background_map_border, data_country, data_gcrmn_regions, data_graticules, lats, longs)
@@ -77,7 +78,7 @@ export_subplots <- function(region_i, category_i){
     group_by(category, level, region, subregion, ecoregion) %>% 
     filter(year >= first_year & year <= last_year) %>% 
     ungroup() %>% 
-    filter(category == category_i & level == "region" & model == "HBM") %>% 
+    filter(category == category_i & level == "region") %>% 
     left_join(., color_regions)
 
   plot_i <- ggplot(data = data_i %>% filter(region == region_i)) +
@@ -102,12 +103,12 @@ export_subplots <- function(region_i, category_i){
   
   if(category_i == "Hard coral"){
     
-    ggsave(filename = paste0("figs/01_part-1/fig-7_", str_to_lower(region_i), ".png"), plot = plot_i,
+    ggsave(filename = paste0("figs/02_part-1/fig-7_", str_to_lower(region_i), ".png"), plot = plot_i,
            bg = "transparent", height = 5, width = 6, dpi = 300)
     
   }else{
     
-    ggsave(filename = paste0("figs/01_part-1/fig-8_", str_to_lower(region_i), ".png"), plot = plot_i,
+    ggsave(filename = paste0("figs/02_part-1/fig-8_", str_to_lower(region_i), ".png"), plot = plot_i,
            bg = "transparent", height = 5, width = 6, dpi = 300)
     
   }
@@ -150,148 +151,66 @@ map(setdiff(unique(data_models$region), NA),
     ~plot_trends(region_i = .x,
                  level_i = "ecoregion", category_i = "Macroalgae", range = "obs"))
 
-## 5.4 Values per region for writing ----
+## 5.4 Modeled values per region for writing ----
 
+### 5.4.1 Create the function ----
 
+export_model_data <- function(region_i, range){
+  
+  metadata <- tibble(variable = c("category", "region", "subregion",
+                                  "year", "mean",
+                                  "lower_ci_95",
+                                  "upper_ci_95",
+                                  "lower_ci_80",
+                                  "upper_ci_80",
+                                  "data_obs"),
+                     description = c("Benthic category", "GCRMN region", "GCRMN subregion",
+                                     "Year", "Mean modelled percentage cover",
+                                     "Percentage cover for the lower 95% credible interval",
+                                     "Percentage cover for the upper 95% credible interval",
+                                     "Percentage cover for the lower 80% credible interval",
+                                     "Percentage cover for the upper 80% credible interval",
+                                     "Observed monitoring data available for the year? Yes (TRUE) or No (FALSE)"))
+  
+  data_region <- data_models %>% 
+    filter(level == "region" & region == region_i & category %in% c("Hard coral", "Macroalgae")) %>% 
+    group_by(category) %>% 
+    { 
+      if (range == "obs") {
+        filter(., year >= first_year & year <= last_year)
+      } else if(range == "full") {
+        .
+      }
+    } %>% 
+    ungroup() %>% 
+    select(category, region, year, mean, lower_ci_95, upper_ci_95, lower_ci_80, upper_ci_80, data_obs) %>% 
+    arrange(category, region, year) %>% 
+    mutate(data_obs = as.character(data_obs)) # To avoid conversion to French by openxlsx package
+  
+  data_subregion <- data_models %>% 
+    filter(level == "subregion" & region == region_i & category %in% c("Hard coral", "Macroalgae")) %>% 
+    group_by(category, subregion) %>% 
+    { 
+      if (range == "obs") {
+        filter(., year >= first_year & year <= last_year)
+      } else if(range == "full") {
+        .
+      }
+    } %>% 
+    ungroup() %>% 
+    select(category, subregion, year, mean, lower_ci_95, upper_ci_95, lower_ci_80, upper_ci_80, data_obs) %>% 
+    arrange(category, subregion, year) %>% 
+    mutate(data_obs = as.character(data_obs)) # To avoid conversion to French by openxlsx package
+  
+  list_of_datasets <- list("metadata" = metadata, "region" = data_region, "subregion" = data_subregion)
+  
+  write.xlsx(list_of_datasets, file = paste0("figs/07_additional/08_model-values/", 
+                                             str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"),
+                                             ".xlsx"))
+  
+}
 
-# 6. Comparison previous trends ----
+### 5.4.2 Map over the function ----
 
-data_2020 <- read.csv("../../2025-08-25_time-series/time_series/data/01_raw-data/ModelledTrends.all.sum.csv") %>% 
-  rename(category = Var, region = GCRMN_region, year = Year,
-         mean = value, lower_ci_95 = ".lower_0.95", upper_ci_95 = ".upper_0.95") %>% 
-  select(category, region, year, mean, lower_ci_95, upper_ci_95) %>% 
-  mutate(data = "2020 report",
-         region = str_replace_all(region, c("Global" = "World",
-                                            "East Asia" = "EAS")),
-         category = str_replace_all(category, c("Hard Coral Cover" = "Hard coral",
-                                                "Algae Cover" = "Algae")))
-
-data_2025 <- data_trends$raw_trends %>% 
-  filter(level == "region") %>% 
-  select(category, region, year, mean, lower_ci_95, upper_ci_95) %>% 
-  filter(category %in% c("Hard coral", "Algae")) %>% 
-  mutate(data = "2025 report",
-         region = str_replace_all(region, "All", "World")) %>% 
-  drop_na(region)
-
-data_all <- bind_rows(data_2020, data_2025)
-
-plot <- ggplot(data = data_all, aes(x = year, y = mean, ymin = lower_ci_95,
-                                    ymax = upper_ci_95, fill = data, color = data)) +
-  geom_ribbon(alpha = 0.35, color = NA) +
-  scale_fill_manual(values = c("#d63031", "#0984e3")) +
-  geom_line() +
-  facet_grid(category~region) +
-  theme_graph() +
-  theme(strip.text = element_text(face = "bold"),
-        legend.title.position = "top",
-        legend.title = element_text(face = "bold", hjust = 0.5)) +
-  scale_x_continuous(breaks = c(1980, 2000, 2020)) +
-  labs(x = "Year", y = "Benthic cover (%)")
-
-ggsave("figs/06_additional/04_benthic-trends/comparison-trends_2020-2025_full.png", width = 18, height = 8)
-
-# 7. Average raw values ----
-
-load("data/11_model-data/data_benthic_prepared.RData")
-
-
-
-
-
-
-
-
-
-
-# Supplementary Figure X -------------
-
-data_yearly_raw <- data_benthic %>% 
-  filter(category %in% c("Hard coral", "Macroalgae")) %>% 
-  group_by(year, region, category) %>% 
-  summarise(mean = mean(measurementValue)) %>% 
-  ungroup() %>% 
-  mutate(color = case_when(category == "Hard coral" ~ "#c44d56",
-                           category == "Macroalgae" ~ "#03a678"))
-
-# Ajouter totre colorés
-# Ajouter points transects
-
-data_yearly_raw %>% 
-  filter(region %in% c("Australia", "Brazil", "Caribbean", "EAS", "ETP")) %>% 
-  ggplot(data = ., aes(x = year, y = mean, fill = color)) +
-  geom_point(color = "black", shape = 23, size = 2) +
-  scale_fill_identity() +
-  facet_grid(region~category) +
-  theme_graph() +
-  lims(x = c(1979, 2026), y = c(0, NA))
-
-data_yearly_raw %>% 
-  filter(region %in% c("Pacific", "PERSGA", "ROPME", "South Asia", "WIO")) %>% 
-  ggplot(data = ., aes(x = year, y = mean, fill = color)) +
-  geom_point(color = "black", shape = 23, size = 2) +
-  scale_fill_identity() +
-  facet_grid(region~category) +
-  theme_graph() +
-  lims(x = c(1979, 2026), y = c(0, NA))
-
-
-
-
-
-
-
-################
-
-
-ggplot() +
-  geom_point(data = data_benthic_raw_i,
-             aes(x = year, y = measurementValue, color = "#b2bec3"), size = 0.8, alpha = 0.7) +
-  geom_point(data = data_benthic_raw_mean_i,
-             aes(x = year, y = mean, fill = color), color = "black", shape = 23, size = 2) +
-  scale_color_identity() +
-  scale_fill_identity() +
-  facet_wrap(~text_title, scales = scales) +
-  theme(strip.text = element_markdown(hjust = 0, size = rel(1.3)),
-        strip.background = element_blank(),
-        panel.spacing = unit(2, "lines")) +
-  labs(x = "Year", y = "Cover (%)") +
-  lims(x = c(1980, 2024), y = c(0, NA))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-data_benthic <- data_benthic %>% 
-  bind_rows(., data_benthic %>% 
-              mutate(region = "All")) %>%
-  group_by(year, region, category) %>% 
-  summarise(mean = mean(measurementValue),
-            sd = sd(measurementValue)) %>% 
-  ungroup() %>% 
-  mutate(ymin = mean - sd,
-         ymin = ifelse(ymin < 0, 0, ymin),
-         ymax = mean + sd) %>% 
-  bind_rows(., data_benthic %>% 
-              group_by(year, category) %>% 
-              summarise(mean = mean(measurementValue),
-                        sd = sd(measurementValue)) %>% 
-              ungroup() %>% 
-              mutate(ymin = mean - sd,
-                     ymin = ifelse(ymin < 0, 0, ymin),
-                     ymax = mean + sd,
-                     region = "Caribbean")) %>% 
-  complete(year, category, nesting(region), fill = list(mean = NA, sd = NA)) %>% 
-  left_join(., data_benthic %>% 
-              select(category) %>% 
-              distinct()) %>% 
-  drop_na(region)
+map(setdiff(unique(data_models$region), NA),
+    ~export_model_data(region_i = .x, range = "obs"))

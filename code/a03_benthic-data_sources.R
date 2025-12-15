@@ -70,7 +70,7 @@ export_datasetID <- function(region_i){
   data_subregion %>%
     filter(region == region_i) %>% 
     select(-region) %>% 
-    openxlsx::write.xlsx(., file = paste0("figs/07_additional/01_misc/list-datasetid_",
+    openxlsx::write.xlsx(., file = paste0("figs/07_additional/01_list-datasetid/list-datasetid_",
                                           str_replace_all(str_to_lower(region_i), " ", "-"),
                                           ".xlsx"))
   

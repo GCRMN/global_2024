@@ -27,7 +27,7 @@ plot_trends <- function(region_i, level_i, category_i = NA, range = NA){
   if(level_i == "global"){
     
     data_i <- data_models %>% 
-      filter(level == "global" & category %in% c("Hard coral", "Macroalgae") & model == "HBM") %>% 
+      filter(level == "global" & category %in% c("Hard coral", "Macroalgae")) %>% 
       group_by(category) %>% 
       { 
         if (range == "obs") {
@@ -49,13 +49,13 @@ plot_trends <- function(region_i, level_i, category_i = NA, range = NA){
       theme(legend.title.position = "top",
             strip.text = element_markdown(hjust = 0, size = 14),
             legend.title = element_text(face = "bold", hjust = 0.5)) +
-      scale_x_continuous(breaks = c(1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020),
+      scale_x_continuous(breaks = c(1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020, 2025),
                          limits = c(1979, 2026),
-                         labels = c("1980", "", "1990", "", "2000", "", "2010", "", "2020")) +
+                         labels = c("1980", "", "1990", "", "2000", "", "2010", "", "2020", "")) +
       scale_y_continuous(limits = c(0, floor(max(data_i$upper_ci_95)/10)*10+10)) +
       labs(x = "Year", y = "Benthic cover (%)")
     
-    ggsave(filename = paste0("figs/01_part-1/fig-6.png"),
+    ggsave(filename = paste0("figs/02_part-1/fig-6.png"),
            plot = plot_i, height = 4, width = 8.5, dpi = fig_resolution)
     
   # Region
@@ -63,7 +63,7 @@ plot_trends <- function(region_i, level_i, category_i = NA, range = NA){
   }else if(level_i == "region"){
     
     data_i <- data_models %>% 
-      filter(level == "region" & model == "HBM") %>% 
+      filter(level == "region") %>% 
       group_by(category, region, subregion, ecoregion) %>% 
       { 
         if (range == "obs") {
@@ -86,13 +86,13 @@ plot_trends <- function(region_i, level_i, category_i = NA, range = NA){
       theme(legend.title.position = "top",
             strip.text = element_markdown(hjust = 0, size = 14),
             legend.title = element_text(face = "bold", hjust = 0.5)) +
-      scale_x_continuous(breaks = c(1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020),
+      scale_x_continuous(breaks = c(1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020, 2025),
                          limits = c(1979, 2026),
-                         labels = c("1980", "", "1990", "", "2000", "", "2010", "", "2020")) +
+                         labels = c("1980", "", "1990", "", "2000", "", "2010", "", "2020", "")) +
       scale_y_continuous(limits = c(0, floor(max(data_i$upper_ci_95)/10)*10+10)) +
       labs(x = "Year", y = "Benthic cover (%)")
     
-    ggsave(filename = paste0("figs/02_part-2/fig-5/",
+    ggsave(filename = paste0("figs/03_part-2/fig-6/",
                              str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
            plot = plot_i, height = 4, width = 8.5, dpi = fig_resolution)
     
@@ -101,7 +101,7 @@ plot_trends <- function(region_i, level_i, category_i = NA, range = NA){
   }else if(level_i == "subregion"){
     
     data_i <- data_models %>% 
-      filter(level == "subregion" & model == "HBM") %>% 
+      filter(level == "subregion") %>% 
       group_by(category, region) %>% 
       { 
         if (range == "obs") {
@@ -130,15 +130,15 @@ plot_trends <- function(region_i, level_i, category_i = NA, range = NA){
       theme(legend.title.position = "top",
             strip.text = element_markdown(hjust = 0, size = 12, face = "bold"),
             legend.title = element_text(face = "bold", hjust = 0.5)) +
-      scale_x_continuous(breaks = c(1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020),
+      scale_x_continuous(breaks = c(1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020, 2025),
                          limits = c(1979, 2026),
-                         labels = c("1980", "", "1990", "", "2000", "", "2010", "", "2020")) +
+                         labels = c("1980", "", "", "", "2000", "", "", "", "2020", "")) +
       scale_y_continuous(limits = c(0, floor(max(data_i$upper_ci_95)/10)*10+10)) +
       labs(x = "Year", y = "Benthic cover (%)")
     
     if(category_i == "Hard coral"){
       
-      ggsave(filename = paste0("figs/02_part-2/fig-6/",
+      ggsave(filename = paste0("figs/03_part-2/fig-7/",
                                str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
              plot = plot_i,
              height = case_when(nb_subregions == 3 ~ 3.5,
@@ -155,7 +155,7 @@ plot_trends <- function(region_i, level_i, category_i = NA, range = NA){
       
     }else if(category_i == "Macroalgae"){
       
-      ggsave(filename = paste0("figs/02_part-2/fig-6b/",
+      ggsave(filename = paste0("figs/03_part-2/fig-8/",
                                str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
              plot = plot_i,
              height = case_when(nb_subregions == 3 ~ 3.5,
@@ -177,7 +177,7 @@ plot_trends <- function(region_i, level_i, category_i = NA, range = NA){
   }else if(level_i == "ecoregion"){
     
     data_i <- data_models %>% 
-      filter(level == "ecoregion" & model == "HBM") %>% 
+      filter(level == "ecoregion") %>% 
       group_by(category, region) %>% 
       { 
         if (range == "obs") {
@@ -206,6 +206,10 @@ plot_trends <- function(region_i, level_i, category_i = NA, range = NA){
                                      "Torres Strait Northern\nGreat Barrier Reef",
                                    ecoregion == "Central and Southern Great Barrier Reef" ~
                                      "Central and Southern\nGreat Barrier Reef",
+                                   ecoregion == "Southwestern Caribbean" ~
+                                     "Southwestern\nCaribbean",
+                                   ecoregion == "Torres Strait Northern Great Barrier Reef" ~
+                                     "Torres Strait Northern\nGreat Barrier Reef",
                                    length_more_20 == TRUE & slash_present == TRUE ~ 
                                      gsub("/", "\n", ecoregion),
                                    length_more_20 == TRUE & slash_present == FALSE ~ 
@@ -224,15 +228,15 @@ plot_trends <- function(region_i, level_i, category_i = NA, range = NA){
       scale_fill_identity() +
       theme_graph() +
       theme(legend.title.position = "top",
-            strip.text = element_text(face = "bold", hjust = 0),
+            strip.text = element_text(face = "bold", hjust = 0, size = 10),
             legend.title = element_text(face = "bold", hjust = 0.5)) +
-      scale_x_continuous(breaks = c(1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020),
+      scale_x_continuous(breaks = c(1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020, 2025),
                          limits = c(1979, 2026),
-                         labels = c("1980", "", "1990", "", "2000", "", "2010", "", "2020")) +
+                         labels = c("1980", "", "", "", "2000", "", "", "", "2020", "")) +
       scale_y_continuous(limits = c(0, floor(max(data_i$upper_ci_95)/10)*10+10)) +
       labs(x = "Year", y = "Benthic cover (%)")
     
-    ggsave(filename = paste0("figs/06_additional/04_ecoregion-trends/ecoregion_",
+    ggsave(filename = paste0("figs/07_additional/04_ecoregion-trends/ecoregion_",
                              str_replace_all(str_replace_all(str_to_lower(category_i), " ", "-"), "---", "-"),
                              "_",
                              str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"),
