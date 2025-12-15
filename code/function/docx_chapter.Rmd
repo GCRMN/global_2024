@@ -13,6 +13,8 @@ require(tidyverse)
 require(readxl)
 require(flextable)
 
+fig_counter <- 1
+
 ```
 
 \
@@ -131,7 +133,7 @@ figure_path <- paste0("../../figs/03_part-2/fig-1/", str_to_lower(region_name), 
 
 ![](`r figure_path`){width=100%}
 
-**Figure 2.`r nb_chapter`.1.** The distribution of coral reefs within the `r region_i` region and its respective sub-regions. 
+**Figure 2.`r nb_chapter`.`r fig_counter`.** The distribution of coral reefs within the `r region_i` region and its respective sub-regions. 
 White polygons and numbers represent sub-regions. Coral reefs are delineated with a 20 km buffer to enhance interpretation, and only coral reefs within the region are represented. The scale bar provides distance at the equator and may not accurately represent distance over the entire latitudinal range of the region. The borders and nomenclature represented on this map are not endorsed by the GCRMN.
 
 \newpage
@@ -250,11 +252,13 @@ From 1985 to 2024, the long-term average of Sea Surface Temperature (SST) record
 
 figure_path <- paste0("../../figs/03_part-2/fig-2/", str_to_lower(region_name), ".png")
 
+fig_counter <- fig_counter + 1
+
 ```
 
 ![](`r figure_path`){width=100%}
 
-**Figure 2.`r nb_chapter`.2.** Annual mean Sea Surface Temperature (SST) anomalies (°C) over the coral reefs of `r region_i` from 1986 to 2024. SST anomalies were calculated based on the long-term average over the period 1986-2024. Positive values (red bars) indicate SST warmer than the long-term average, whereas negative values (blue bars) indicate SST cooler than the long-term average.
+**Figure 2.`r nb_chapter`.`r fig_counter`.** Annual mean Sea Surface Temperature (SST) anomalies (°C) over the coral reefs of `r region_i` from 1986 to 2024. SST anomalies were calculated based on the long-term average over the period 1986-2024. Positive values (red bars) indicate SST warmer than the long-term average, whereas negative values (blue bars) indicate SST cooler than the long-term average.
 
 \newpage
 
@@ -266,11 +270,13 @@ From 1986 to 2024, periods of major heat stress occurred in ...
 
 figure_path <- paste0("../../figs/03_part-2/fig-3/", str_to_lower(region_name), ".png")
 
+fig_counter <- fig_counter + 1
+
 ```
 
 ![](`r figure_path`){width=100%}
 
-**Figure 2.`r nb_chapter`.3.** Percentage of the coral reefs within the `r region_i` region experiencing heat stress levels per year, from 1986 to 2024. No stress (DHW = 0); Warning (possible bleaching, 0–4 DHW); Alert 1 (reef-wide bleaching, 4–8 DHW); Alert 2 (reef-wide bleaching and mortality of heat-sensitive corals, 8–12 DHW); Alert 3 (multi-species mortality, 12–16 DHW); Alert 4 (severe multi-species mortality, 16–20 DHW); and Alert 5 (near-complete mortality, ≥20 DHW).
+**Figure 2.`r nb_chapter`.`r fig_counter`.** Percentage of the coral reefs within the `r region_i` region experiencing heat stress levels per year, from 1986 to 2024. No stress (DHW = 0); Warning (possible bleaching, 0–4 DHW); Alert 1 (reef-wide bleaching, 4–8 DHW); Alert 2 (reef-wide bleaching and mortality of heat-sensitive corals, 8–12 DHW); Alert 3 (multi-species mortality, 12–16 DHW); Alert 4 (severe multi-species mortality, 16–20 DHW); and Alert 5 (near-complete mortality, ≥20 DHW).
 
 </div>
 
@@ -365,11 +371,13 @@ data_cyclones_highest_dist <- data_cyclones_highest %>%
 
 figure_path <- paste0("../../figs/03_part-2/fig-4/", str_to_lower(region_name), ".png")
 
+fig_counter <- fig_counter + 1
+
 ```
 
 ![](`r figure_path`){width=100%}
 
-**Figure 2.`r nb_chapter`.4.** Number of tropical storms that passed within 100 km of the coral reefs of the `r region_i` region from 1980 to 2025. Colors correspond to the cyclone’s Saffir-Simpson category along the entire cyclone’s track.
+**Figure 2.`r nb_chapter`.`r fig_counter`.** Number of tropical storms that passed within 100 km of the coral reefs of the `r region_i` region from 1980 to 2025. Colors correspond to the cyclone’s Saffir-Simpson category along the entire cyclone’s track.
 
 \
 
@@ -379,11 +387,13 @@ figure_path <- paste0("../../figs/03_part-2/fig-4/", str_to_lower(region_name), 
 
 figure_path <- paste0("../../figs/03_part-2/fig-5/", str_to_lower(region_name), ".png")
 
+fig_counter <- fig_counter + 1
+
 ```
 
 ![](`r figure_path`){width=100%}
 
-**Figure 2.`r nb_chapter`.5.**  Maximum sustained wind speed of tropical storms passed within 100 km of a coral reef in the `r region_i` region between 1980 and 2025. Colors correspond to the cyclone’s Saffir-Simpson category along the entire cyclone’s track. However, the values of sustained wind speed are extracted from the nearest tropical storm position from a coral reef. For this reason, some sustained wind speed values are below the lower threshold of category 1 Saffir-Simpson scale (*i.e.* 119 km.h^-1^).
+**Figure 2.`r nb_chapter`.`r fig_counter`.**  Maximum sustained wind speed of tropical storms passed within 100 km of a coral reef in the `r region_i` region between 1980 and 2025. Colors correspond to the cyclone’s Saffir-Simpson category along the entire cyclone’s track. However, the values of sustained wind speed are extracted from the nearest tropical storm position from a coral reef. For this reason, some sustained wind speed values are below the lower threshold of category 1 Saffir-Simpson scale (*i.e.* 119 km.h^-1^).
 
 </div>
 
@@ -409,13 +419,15 @@ figure_path <- paste0("../../figs/03_part-2/fig-5/", str_to_lower(region_name), 
 
 figure_path <- paste0("../../figs/03_part-2/fig-6/", str_to_lower(region_name), ".png")
 
+fig_counter <- fig_counter + 1
+
 ```
 
 ![](`r figure_path`){width=100%}
 
 <div custom-style="text">
 
-**Figure 2.`r nb_chapter`.6.** Modeled temporal trends of benthic percentage cover in the `r region_i` region from 1980 to 2024 for hard coral (A) and macroalgae (B). The bold line represents the estimated average benthic cover while darker and lighter ribbons represent 80% and 95% credible intervals, respectively.
+**Figure 2.`r nb_chapter`.`r fig_counter`.** Modeled temporal trends of benthic percentage cover in the `r region_i` region from 1980 to 2024 for hard coral (A) and macroalgae (B). The bold line represents the estimated average benthic cover while darker and lighter ribbons represent 80% and 95% credible intervals, respectively.
 
 </div>
 
@@ -433,13 +445,15 @@ figure_path <- paste0("../../figs/03_part-2/fig-6/", str_to_lower(region_name), 
 
 figure_path <- paste0("../../figs/03_part-2/fig-7/", str_to_lower(region_name), ".png")
 
+fig_counter <- fig_counter + 1
+
 ```
 
 ![](`r figure_path`){width=100%}
 
 <div custom-style="text">
 
-**Figure 2.`r nb_chapter`.7.** Modeled temporal trends of hard coral cover in `r region_i`’s sub-regions from 1980 to 2024. The bold line represents the estimated average benthic cover while darker and lighter ribbons represent 80% and 95% credible intervals, respectively.
+**Figure 2.`r nb_chapter`.`r fig_counter`.** Modeled temporal trends of hard coral cover in `r region_i`’s sub-regions from 1980 to 2024. The bold line represents the estimated average benthic cover while darker and lighter ribbons represent 80% and 95% credible intervals, respectively.
 
 </div>
 
@@ -451,13 +465,15 @@ figure_path <- paste0("../../figs/03_part-2/fig-7/", str_to_lower(region_name), 
 
 figure_path <- paste0("../../figs/03_part-2/fig-8/", str_to_lower(region_name), ".png")
 
+fig_counter <- fig_counter + 1
+
 ```
 
 ![](`r figure_path`){width=100%}
 
 <div custom-style="text">
 
-**Figure 2.`r nb_chapter`.8.** Modeled temporal trends of macroalgae cover in `r region_i`’s sub-regions from 1980 to 2024. The bold line represents the estimated average benthic cover while darker and lighter ribbons represent 80% and 95% credible intervals, respectively.
+**Figure 2.`r nb_chapter`.`r fig_counter`.** Modeled temporal trends of macroalgae cover in `r region_i`’s sub-regions from 1980 to 2024. The bold line represents the estimated average benthic cover while darker and lighter ribbons represent 80% and 95% credible intervals, respectively.
 
 </div>
 
@@ -536,11 +552,13 @@ Temporal trends in the percentage cover of benthic categories from 1980 to 2024 
 
 figure_path <- paste0("../../figs/03_part-2/fig-9/", str_to_lower(region_name), ".png")
 
+fig_counter <- fig_counter + 1
+
 ```
 
 ![](`r figure_path`){width=100%}
 
-**Figure 2.`r nb_chapter`.9.** Spatio-temporal distribution of benthic cover monitoring sites across the `r region_i` region. Sites that were monitored for the longest period are represented at the top of the sites monitored for fewer years. The scale bar provides distance at the equator and may not accurately represent distance over the entire latitudinal range of the region. The borders and nomenclature represented on this map are not endorsed by the GCRMN.
+**Figure 2.`r nb_chapter`.`r fig_counter`.** Spatio-temporal distribution of benthic cover monitoring sites across the `r region_i` region. Sites that were monitored for the longest period are represented at the top of the sites monitored for fewer years. The scale bar provides distance at the equator and may not accurately represent distance over the entire latitudinal range of the region. The borders and nomenclature represented on this map are not endorsed by the GCRMN.
 
 </div>
 

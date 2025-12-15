@@ -5,13 +5,15 @@ library(rmarkdown)
 library(sf)
 library(googledrive)
 
-# 2. Load the regions to map over ----
+# 2. Generate regional chapters ----
+
+## 2.1 Load the regions to map over ----
 
 data_region <- st_read("data/01_maps/02_clean/03_regions/gcrmn_regions.shp") %>% 
   st_drop_geometry() %>% 
   mutate(nb = row_number())
 
-# 3. Create the function to render the docx documents ----
+## 2.2 Create the function to render the docx documents ----
 
 render_qmd <- function(region_i, upload_drive = FALSE){
   
@@ -26,7 +28,7 @@ render_qmd <- function(region_i, upload_drive = FALSE){
   
   if(file.exists(paste0("doc/", file_name)) == FALSE){
     
-    rmarkdown::render(input = "code/function/chapter_docx.Rmd", 
+    rmarkdown::render(input = "code/function/docx_chapter.Rmd", 
                       output_file = file_name,
                       output_dir = "doc/",
                       quiet = TRUE)
@@ -42,6 +44,13 @@ render_qmd <- function(region_i, upload_drive = FALSE){
   
 }
 
-# 4. Map over the function ----
+## 2.3 Map over the function ----
 
 map(data_region$region, ~render_qmd(region_i = ., upload_drive = FALSE))
+
+# 3. Generate Supplementary Materials ----
+
+rmarkdown::render(input = "code/function/docx_supp-mat.Rmd", 
+                  output_file = "supp-mat.docx",
+                  output_dir = "doc/",
+                  quiet = TRUE)

@@ -1,0 +1,135 @@
+---
+title: "Supplementary Materials"
+output:
+  word_document:
+    reference_docx: styles.docx
+editor: source
+---
+
+```{r echo=FALSE, message=FALSE}
+
+require(tidyverse)
+require(readxl)
+require(flextable)
+
+fig_counter <- 1
+
+tbl_counter <- 1
+
+```
+
+\
+
+\newpage
+
+<div custom-style="text">
+
+**Supplementary Table `r tbl_counter`.** Title.
+
+```{r echo=FALSE, message=FALSE}
+
+table <- read_xlsx("../../figs/06_supp-mat/supp-tbl-1_reef-extent.xlsx")
+
+flextable(table, cwidth = c(1.26, 1.26, 1.26, 1.26, 1.26)) %>%
+  bold(part = "header") %>% 
+  set_table_properties(opts_word = list(repeat_header = FALSE)) %>% 
+  border(border = officer::fp_border())
+
+tbl_counter <- tbl_counter + 1
+
+```
+
+</div>
+
+\newpage
+
+```{r echo=FALSE, message=FALSE}
+
+figure_path <- "../../figs/06_supp-mat/surveys-year.png"
+
+```
+
+![](`r figure_path`){width=80%}
+
+<div custom-style="text">
+
+**Supplementary Figure `r fig_counter`.** Title.
+
+</div>
+
+\newpage
+
+```{r echo=FALSE, message=FALSE}
+
+figure_path <- "../../figs/06_supp-mat/surveys-depth.png"
+
+fig_counter <- fig_counter + 1
+
+```
+
+![](`r figure_path`){width=80%}
+
+<div custom-style="text">
+
+**Supplementary Figure `r fig_counter`.** Title.
+
+</div>
+
+\newpage
+
+```{r echo=FALSE, message=FALSE}
+
+figure_path <- "../../figs/06_supp-mat/fig-X_a.png"
+
+fig_counter <- fig_counter + 1
+
+```
+
+![](`r figure_path`){width=80%}
+
+<div custom-style="text">
+
+**Supplementary Figure `r fig_counter`.** Title.
+
+</div>
+
+\newpage
+
+```{r echo=FALSE, message=FALSE}
+
+figure_path <- "../../figs/06_supp-mat/fig-X_b.png"
+
+fig_counter <- fig_counter + 1
+
+```
+
+![](`r figure_path`){width=80%}
+
+<div custom-style="text">
+
+**Supplementary Figure `r fig_counter`.** Title.
+
+</div>
+
+\newpage
+
+<div custom-style="text">
+
+**Supplementary Table `r tbl_counter`.** List of individual datasets used to estimate benthic cover trends in hard coral and macroalgae cover in the ten GCRMN regions.
+
+```{r echo=FALSE, message=FALSE}
+
+table <- read_xlsx("../../figs/06_supp-mat/tbl-1_datasetid-per-region.xlsx")
+
+flextable(table, cwidth = c(1.6, 4.7)) %>%
+  bold(part = "header") %>% 
+  set_header_labels(region = "Region",
+                    datasetID = "Dataset (datasetID)") %>% 
+  set_table_properties(opts_word = list(repeat_header = FALSE)) %>% 
+  border(border = officer::fp_border())
+
+tbl_counter <- tbl_counter + 1
+
+```
+
+</div>
