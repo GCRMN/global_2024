@@ -12,16 +12,27 @@ source("code/function/extract_coeff.R")
 
 # 3. Yearly SST anomaly ----
 
-load("data/02_misc/data_ssta_mean_year.RData")
+## 3.1 Transform data ----
 
-data_ssta_mean_year <- data_ssta_mean_year %>% 
-  mutate(color = case_when(ssta_mean < 0 ~ "#2c82c9",
-                           ssta_mean > 0 ~ "#d64541"))
+load("data/02_misc/data_sst.RData")
 
-## 3.1 Global ----
+data_sst_anom <- data_sst %>% 
+  filter(subregion == "All") %>% 
+  group_by(region) %>% 
+  mutate(sst_mean = mean(sst)) %>% 
+  ungroup() %>% 
+  mutate(year = year(date),
+         sst_anom = sst - sst_mean) %>% 
+  group_by(region, year) %>% 
+  summarise(mean_sst_anom = mean(sst_anom)) %>% 
+  ungroup() %>% 
+  mutate(color = case_when(mean_sst_anom < 0 ~ "#2c82c9",
+                           mean_sst_anom > 0 ~ "#d64541"))
 
-plot_i <- ggplot(data = data_ssta_mean_year %>% filter(region == "All")) +
-  geom_bar(aes(x = year, y = ssta_mean, fill = color), stat = "identity") +
+## 3.2 Global ----
+
+plot_i <- ggplot(data = data_sst_anom %>% filter(region == "All")) +
+  geom_bar(aes(x = year, y = mean_sst_anom, fill = color), stat = "identity") +
   scale_fill_identity() +
   geom_hline(yintercept = 0) +
   theme(plot.title = element_markdown(size = 17, face = "bold", family = "Open Sans Semibold"),
@@ -32,12 +43,12 @@ plot_i <- ggplot(data = data_ssta_mean_year %>% filter(region == "All")) +
 
 ggsave("figs/02_part-1/fig-10.png", height = 5.3, width = 7.2, dpi = fig_resolution)
 
-## 3.2 Regional ----
+## 3.3 Regional ----
 
 plot_ssta <- function(region_i){
   
-  plot_i <- ggplot(data = data_ssta_mean_year %>% filter(region == region_i & subregion == "All")) +
-    geom_bar(aes(x = year, y = ssta_mean, fill = color), stat = "identity") +
+  plot_i <- ggplot(data = data_sst_anom %>% filter(region == region_i)) +
+    geom_bar(aes(x = year, y = mean_sst_anom, fill = color), stat = "identity") +
     scale_fill_identity() +
     geom_hline(yintercept = 0) +
     theme(plot.title = element_markdown(size = 17, face = "bold", family = "Open Sans Semibold"),
@@ -51,7 +62,7 @@ plot_ssta <- function(region_i){
   
 }
 
-map(setdiff(unique(data_ssta_mean_year$region), "All"), ~plot_ssta(region_i = .))
+map(setdiff(unique(data_sst_anom$region), "All"), ~plot_ssta(region_i = .))
 
 # 4. DHW percent ----
 
@@ -198,4 +209,3 @@ openxlsx::write.xlsx(data_sst, file = "figs/06_supp-mat/sst.xlsx")
 ## 6.4. Export the table per region ----
 
 write.csv(data_sst, file = "figs/08_text-gen/thermal_regime.csv", row.names = FALSE)
-  

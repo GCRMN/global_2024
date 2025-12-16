@@ -47,21 +47,23 @@ data_vect <- data_regions %>%
 
 rm(data_regions, data_subregions)
 
-# 3. Extract yearly mean SST anomaly ----
+# 3. Extract daily mean SST ----
 
 ## 3.1 List of files ----
 
-list_url <- data.frame(year = seq(from = 1986, to = 2024, by = 1)) %>% 
-  mutate(url = paste0("https://www.star.nesdis.noaa.gov/pub/socd/mecb/crw/data/5km/v3.1_op/nc/v1.0/annual/ct5km_",
-                      "ssta-mean",
-                      "_v3.1_",
+list_url <- data.frame(date = seq(from = ymd("1985-01-01"), to = ymd("2024-12-31"), by = "1 day")) %>% 
+  mutate(year = year(date),
+         date = str_remove_all(date, "-"),
+         url = paste0("https://www.star.nesdis.noaa.gov/pub/socd/mecb/crw/data/5km/v3.1_op/nc/v1.0/daily/sst/",
                       year,
+                      "/coraltemp_v3.1_",
+                      date,
                       ".nc"),
-         filename = str_split_fixed(url, "/", Inf)[,14])
+         filename = str_split_fixed(url, "/", Inf)[,16])
 
 ## 3.2 Function to download raster and extract values ----
 
-extract_ssta_mean_year <- function(row_nb, data_reef = data_reef){
+extract_sst_day <- function(row_nb, data_reef = data_reefs, data_vect = data_vect){
   
   # A. Remove files in folder
   
@@ -81,7 +83,7 @@ extract_ssta_mean_year <- function(row_nb, data_reef = data_reef){
   
   ncdf <- terra::rast(paste0("data/04_crw/", list_url_i[1, "filename"]))
   
-  ncdf <- ncdf$sea_surface_temperature_anomaly
+  ncdf <- ncdf$analysed_sst
   
   crs(ncdf) <- "epsg:4326"
   
@@ -89,9 +91,11 @@ extract_ssta_mean_year <- function(row_nb, data_reef = data_reef){
   
   data_results <- terra::extract(x = ncdf, y = data_reef, fun = mean, na.rm = TRUE) %>% 
     as_tibble() %>% 
-    dplyr::select("ID", "sea_surface_temperature_anomaly") %>% 
-    dplyr::mutate(year = year(unique(time(ncdf)))) %>% 
-    dplyr::rename(ssta_mean = sea_surface_temperature_anomaly)
+    dplyr::select("ID", "analysed_sst") %>% 
+    dplyr::mutate(date = unique(time(ncdf))) %>% 
+    rename(sst = analysed_sst) %>% 
+    left_join(., data_reef %>% st_drop_geometry() %>% mutate(ID = row_number())) %>% 
+    select(-ID)
   
   # E. Delete raw file
   
@@ -105,16 +109,13 @@ extract_ssta_mean_year <- function(row_nb, data_reef = data_reef){
 
 ## 3.3. Map over the function ----
 
-data_ssta_mean_year <- map(1:nrow(list_url), ~extract_ssta_mean_year(row_nb = ., data_reef = data_reefs)) %>% 
-  list_rbind() %>% 
-  left_join(., data_reefs %>% 
-              st_drop_geometry() %>% 
-              mutate(ID = row_number())) %>% 
-  select(-ID)
+data_sst <- map(1:nrow(list_url),
+                ~extract_sst_day(row_nb = ., data_reef = data_reefs, data_vect = data_vect)) %>% 
+  list_rbind()
 
 ## 3.4 Save the data ----
 
-save(data_ssta_mean_year, file = "data/02_misc/data_ssta_mean_year.RData")
+save(data_sst, file = "data/02_misc/data_sst.RData")
 
 # 4. Extract yearly DHW ----
 
@@ -183,73 +184,3 @@ data_dhw_freq <- map(1:nrow(list_url),
 ## 4.4 Save the data ----
 
 save(data_dhw_freq, file = "data/02_misc/data_dhw_freq.RData")
-
-# 5. Extract daily mean SST ----
-
-## 5.1 List of files ----
-
-list_url <- data.frame(date = seq(from = ymd("1985-01-01"), to = ymd("2024-12-31"), by = "1 day")) %>% 
-  mutate(year = year(date),
-         date = str_remove_all(date, "-"),
-         url = paste0("https://www.star.nesdis.noaa.gov/pub/socd/mecb/crw/data/5km/v3.1_op/nc/v1.0/daily/sst/",
-                      year,
-                      "/coraltemp_v3.1_",
-                      date,
-                      ".nc"),
-         filename = str_split_fixed(url, "/", Inf)[,16])
-
-## 5.2 Function to download raster and extract values ----
-
-extract_sst_day <- function(row_nb, data_reef = data_reefs, data_vect = data_vect){
-  
-  # A. Remove files in folder
-  
-  file.remove(list.files("data/04_crw/", full.names = TRUE))
-  
-  # B. Download file
-  
-  list_url_i <- list_url %>% 
-    filter(row_number(.) == row_nb)
-  
-  download.file(url = list_url_i[1, "url"],
-                destfile = paste0("data/04_crw/", list_url_i[1, "filename"]),
-                mode = "wb", # Use mode "wb" for windows otherwise issue to read the file with terra
-                timeout = max(600, getOption("timeout"))) # 600 seconds to download the file, else error message
-  
-  # C. Load the raster
-  
-  ncdf <- terra::rast(paste0("data/04_crw/", list_url_i[1, "filename"]))
-  
-  ncdf <- ncdf$analysed_sst
-  
-  crs(ncdf) <- "epsg:4326"
-  
-  # D. Extract values
-  
-  data_results <- terra::extract(x = ncdf, y = data_reef, fun = mean, na.rm = TRUE) %>% 
-    as_tibble() %>% 
-    dplyr::select("ID", "analysed_sst") %>% 
-    dplyr::mutate(date = unique(time(ncdf))) %>% 
-    rename(sst = analysed_sst) %>% 
-    left_join(., data_reef %>% st_drop_geometry() %>% mutate(ID = row_number())) %>% 
-    select(-ID)
-  
-  # E. Delete raw file
-  
-  file.remove(paste0("data/04_crw/", list_url_i[1, "filename"]))
-  
-  # F. Return the results
-  
-  return(data_results)
-  
-}
-
-## 5.3. Map over the function ----
-
-data_sst <- map(1:nrow(list_url),
-                ~extract_sst_day(row_nb = ., data_reef = data_reefs, data_vect = data_vect)) %>% 
-  list_rbind()
-
-## 5.4 Save the data ----
-
-save(data_sst, file = "data/02_misc/data_sst.RData")
