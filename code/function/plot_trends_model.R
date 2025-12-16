@@ -1,4 +1,4 @@
-plot_trends <- function(region_i, level_i, category_i = NA, range = NA){
+plot_trends_model <- function(region_i, level_i, category_i = NA, range = NA){
 
   # range: if 'full' then all years are plotted,
   # if 'obs' only years where observed data were available are plotted
@@ -141,42 +141,24 @@ plot_trends <- function(region_i, level_i, category_i = NA, range = NA){
       scale_y_continuous(limits = c(0, floor(max(data_i$upper_ci_95)/10)*10+10)) +
       labs(x = "Year", y = "Benthic cover (%)")
     
-    if(category_i == "Hard coral"){
-      
-      ggsave(filename = paste0("figs/03_part-2/fig-7/",
-                               str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
-             plot = plot_i,
-             height = case_when(nb_subregions == 3 ~ 3.5,
-                                nb_subregions == 4 ~ 5.5,
-                                nb_subregions == 5 ~ 5.5,
-                                nb_subregions == 6 ~ 5.5,
-                                nb_subregions >= 7 ~ 7),
-             width = case_when(nb_subregions == 3 ~ 8,
-                               nb_subregions == 4 ~ 6.5,
-                               nb_subregions == 5 ~ 9,
-                               nb_subregions == 6 ~ 9,
-                               nb_subregions >= 7 ~ 11),
-             dpi = fig_resolution)
-      
-    }else if(category_i == "Macroalgae"){
-      
-      ggsave(filename = paste0("figs/03_part-2/fig-8/",
-                               str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
-             plot = plot_i,
-             height = case_when(nb_subregions == 3 ~ 3.5,
-                                nb_subregions == 4 ~ 5.5,
-                                nb_subregions == 5 ~ 5.5,
-                                nb_subregions == 6 ~ 5.5,
-                                nb_subregions >= 7 ~ 7),
-             width = case_when(nb_subregions == 3 ~ 8,
-                               nb_subregions == 4 ~ 6.5,
-                               nb_subregions == 5 ~ 9,
-                               nb_subregions == 6 ~ 9,
-                               nb_subregions >= 7 ~ 11),
-             dpi = fig_resolution)
-      
-    }
+    fig_i <- case_when(category_i == "Hard coral" ~ "fig-7",
+                       category_i == "Macroalgae" ~ "fig-8")
     
+    ggsave(filename = paste0("figs/03_part-2/", fig_i, "/",
+                             str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
+           plot = plot_i,
+           height = case_when(nb_subregions == 3 ~ 3.5,
+                              nb_subregions == 4 ~ 5.5,
+                              nb_subregions == 5 ~ 5.5,
+                              nb_subregions == 6 ~ 5.5,
+                              nb_subregions >= 7 ~ 7),
+           width = case_when(nb_subregions == 3 ~ 8,
+                             nb_subregions == 4 ~ 6.5,
+                             nb_subregions == 5 ~ 9,
+                             nb_subregions == 6 ~ 9,
+                             nb_subregions >= 7 ~ 11),
+           dpi = fig_resolution)
+      
   # Ecoregion
     
   }else if(level_i == "ecoregion"){
@@ -241,11 +223,9 @@ plot_trends <- function(region_i, level_i, category_i = NA, range = NA){
       scale_y_continuous(limits = c(0, floor(max(data_i$upper_ci_95)/10)*10+10)) +
       labs(x = "Year", y = "Benthic cover (%)")
     
-    ggsave(filename = paste0("figs/07_additional/04_ecoregion-trends/ecoregion_",
-                             str_replace_all(str_replace_all(str_to_lower(category_i), " ", "-"), "---", "-"),
-                             "_",
-                             str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"),
-                             ".png"),
+    ggsave(filename = paste0("figs/07_additional/ecoregions/model_",
+                             str_replace_all(str_replace_all(str_to_lower(category_i), " ", "-"), "---", "-"), "_",
+                             str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
            plot = plot_i, height = (2.5*length(unique(data_i$ecoregion))/3),
            width = 10, dpi = fig_resolution)
     

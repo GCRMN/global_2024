@@ -14,7 +14,7 @@ library(openxlsx)
 
 source("code/function/graphical_par.R")
 source("code/function/theme_graph.R")
-source("code/function/plot_trends.R")
+source("code/function/plot_trends_model_model.R")
 
 # 3. Load data ----
 
@@ -24,7 +24,7 @@ load("data/model-results.RData")
 
 ## 4.1 Global - Hard coral and macroalgae ----
 
-plot_trends(level_i = "global", range = "obs")
+plot_trends_model(level_i = "global", range = "obs")
 
 ## 4.2 Global map (for the two regional figures) ----
 
@@ -128,27 +128,27 @@ map(setdiff(unique(data_models$region), NA),
 ## 5.1 Trends (regions) ----
 
 map(setdiff(unique(data_models$region), NA),
-    ~plot_trends(region_i = .x,
+    ~plot_trends_model(region_i = .x,
                  level_i = "region", range = "obs"))
 
 ## 5.2 Trends (subregions) ----
 
 map(setdiff(unique(data_models$region), NA),
-    ~plot_trends(region_i = .x,
+    ~plot_trends_model(region_i = .x,
                  level_i = "subregion", category_i = "Hard coral", range = "obs"))
 
 map(setdiff(unique(data_models$region), NA),
-    ~plot_trends(region_i = .x,
+    ~plot_trends_model(region_i = .x,
                  level_i = "subregion", category_i = "Macroalgae", range = "obs"))
 
 ## 5.3 Trends (ecoregions) ----
 
 map(setdiff(unique(data_models$region), NA),
-    ~plot_trends(region_i = .x,
+    ~plot_trends_model(region_i = .x,
                  level_i = "ecoregion", category_i = "Hard coral", range = "obs"))
 
 map(setdiff(unique(data_models$region), NA),
-    ~plot_trends(region_i = .x,
+    ~plot_trends_model(region_i = .x,
                  level_i = "ecoregion", category_i = "Macroalgae", range = "obs"))
 
 ## 5.4 Modeled values per region for writing ----
