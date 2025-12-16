@@ -115,11 +115,16 @@ plot_trends <- function(region_i, level_i, category_i = NA, range = NA){
     
     nb_subregions <- length(unique(data_i$subregion))
     
+    data_i <- tibble(subregion = sort(unique(data_i$subregion)),
+                     letter = LETTERS[seq(from = 1, to = length(unique(data_i$subregion)))]) %>% 
+      left_join(data_i, .) %>% 
+      mutate(text_title = glue("**{letter}.** {subregion}"))
+    
     plot_i <- ggplot(data = data_i, aes(x = year, fill = color, color = color)) +
       geom_ribbon(aes(ymin = lower_ci_95, ymax = upper_ci_95), alpha = 0.35, color = NA) +
       geom_ribbon(aes(ymin = lower_ci_80, ymax = upper_ci_80), alpha = 0.45, color = NA) +
       geom_line(aes(y = mean)) +
-      facet_wrap(~subregion, scales = "free", ncol = case_when(nb_subregions == 3 ~ 3,
+      facet_wrap(~text_title, scales = "free", ncol = case_when(nb_subregions == 3 ~ 3,
                                                                nb_subregions == 4 ~ 2,
                                                                nb_subregions == 5 ~ 3,
                                                                nb_subregions == 6 ~ 3,
@@ -128,7 +133,7 @@ plot_trends <- function(region_i, level_i, category_i = NA, range = NA){
       scale_fill_identity() +
       theme_graph() +
       theme(legend.title.position = "top",
-            strip.text = element_markdown(hjust = 0, size = 12, face = "bold"),
+            strip.text = element_markdown(hjust = 0, size = 12),
             legend.title = element_text(face = "bold", hjust = 0.5)) +
       scale_x_continuous(breaks = c(1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020, 2025),
                          limits = c(1979, 2026),
