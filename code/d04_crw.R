@@ -164,45 +164,53 @@ plot_i <- data_sst %>%
 
 # 6. Long-term SST average and trend ----
 
+## 6.1 Create the function ---- 
+
+gls_trends <- function(data){
+  
+  require(nlme)
+  
+  data_i <- data %>%  
+    arrange(date) %>% 
+    mutate(t_year = as.numeric(format(date, "%Y")) + ((as.numeric(format(date, "%j"))-1)/365.25),
+           t_year = t_year - min(t_year),
+           month = factor(format(date, "%m")),
+           t_id = row_number(date))
+  
+  gls_model <- gls(
+    model = sst ~ t_year + month,
+    data = data_i,
+    correlation = corAR1(form = ~ t_id))
+  
+  results <- data %>% 
+    mutate(intercept = as.numeric(gls_model$coefficients["(Intercept)"]),
+           slope = as.numeric(gls_model$coefficients["t_year"]),
+           slope_se = summary(gls_model)$tTable["t_year", "Std.Error"])
+
+  return(results)
+  
+}
+
+## 6.2 Map over the function ---- 
+
 load("data/02_misc/data_sst.RData")
 
-## 6.1 Long-term SST average ----
-
-data_sst <- data_sst %>% 
+data_sst_test <- data_sst %>% 
+  filter(subregion == "All" & region %in% c("Australia", "Caribbean")) %>% 
+  group_by(region, subregion) %>% 
+  group_modify(~gls_trends(.x)) %>% 
+  ungroup() %>% 
+  mutate(warming_rate = slope*10,
+         sst_increase = slope*((as.numeric(format(max(date), "%Y")))-(as.numeric(format(min(date), "%Y"))))) %>% 
   group_by(region, subregion) %>% 
   mutate(mean_sst = mean(sst, na.rm = TRUE)) %>% 
-  ungroup()
-
-## 6.2 Long-term SST trend ----
-
-data_sst <- data_sst %>% 
-  # Convert date as numeric
-  mutate(date = as.numeric(as_date(date))) %>% 
-  # Extract linear model coefficients
-  group_by(region, subregion) %>% 
-  group_modify(~extract_coeff(data = .x, var_y = "sst", var_x = "date")) %>% 
   ungroup() %>% 
-  # Calculate increase in SST over the period
-  mutate(min_date = as.numeric(as_date(min(data_sst$date))),
-         max_date = as.numeric(as_date(max(data_sst$date)))) %>% 
-  mutate(sst_increase = ((max_date)*slope+intercept) - ((min_date)*slope+intercept)) %>% 
-  select(-min_date, -max_date) %>% 
-  # Calculate the warming rate (°C per year)
-  mutate(warming_rate = sst_increase/(year(max(data_sst$date))-year(min(data_sst$date)))) %>% 
-  # Add mean_sst for each subregion
-  left_join(., data_sst %>% 
-              select(region, subregion, mean_sst) %>% 
-              distinct()) %>% 
-  select(-intercept, -slope) %>% 
+  select(region, subregion, sst_increase, warmin_rate, mean_sst) %>% 
+  distinct() %>% 
   mutate(across(c(sst_increase, mean_sst), ~format(round(.x, 2))),
          warming_rate = format(round(warming_rate, 3)))
 
 ## 6.3. Export the full table ----
-
-data_sst <- data_sst %>% 
-  filter(row_number() != 1) %>% 
-  bind_rows(., data_sst %>% 
-              slice(1))
 
 openxlsx::write.xlsx(data_sst, file = "figs/06_supp-mat/sst.xlsx")
 
