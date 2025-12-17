@@ -29,7 +29,7 @@ map_region_geography <- function(region_i, color_scalebar = "white"){
                        bar_cols = c(color_scalebar, color_scalebar))
     
     ggsave(paste0("figs/03_part-2/fig-1/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
-           height = 5.4, width = 5.5, bg = "transparent")
+           height = 5.4, width = 5.5, bg = "transparent", dpi = fig_resolution)
     
   }else if(region_i == "EAS"){
     
@@ -43,7 +43,7 @@ map_region_geography <- function(region_i, color_scalebar = "white"){
                        bar_cols = c(color_scalebar, color_scalebar))
     
     ggsave(paste0("figs/03_part-2/fig-1/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
-           height = 5.5, width = 6, bg = "transparent")
+           height = 5.5, width = 6, bg = "transparent", dpi = fig_resolution)
     
   }else if(region_i == "Caribbean"){
     
@@ -57,7 +57,7 @@ map_region_geography <- function(region_i, color_scalebar = "white"){
                        bar_cols = c(color_scalebar, color_scalebar))
     
     ggsave(paste0("figs/03_part-2/fig-1/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
-           height = 5.3, width = 8, bg = "transparent")
+           height = 5.3, width = 8, bg = "transparent", dpi = fig_resolution)
     
   }else if(region_i == "WIO"){
     
@@ -72,7 +72,7 @@ map_region_geography <- function(region_i, color_scalebar = "white"){
                        bar_cols = c(color_scalebar, color_scalebar))
     
     ggsave(paste0("figs/03_part-2/fig-1/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
-           height = 6.1, width = 5.4, bg = "transparent")
+           height = 6.1, width = 5.4, bg = "transparent", dpi = fig_resolution)
     
   }else if(region_i == "ROPME"){
     
@@ -86,7 +86,7 @@ map_region_geography <- function(region_i, color_scalebar = "white"){
                        bar_cols = c(color_scalebar, color_scalebar))
     
     ggsave(paste0("figs/03_part-2/fig-1/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
-           height = 5.6, width = 5.9, bg = "transparent")
+           height = 5.6, width = 5.9, bg = "transparent", dpi = fig_resolution)
     
   }else if(region_i == "PERSGA"){
     
@@ -101,7 +101,7 @@ map_region_geography <- function(region_i, color_scalebar = "white"){
                        bar_cols = c(color_scalebar, color_scalebar))
     
     ggsave(paste0("figs/03_part-2/fig-1/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
-           height = 5.9, width = 5.9, bg = "transparent")
+           height = 5.9, width = 5.9, bg = "transparent", dpi = fig_resolution)
     
   }else if(region_i == "Australia"){
     
@@ -115,7 +115,7 @@ map_region_geography <- function(region_i, color_scalebar = "white"){
                        bar_cols = c(color_scalebar, color_scalebar))
     
     ggsave(paste0("figs/03_part-2/fig-1/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
-           height = 4.2, width = 8.5, bg = "transparent")
+           height = 4.2, width = 8.5, bg = "transparent", dpi = fig_resolution)
     
   }else if(region_i == "ETP"){
     
@@ -129,7 +129,7 @@ map_region_geography <- function(region_i, color_scalebar = "white"){
                        bar_cols = c(color_scalebar, color_scalebar))
     
     ggsave(paste0("figs/03_part-2/fig-1/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
-           height = 4.8, width = 7.2, bg = "transparent")
+           height = 4.8, width = 7.2, bg = "transparent", dpi = fig_resolution)
     
   }else if(region_i == "Brazil"){
     
@@ -143,7 +143,7 @@ map_region_geography <- function(region_i, color_scalebar = "white"){
                        bar_cols = c(color_scalebar, color_scalebar))
     
     ggsave(paste0("figs/03_part-2/fig-1/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
-           height = 4.9, width = 5.5, bg = "transparent")
+           height = 4.9, width = 5.5, bg = "transparent", dpi = fig_resolution)
     
   }else if(region_i == "Pacific"){
     
@@ -205,7 +205,7 @@ map_region_geography <- function(region_i, color_scalebar = "white"){
                        bar_cols = c(color_scalebar, color_scalebar))
     
     ggsave(paste0("figs/03_part-2/fig-1/", str_replace_all(str_to_lower(region_i), " ", "-"), "_raw.png"),
-           height = 4.5, width = 8, bg = "transparent")
+           height = 4.5, width = 8, bg = "transparent", dpi = fig_resolution)
     
   }else{
     

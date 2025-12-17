@@ -51,6 +51,6 @@ map(data_region$region, ~render_qmd(region_i = ., upload_drive = FALSE))
 # 3. Generate Supplementary Materials ----
 
 rmarkdown::render(input = "code/function/docx_supp-mat.Rmd", 
-                  output_file = "supp-mat.docx",
+                  output_file = "supplementary-materials.docx",
                   output_dir = "doc/",
                   quiet = TRUE)

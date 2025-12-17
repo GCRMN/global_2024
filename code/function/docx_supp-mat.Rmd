@@ -7,7 +7,7 @@ output:
 editor: source
 ---
 
-```{r echo=FALSE, message=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 
 require(tidyverse)
 require(readxl)
@@ -135,45 +135,9 @@ fig_counter <- fig_counter + 1
 
 \newpage
 
-```{r echo=FALSE, message=FALSE}
-
-figure_path <- "../../figs/06_supp-mat/raw-average_a.png"
-
-fig_counter <- fig_counter + 1
-
-```
-
-![](`r figure_path`){width=80%}
-
 <div custom-style="text">
 
-**Supplementary Figure `r fig_counter`.** Annual means of observed data (*i.e.* monitoring data) for hard coral and macroalgae cover across five out of ten GCRMN region (Australia, Brazil, Caribbean, East Asian Seas, and Eastern Tropical Pacific) from 1980 to 2024. Grey dots in the background represent the mean values of individual transects conducted each year.
-
-</div>
-
-\newpage
-
-```{r echo=FALSE, message=FALSE}
-
-figure_path <- "../../figs/06_supp-mat/raw-average_b.png"
-
-fig_counter <- fig_counter + 1
-
-```
-
-![](`r figure_path`){width=80%}
-
-<div custom-style="text">
-
-**Supplementary Figure `r fig_counter`.** Annual means of observed data (*i.e.* monitoring data) for hard coral and macroalgae cover across five out of ten GCRMN region (Pacific, PERSGA, ROPME, South Asia, Western Indian Ocean) from 1980 to 2024. Grey dots in the background represent the mean values of individual transects conducted each year.
-
-</div>
-
-\newpage
-
-<div custom-style="text">
-
-**Supplementary Table `r tbl_counter`.** Comparison of benthic cover monitoring indicators across the 53 GCRMN subregions and associated regions.
+**Supplementary Table `r tbl_counter`.** Comparison of benthic cover monitoring indicators across the 53 GCRMN subregions and associated regions. A site is defined as a unique geographic location characterized by a specific latitude–longitude coordinate pair. A survey refers to a distinct monitoring event conducted at a specific site at a given point in time (date or year).
 
 ```{r echo=FALSE, message=FALSE}
 
@@ -212,7 +176,7 @@ fig_counter <- fig_counter + 1
 
 <div custom-style="text">
 
-**Supplementary Figure `r fig_counter`.** Comparison of the percentage of sites per number of years with monitoring data across the 10 GCRMN regions.
+**Supplementary Figure `r fig_counter`.** Comparison of the percentage of sites per number of years with monitoring data across the 10 GCRMN regions. A site is defined as a unique geographic location characterized by a specific latitude–longitude coordinate pair. A survey refers to a distinct monitoring event conducted at a specific site at a given point in time (date or year).
 
 </div>
 
@@ -220,7 +184,7 @@ fig_counter <- fig_counter + 1
 
 <div custom-style="text">
 
-**Supplementary Table `r tbl_counter`.** List of individual datasets used to estimate benthic cover trends in hard coral and macroalgae cover in the 10 GCRMN regions.
+**Supplementary Table `r tbl_counter`.** List of individual datasets used to estimate benthic cover trends in hard coral and macroalgae cover in the 10 GCRMN regions. Each dataset is referenced by its name, with the corresponding dataset identifier provided in parentheses. Additional details are available in the [gcrmndb_benthos](https://github.com/GCRMN/gcrmndb_benthos?tab=readme-ov-file#5-list-of-individual-datasets) GitHub repository.
 
 ```{r echo=FALSE, message=FALSE}
 

@@ -70,7 +70,7 @@ plot_trends_raw <- function(region_i, level_i, category_i){
                          labels = c("1980", "", "1990", "", "2000", "", "2010", "", "2020", "")) +
       labs(x = "Year", y = "Benthic cover (%)")
     
-    ggsave(filename = "../figs/06_supp-mat/raw-average_a.png",
+    ggsave(filename = "../figs/07_additional/raw-average_a.png",
            plot = plot_i, width = 7, height = 10, dpi = fig_resolution)
     
     # 5 last regions
@@ -97,7 +97,7 @@ plot_trends_raw <- function(region_i, level_i, category_i){
                          labels = c("1980", "", "1990", "", "2000", "", "2010", "", "2020", "")) +
       labs(x = "Year", y = "Benthic cover (%)")
     
-    ggsave(filename = "../figs/06_supp-mat/raw-average_b.png",
+    ggsave(filename = "../figs/07_additional/raw-average_b.png",
            plot = plot_i, width = 7, height = 10, dpi = fig_resolution)
     
     # Subregion    
