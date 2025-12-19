@@ -93,3 +93,9 @@ Export.table.toDrive({
   fileFormat:"SHP",
   description:"reefs_buffer_5"
 });
+
+Export.table.toAsset({
+  collection:data_reefs_buffer,
+  description:"reefs_buffer_5",
+  assetId:"users/jeremywicquart/global_2024/reefs_buffer_5"
+});

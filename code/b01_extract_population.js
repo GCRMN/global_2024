@@ -7,7 +7,7 @@ var data_pop = ee.ImageCollection("CIESIN/GPWv411/GPW_Population_Count")
 
 // 2. Import buffer reef ----
 
-var buffer_reef = ee.FeatureCollection("users/jeremywicquart/global_2024_reefs_buffer");
+var buffer_reef = ee.FeatureCollection("users/jeremywicquart/global_2024/reefs_buffer_5");
 
 Map.addLayer(buffer_reef);
 
