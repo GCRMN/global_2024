@@ -108,7 +108,7 @@ Curabitur eu amet.
 * `extract_coeff.R` Extract slope from linear regression.
 * `graphical_par.R` Graphical parameters, including colors and fonts.
 * `map_region_geography.R` Map of region (geography).
-* `map_region_monitoring.R` Map of region (monotoring).
+* `map_region_monitoring.R` Map of region (monitoring).
 * `map_sphere.R` Map of region (sphere).
 * `plot_trends_model.R` Plot temporal trends from models.
 * `plot_trends_raw.R` Plot temporal trends from raw data.

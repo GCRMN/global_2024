@@ -83,13 +83,17 @@ tbl_counter <- tbl_counter + 1
 
 table <- read_xlsx("../../figs/06_supp-mat/sst.xlsx")
 
+table <- bind_rows(table %>% filter(row_number() != 1),
+                   table %>% filter(row_number() == 1))
+
 flextable(table, cwidth = rep(1.26, 5)) %>%
   bold(part = "header") %>% 
   set_header_labels(region = "Region",
                     subregion = "Subregion",
                     sst_increase = "Average change in SST from 1985 to 2024 (°C)",
-                    warming_rate = "Warming rate (°C/year)",
+                    warming_rate = "Warming rate (°C.decade^[-1])",
                     mean_sst = "Long-term SST average from 1985 to 2024 (°C)") %>% 
+  compose(part = "header", j = "warming_rate", value = as_paragraph("Warming rate (°C·decade", as_sup("-1"),")")) %>% 
   set_table_properties(opts_word = list(repeat_header = FALSE)) %>% 
   border(border = officer::fp_border())
 

@@ -199,7 +199,6 @@ gls_trends <- function(data){
 load("data/02_misc/data_sst.RData")
 
 data_sst_trends <- data_sst %>% 
-  filter(region == "Caribbean") %>% 
   group_by(region, subregion) %>% 
   group_modify(~gls_trends(.x)) %>% 
   ungroup() %>% 
