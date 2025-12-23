@@ -276,7 +276,7 @@ fig_counter <- fig_counter + 1
 
 ![](`r figure_path`){width=100%}
 
-**Figure 2.`r nb_chapter`.`r fig_counter`.** Percentage of the coral reefs within the `r region_i` region experiencing heat stress levels per year, from 1986 to 2024. No stress (DHW = 0); Warning (possible bleaching, 0–4 DHW); Alert 1 (reef-wide bleaching, 4–8 DHW); Alert 2 (reef-wide bleaching and mortality of heat-sensitive corals, 8–12 DHW); Alert 3 (multi-species mortality, 12–16 DHW); Alert 4 (severe multi-species mortality, 16–20 DHW); and Alert 5 (near-complete mortality, ≥20 DHW).
+**Figure 2.`r nb_chapter`.`r fig_counter`.** Percentage of the coral reefs within the `r region_i` region experiencing heat stress levels per year, from 1986 to 2024. No stress/Watch (DHW < 1); Warning (possible bleaching, 0–4 DHW); Alert 1 (reef-wide bleaching, 4–8 DHW); Alert 2 (reef-wide bleaching and mortality of heat-sensitive corals, 8–12 DHW); Alert 3 (multi-species mortality, 12–16 DHW); Alert 4 (severe multi-species mortality, 16–20 DHW); and Alert 5 (near-complete mortality, ≥20 DHW).
 
 </div>
 

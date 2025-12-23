@@ -15,7 +15,7 @@ plan(multisession, workers = 4) # Set parallelization with 4 cores
 
 ## 2.1 Transform coral reefs ----
 
-data_reefs <- st_read("data/01_maps/02_clean/01_reefs/reefs.shp")
+data_reefs <- st_read("data/01_maps/02_clean/01_reefs/global_2024_reefs.shp")
 
 data_reefs_a <- data_reefs %>% 
   group_by(region) %>%
@@ -65,11 +65,7 @@ list_url <- data.frame(date = seq(from = ymd("1985-01-01"), to = ymd("2024-12-31
 
 extract_sst_day <- function(row_nb, data_reef = data_reefs, data_vect = data_vect){
   
-  # A. Remove files in folder
-  
-  file.remove(list.files("data/04_crw/", full.names = TRUE))
-  
-  # B. Download file
+  # A. Download file
   
   list_url_i <- list_url %>% 
     filter(row_number(.) == row_nb)
@@ -79,7 +75,7 @@ extract_sst_day <- function(row_nb, data_reef = data_reefs, data_vect = data_vec
                 mode = "wb", # Use mode "wb" for windows otherwise issue to read the file with terra
                 timeout = max(600, getOption("timeout"))) # 600 seconds to download the file, else error message
   
-  # C. Load the raster
+  # B. Load the raster
   
   ncdf <- terra::rast(paste0("data/04_crw/", list_url_i[1, "filename"]))
   
@@ -87,7 +83,7 @@ extract_sst_day <- function(row_nb, data_reef = data_reefs, data_vect = data_vec
   
   crs(ncdf) <- "epsg:4326"
   
-  # D. Extract values
+  # C. Extract values
   
   data_results <- terra::extract(x = ncdf, y = data_reef, fun = mean, na.rm = TRUE) %>% 
     as_tibble() %>% 
@@ -97,23 +93,27 @@ extract_sst_day <- function(row_nb, data_reef = data_reefs, data_vect = data_vec
     left_join(., data_reef %>% st_drop_geometry() %>% mutate(ID = row_number())) %>% 
     select(-ID)
   
-  # E. Delete raw file
+  # D. Delete raw file
   
   file.remove(paste0("data/04_crw/", list_url_i[1, "filename"]))
   
-  # F. Return the results
+  # E. Return the results
   
   return(data_results)
   
 }
 
-## 3.3. Map over the function ----
+## 3.3 Remove files in folder ----
 
-data_sst <- map(1:nrow(list_url),
+file.remove(list.files("data/04_crw/", full.names = TRUE))
+
+## 3.4 Map over the function ----
+
+data_sst <- future_map(1:nrow(list_url),
                 ~extract_sst_day(row_nb = ., data_reef = data_reefs, data_vect = data_vect)) %>% 
   list_rbind()
 
-## 3.4 Save the data ----
+## 3.5 Save the data ----
 
 save(data_sst, file = "data/02_misc/data_sst.RData")
 

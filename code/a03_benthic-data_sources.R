@@ -58,9 +58,9 @@ data_benthic %>%
 ## 4.2 Additional materials ----
 
 data_subregion <- data_benthic %>% 
-  select(region, subregion, datasetID) %>% 
+  select(region, subregion, ecoregion, datasetID) %>% 
   distinct() %>% 
-  arrange(region, subregion, datasetID) %>% 
+  arrange(region, subregion, ecoregion, datasetID) %>% 
   # To add datasets names
   left_join(., data_sources) %>% 
   rename(datasetName = rightsHolder)

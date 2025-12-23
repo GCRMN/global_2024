@@ -56,26 +56,23 @@ Curabitur eu amet.
 
 ### Cleaning and selection (`a_`)
 
-* `a01_select_benthic-data.R`
+* `a01_select_benthic-data.R` Extract benthic cover data from [gcrmndb_benthos](https://github.com/GCRMN/gcrmndb_benthos).
 * `a02_clean_intersect-reefs.R`
-* `a04_benthic-data_sources.R` 
-* `a05_clean_buffer-reefs.js`
-* `a07_clean_cyclones.R`
-* `a08_clean_mpa.R`          
-* `a09_download_crw-year.R`
+* `a03_benthic-data_sources.R` Extract lists of datasetID and contributors details.
+* `a04_clean_buffer-reefs.js` Create coral reef buffer polygons at 5, 20, 50, and 100 km using [GEE](https://earthengine.google.com/).
+* `a05_clean_cyclones.R` Clean cyclones data.
+* `a06_download_crw-year.R` 
 
 ### Indicators' extraction (`b_`)
 
-* `b03_extract_population.js` 
-* `b04_extract_crw.R`            
-* `b05_extract_cyclones.R`
-* `b06_region-characteristics.R`
+* `b01_extract_population.js` Extract population indicators using [GEE](https://earthengine.google.com/). 
+* `b02_extract_crw.R` Extract SST indicators.
+* `b03_extract_cyclones.R` Extract cyclones indicators.
+* `b04_region-characteristics.R` Extract region characteristics.
 
 ### Models (benthic cover) (`c_`)
 
-* `c01_explo_benthic-data.html`   
-* `c01_explo_benthic-data.qmd`
-* `c01_explo_benthic-data_files`
+* `c01_explo_benthic-data.qmd` Exploratory analyses of benthic cover data.
 * `c02_select_pred-sites.R`     
 * `c03_extract_predictor_gee.js`
 * `c04_extract_predictor_gravity.R`
@@ -84,27 +81,39 @@ Curabitur eu amet.
 * `c07_extract_predictor_crw.R`
 * `c08_model_data-preparation.R`
 * `c09_xgboost-model.R`
+* 
+* `c11_format-results.R`
 
 ### Figures and tables (`d_`)
 
-* `d01_sites-comparison.R`
-* `d02_geography-maps.R`     
-* `d03_spatio-temporal.R`
-* `d04_cyclones.R`
-* `d05_crw.R`
-* `d06_population.R`
-* `d07_reef-extent.R`
-* `d08_benthic-cover_trends.R`
+* `d01_geography-maps.R`     
+* `d02_spatio-temporal.R`
+* `d03_cyclones.R`
+* `d04_crw.R`
+* `d05_population.R`
+* `d06_reef-extent.R`
+* `d07_benthic-cover_trends.R`
+* `d08_case-studies.R`
 
 ### Writing and sharing (`e_`)
 
-* `e01_create-chapters.R`
+* `e01_generate_docx.R`
 * `e02_authors-contribution.R`
 
 ### Functions
 
 * `data_descriptors.R` Get number of sites, surveys, datasets, first and last year of monitoring.
+* `docx_chapter.Rmd` Template to generate the .docx regional chapters.
+* `docx_supp-mat.Rmd` Template to generate the .docx Supplementary Materials.
+* `extract_coeff.R` Extract slope from linear regression.
 * `graphical_par.R` Graphical parameters, including colors and fonts.
+* `map_region_geography.R` Map of region (geography).
+* `map_region_monitoring.R` Map of region (monotoring).
+* `map_sphere.R` Map of region (sphere).
+* `plot_trends_model.R` Plot temporal trends from models.
+* `plot_trends_raw.R` Plot temporal trends from raw data.
+* `prepare_benthic_data.R` Prepare benthic cover data for models.
+* `styles.docx` Word documents styles
 * `theme_graph.R` Main ggplot theme for the plots of the reports.
 * `theme_map.R` Main ggplot theme for the maps of the reports.
 

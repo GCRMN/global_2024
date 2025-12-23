@@ -71,8 +71,7 @@ load("data/02_misc/data_dhw_freq.RData")
 data_dhw_freq <- data_dhw_freq %>% 
   complete(year, dhw, nesting(region, subregion), fill = list(nb_cells = 0)) %>% 
   # See https://coralreefwatch.noaa.gov/product/5km/index_5km_baa-max-7d.php
-  mutate(heatstress = case_when(dhw <= 0 ~ "No Stress",
-                                #dhw > 0 & dhw < 1 ~ "Bleaching Watch",
+  mutate(heatstress = case_when(dhw < 1 ~ "No stress/Watch",
                                 dhw >= 1 & dhw < 4 ~ "Warning",
                                 dhw >= 4 & dhw < 8 ~ "Alert 1",
                                 dhw >= 8 & dhw < 12 ~ "Alert 2",
@@ -87,21 +86,23 @@ data_dhw_freq <- data_dhw_freq %>%
   ungroup() %>% 
   mutate(freq = (nb_cells*100)/total_nb_cells,
          heatstress = as.factor(heatstress),
-         heatstress = factor(heatstress, levels = c("No Stress", "Warning",
+         heatstress = factor(heatstress, levels = c("No stress/Watch", "Warning",
                                                     "Alert 1", "Alert 2", "Alert 3", "Alert 4", "Alert 5")))
 
 ## 4.1 Global ----
 
 plot_i <- ggplot(data = data_dhw_freq %>% filter(region == "All")) +
   geom_bar(aes(x = year, y = freq, fill = heatstress), stat = "identity") +
-  scale_fill_manual(values = c("No Stress" = "lightgrey",
+  scale_fill_manual(values = c("No stress/Watch" = "lightgrey",
                                "Warning" = palette_second[1],
                                "Alert 1" = palette_second[2],
                                "Alert 2" = palette_second[3],
                                "Alert 3" = palette_second[4],
                                "Alert 4" = palette_second[5],
-                               "Alert 5" = "black")) +
+                               "Alert 5" = "black"),
+                    name = "Heat stress level") +
   theme_graph() +
+  theme(legend.title.position = "top", legend.title = element_text(hjust = 0.5)) +
   labs(x = "Year", y = "Percentage of coral reefs")
 
 ggsave("figs/02_part-1/fig-11.png", height = 5.3, width = 7.2, dpi = fig_resolution)
@@ -114,14 +115,16 @@ plot_dhw <- function(region_i){
   
   plot_i <- ggplot(data = data_dhw_freq %>% filter(region == region_i & subregion == "All")) +
     geom_bar(aes(x = year, y = freq, fill = heatstress), stat = "identity") +
-    scale_fill_manual(values = c("No Stress" = "lightgrey",
+    scale_fill_manual(values = c("No stress/Watch" = "lightgrey",
                                  "Warning" = palette_second[1],
                                  "Alert 1" = palette_second[2],
                                  "Alert 2" = palette_second[3],
                                  "Alert 3" = palette_second[4],
                                  "Alert 4" = palette_second[5],
-                                 "Alert 5" = "black")) +
+                                 "Alert 5" = "black"),
+                      name = "Heat stress level") +
     theme_graph() +
+    theme(legend.title.position = "top", legend.title = element_text(hjust = 0.5)) +
     labs(x = "Year", y = "Percentage of coral reefs")
   
   ggsave(filename = paste0("figs/03_part-2/fig-3/",
@@ -135,7 +138,7 @@ plot_dhw <- function(region_i){
     select(-nb_cells, -total_nb_cells, -region) %>%
     mutate(freq = round(freq, 2)) %>%
     pivot_wider(names_from = "heatstress", values_from = "freq") %>% 
-    select("subregion", "year", "No Stress", "Warning",
+    select("subregion", "year", "No stress/Watch", "Warning",
            "Alert 1", "Alert 2", "Alert 3", "Alert 4", "Alert 5") %>% 
     arrange(subregion, year) %>% 
     openxlsx::write.xlsx(., paste0("figs/07_additional/06_threats/data-heatstress_",
@@ -195,8 +198,8 @@ gls_trends <- function(data){
 
 load("data/02_misc/data_sst.RData")
 
-data_sst_test <- data_sst %>% 
-  filter(subregion == "All" & region %in% c("Australia", "Caribbean")) %>% 
+data_sst_trends <- data_sst %>% 
+  filter(region == "Caribbean") %>% 
   group_by(region, subregion) %>% 
   group_modify(~gls_trends(.x)) %>% 
   ungroup() %>% 
@@ -205,15 +208,15 @@ data_sst_test <- data_sst %>%
   group_by(region, subregion) %>% 
   mutate(mean_sst = mean(sst, na.rm = TRUE)) %>% 
   ungroup() %>% 
-  select(region, subregion, sst_increase, warmin_rate, mean_sst) %>% 
+  select(region, subregion, sst_increase, warming_rate, mean_sst) %>% 
   distinct() %>% 
   mutate(across(c(sst_increase, mean_sst), ~format(round(.x, 2))),
          warming_rate = format(round(warming_rate, 3)))
 
 ## 6.3. Export the full table ----
 
-openxlsx::write.xlsx(data_sst, file = "figs/06_supp-mat/sst.xlsx")
+openxlsx::write.xlsx(data_sst_trends, file = "figs/06_supp-mat/sst.xlsx")
 
 ## 6.4. Export the table per region ----
 
-write.csv(data_sst, file = "figs/08_text-gen/thermal_regime.csv", row.names = FALSE)
+write.csv(data_sst_trends, file = "figs/08_text-gen/thermal_regime.csv", row.names = FALSE)
