@@ -86,39 +86,37 @@ data_region <- data_region %>%
 data_benthic_sites <- data_benthic_sites %>% 
   st_transform(crs = crs_selected)
 
-### 4.1.5 Create the tropics ----
-
-data_tropics <- tibble(tropic = c("Cancer", "Cancer", "Equator", "Equator", "Capricorn", "Capricorn"),
-                       lat = c(23.4366, 23.4366, 0, 0, -23.4366, -23.4366),
-                       long = c(-180, 180, -180, 180, -180, 180)) %>% 
-  st_as_sf(coords = c("long", "lat"), crs = 4326) %>%
-  group_by(tropic) %>%
-  dplyr::summarize(do_union = FALSE) %>%
-  st_cast("LINESTRING") %>% 
-  st_difference(polygon) %>%
-  st_transform(crs = crs_selected)
-
 ## 4.2 Make the map ----
 
-ggplot() +
-  geom_sf(data = data_tropics, linetype = "dashed", col = "lightgrey") +
+plot_i <- ggplot() +
   geom_sf(data = data_region, fill = "grey99") +
   geom_sf(data = data_land) +
-  geom_sf(data = data_benthic_sites %>% arrange(int_class), aes(color = int_class)) +
-  coord_sf(expand = FALSE) +
+  geom_sf(data = data_benthic_sites %>% arrange(int_class), aes(color = int_class), size = 1) +
   scale_color_manual(values = palette_second,
                      breaks = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"),
                      labels = c("1 year", "2-5 years", "6-10 years", "11-15 years", ">15 years"), 
                      drop = FALSE,
-                     name = "Number of years with data") +
-  theme_map()+
-  theme(axis.text.y = element_text(hjust = 0.5),
-        axis.text = element_text(size = 16),
-        legend.text = element_text(size = 16),
-        legend.title = element_text(size = 17)) +
-  guides(color = guide_legend(override.aes = list(size = 4)))
-  
-ggsave("figs/02_part-1/fig-1.png", dpi = 600, height = 4, width = 9)
+                     name = "NUMBER OF YEARS WITH DATA") +
+  coord_sf(ylim = c(-5000000, 5000000), expand = FALSE,
+           label_axes = list(top = "E", left = "N", right = "N", bottom = "E")) +
+  theme(legend.position = "top",
+        legend.title.position = "top",
+        legend.direction = "horizontal",
+        legend.title = element_text(size = 24, face = "bold", hjust = 0.5, family = font_choose_map, color = "#2c3e50"),
+        legend.text = element_text(size = 22, family = font_choose_map),
+        panel.border = element_rect(fill = NA, color = "black"),
+        panel.background = element_rect(fill = "white"),
+        panel.grid = element_blank(),
+        plot.background = element_rect(fill = "transparent", color = NA),
+        axis.ticks.length = unit(-0.1, "cm"),
+        axis.text = element_text(family = font_choose_map, color = "black", size = 12, margin = margin(t = -6)),
+        axis.text.x.top = element_text(hjust = 0.5, vjust = -7),
+        axis.text.x.bottom = element_text(hjust = 0.5, vjust = 8),
+        axis.text.y = element_text(angle = 90, hjust = 0.5, vjust = -7),
+        axis.text.y.right = element_text(angle = -90, hjust = 0.5, vjust = -7)) +
+  guides(color = guide_legend(override.aes = list(size = 3)))
+
+ggsave("figs/02_part-1/fig-7.png", dpi = 600, height = 4, width = 12)
 
 # 5. Monitoring map (regions) ----
 
