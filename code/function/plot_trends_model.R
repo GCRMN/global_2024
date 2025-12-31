@@ -55,7 +55,7 @@ plot_trends_model <- function(region_i, level_i, category_i = NA, range = NA){
       scale_y_continuous(limits = c(0, floor(max(data_i$upper_ci_95)/10)*10+10)) +
       labs(x = "Year", y = "Benthic cover (%)")
     
-    ggsave(filename = paste0("figs/02_part-1/fig-6.png"),
+    ggsave(filename = paste0("figs/02_part-1/fig-3.png"),
            plot = plot_i, height = 4, width = 8.5, dpi = fig_resolution)
     
   # Region

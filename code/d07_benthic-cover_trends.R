@@ -7,14 +7,13 @@ library(ggtext)
 library(ggrepel)
 library(scales)
 library(zoo)
-library(sf)
 library(openxlsx)
 
 # 2. Source functions ----
 
 source("code/function/graphical_par.R")
 source("code/function/theme_graph.R")
-source("code/function/plot_trends_model_model.R")
+source("code/function/plot_trends_model.R")
 
 # 3. Load data ----
 
@@ -26,51 +25,7 @@ load("data/model-results.RData")
 
 plot_trends_model(level_i = "global", range = "obs")
 
-## 4.2 Global map (for the two regional figures) ----
-
-data_country <- st_read("data/01_maps/01_raw/03_natural-earth/ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp") %>% 
-  st_transform(crs = "+proj=eqearth")
-
-data_graticules <- st_read("data/01_maps/01_raw/03_natural-earth/ne_10m_graticules_20/ne_10m_graticules_20.shp") %>% 
-  st_transform(crs = "+proj=eqearth")
-
-data_gcrmn_regions <- st_read("data/01_maps/02_clean/03_regions/gcrmn_regions.shp") %>% 
-  left_join(., color_regions) %>% 
-  st_transform(crs = "+proj=eqearth")
-
-lats <- c(90:-90, -90:90, 90)
-longs <- c(rep(c(180, -180), each = 181), 180)
-
-background_map_border <- list(cbind(longs, lats)) %>%
-  st_polygon() %>%
-  st_sfc(crs = 4326) %>% 
-  st_sf() %>%
-  st_transform(crs = "+proj=eqearth")
-
-plot <- ggplot() +
-  geom_sf(data = background_map_border, fill = "white", color = "grey30", linewidth = 0.25) +
-  geom_sf(data = data_graticules, color = "#ecf0f1", linewidth = 0.25) +
-  geom_sf(data = background_map_border, fill = NA, color = "grey30", linewidth = 0.25) +
-  geom_sf(data = data_gcrmn_regions, aes(fill = color), show.legend = FALSE) +
-  scale_fill_identity() +
-  geom_sf(data = data_country, color = "#24252a", fill = "#dadfe1") +
-  theme(text = element_text(family = "Open Sans"),
-        legend.position = "bottom",
-        legend.background = element_rect(fill = "transparent", color = NA),
-        legend.title = element_blank(),
-        panel.background = element_blank(),
-        axis.title = element_blank(),
-        axis.ticks = element_blank(),
-        axis.text = element_blank(),
-        plot.background = element_rect(fill = "transparent", color = NA)) +
-  guides(fill = guide_legend(override.aes = list(size = 5, color = NA)))
-
-ggsave(filename = "figs/02_part-1/global_map.png", plot = plot,
-       bg = "transparent", height = 5, width = 8, dpi = 300)
-
-rm(background_map_border, data_country, data_gcrmn_regions, data_graticules, lats, longs)
-
-## 4.3 Regional - Hard coral and macroalgae ----
+## 4.2 Regional - Hard coral and macroalgae ----
 
 export_subplots <- function(region_i, category_i){
   
@@ -79,7 +34,7 @@ export_subplots <- function(region_i, category_i){
     filter(year >= first_year & year <= last_year) %>% 
     ungroup() %>% 
     filter(category == category_i & level == "region") %>% 
-    left_join(., color_regions)
+    left_join(., palette_regions)
 
   plot_i <- ggplot(data = data_i %>% filter(region == region_i)) +
     geom_ribbon(aes(x = year, ymin = lower_ci_95, ymax = upper_ci_95, fill = color), alpha = 0.35) +
@@ -96,20 +51,21 @@ export_subplots <- function(region_i, category_i){
                                                         region_i == "WIO" ~ "Western Indian Ocean",
                                                         TRUE ~ region_i)) +
     theme_graph() +
-    theme(plot.title = element_text(size = 27, color = "white", face = "bold"),
-          axis.title = element_text(size = 18),
-          axis.text = element_text(size = 16),
+    theme(plot.title = element_blank(),
+          axis.title.x = element_text(size = 48),
+          axis.title.y = element_text(size = 48),
+          axis.text = element_text(size = 40),
           plot.background = element_rect(fill = "transparent", color = NA))
   
   if(category_i == "Hard coral"){
     
-    ggsave(filename = paste0("figs/02_part-1/fig-7_", str_to_lower(region_i), ".png"), plot = plot_i,
-           bg = "transparent", height = 5, width = 6, dpi = 300)
+    ggsave(filename = paste0("figs/02_part-1/fig-4_", str_to_lower(region_i), ".png"), plot = plot_i,
+           bg = "transparent", height = 5, width = 6, dpi = 600)
     
   }else{
     
-    ggsave(filename = paste0("figs/02_part-1/fig-8_", str_to_lower(region_i), ".png"), plot = plot_i,
-           bg = "transparent", height = 5, width = 6, dpi = 300)
+    ggsave(filename = paste0("figs/02_part-1/fig-6_", str_to_lower(region_i), ".png"), plot = plot_i,
+           bg = "transparent", height = 5, width = 6, dpi = 600)
     
   }
   
