@@ -118,7 +118,7 @@ plot_trends_model <- function(region_i, level_i, category_i = NA, range = NA){
     data_i <- tibble(subregion = sort(unique(data_i$subregion)),
                      letter = LETTERS[seq(from = 1, to = length(unique(data_i$subregion)))]) %>% 
       left_join(data_i, .) %>% 
-      mutate(text_title = glue("**{letter}.** {subregion}"))
+      mutate(text_title = glue("**{letter}.** {subregion}<br><span style='color:#636e72; font-size:12px'>{subregion_name}</span>"))
     
     plot_i <- ggplot(data = data_i, aes(x = year, fill = color, color = color)) +
       geom_ribbon(aes(ymin = lower_ci_95, ymax = upper_ci_95), alpha = 0.35, color = NA) +
