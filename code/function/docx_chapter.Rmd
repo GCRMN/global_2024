@@ -17,6 +17,19 @@ fig_counter <- 1
 
 ```
 
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+data_subregion <- st_read("../../data/01_maps/02_clean/04_subregions/gcrmn_subregions.shp", quiet = TRUE) %>% 
+  filter(region == region_i) %>% 
+  st_drop_geometry() %>% 
+  rename(subregion = subregn, subregion_name = sbrgn_n) %>% 
+  select(subregion, subregion_name) %>% 
+  distinct() %>% 
+  mutate(label_title = paste("### ", subregion, " - ", subregion_name, "\\"),
+         label_legend = paste(subregion, " = ", subregion_name))
+
+```
+
 \
 
 \
@@ -123,7 +136,7 @@ denomination <- read.csv("../../figs/08_text-gen/region_characteristics.csv") %>
 
 ```
 
-The `r region_i` GCRMN region ranges over a longitudinal axis of `r axis_long` km and a latitudinal axis of `r axis_lat` km. The region hosts `r extent_abs` km^2^ of coral reefs, which represent `r extent_rel`% of the world’s coral reef extent, and `r region_i` is the `r extent_rank` largest GCRMN region in terms of coral reef extent. Coral reefs reside within the economic exclusive zones of `r nb_countries` `r denomination` within the region, ranging from `r border_north` in the North to `r border_south` in the South, and from `r border_west` in the West to `r border_east` in the East (**Fig. 2.`r nb_chapter`.1**).
+The `r region_i` GCRMN region ranges over a longitudinal axis of `r axis_long` km and a latitudinal axis of `r axis_lat` km. The region hosts `r extent_abs` km^2^ of coral reefs, which represent `r extent_rel`% of the world’s coral reef extent, and `r region_i` is the `r extent_rank` largest GCRMN region in terms of coral reef extent. Coral reefs reside within the exclusive economic zones of `r nb_countries` `r denomination` within the region, ranging from `r border_north` in the North to `r border_south` in the South, and from `r border_west` in the West to `r border_east` in the East (**Fig. 2.`r nb_chapter`.1**).
 
 ```{r echo=FALSE, message=FALSE}
 
@@ -133,8 +146,8 @@ figure_path <- paste0("../../figs/03_part-2/fig-1/", str_to_lower(region_name), 
 
 ![](`r figure_path`){width=100%}
 
-**Figure 2.`r nb_chapter`.`r fig_counter`.** The distribution of coral reefs within the `r region_i` region and its respective sub-regions. 
-White polygons and numbers represent sub-regions. Coral reefs are delineated with a 20 km buffer to enhance interpretation, and only coral reefs within the region are represented. The scale bar provides distance at the equator and may not accurately represent distance over the entire latitudinal range of the region. The borders and nomenclature represented on this map are not endorsed by the GCRMN.
+**Figure 2.`r nb_chapter`.`r fig_counter`.** The distribution of coral reefs within the `r region_i` region and its respective subregions. 
+White polygons and numbers represent subregions. Coral reefs are delineated with a 20 km buffer to enhance interpretation, and only coral reefs within the region are represented. The scale bar provides distance at the equator and may not accurately represent distance over the entire latitudinal range of the region. The borders and nomenclature represented on this map are not endorsed by the GCRMN. `r paste(data_subregion$label_legend, collapse = ", ")`.
 
 \newpage
 
@@ -184,7 +197,7 @@ min_reef_extent_value_rel <- data_reef_extent %>%
 
 ```
 
-The `r region_i` region is divided into `r nb_subregions` subregions (**Fig. 2.`r nb_chapter`.1**). Sub-region `r max_reef_extent_nb` hosts `r max_reef_extent_value_rel`% of coral reefs in the region (`r max_reef_extent_value_abs` km²) whereas sub-region `r min_reef_extent_nb` hosts only `r min_reef_extent_value_rel`% of coral reefs in the region (`r min_reef_extent_value_abs` km², **Supp. Table 1**).
+The `r region_i` region is divided into `r nb_subregions` subregions (**Fig. 2.`r nb_chapter`.1**). Subregion `r max_reef_extent_nb` hosts `r max_reef_extent_value_rel`% of coral reefs in the region (`r max_reef_extent_value_abs` km²) whereas subregion `r min_reef_extent_nb` hosts only `r min_reef_extent_value_rel`% of coral reefs in the region (`r min_reef_extent_value_abs` km², **Supp. Table 1**).
 
 ```{r echo=FALSE, message=FALSE}
 
@@ -211,7 +224,7 @@ pop_2020_max <- data_population %>% filter(subregion != "All") %>%
 
 ```
 
-As of 2020, a total of `r pop_2020` inhabitants were living within 5 km of coral reefs. From 2000 to 2020, the region recorded a `r pop_change_rel`% increase in populations residing within 5 km of coral reefs, representing an average annual increase of `r pop_change_abs` inhabitants. The greatest increase in populations over this period was recorded in sub-region `r pop_change_abs_max`, although the highest number of inhabitants in 2020 was located in sub-region `r pop_2020_max` (**Supp. Table 2**).
+As of 2020, a total of `r pop_2020` inhabitants were living within 5 km of coral reefs. From 2000 to 2020, the region recorded a `r pop_change_rel`% increase in populations residing within 5 km of coral reefs, representing an average annual increase of `r pop_change_abs` inhabitants. The greatest increase in populations over this period was recorded in subregion `r pop_change_abs_max`, although the highest number of inhabitants in 2020 was located in subregion `r pop_2020_max` (**Supp. Table 2**).
 
 </div>
 
@@ -244,7 +257,7 @@ warming_rate <- data_sst %>% select(warming_rate) %>%
 
 ```
 
-From 1985 to 2024, the long-term average of Sea Surface Temperature (SST) recorded over coral reefs within the `r region_i` region was `r mean_sst`°C (**Supp. Figure 1**). During this period, the SST over coral reefs in the region increased by `r sst_increase`°C, corresponding to an average warming rate of `r warming_rate`°C per year (**Supp. Table 3**).
+From 1985 to 2024, the long-term average of Sea Surface Temperature (SST) recorded over coral reefs within the `r region_i` region was `r mean_sst`°C. During this period, the SST over coral reefs in the region increased by `r sst_increase`°C, corresponding to an average warming rate of `r warming_rate`°C per decade (**Supp. Table 3**).
 
 \
 
@@ -433,7 +446,7 @@ fig_counter <- fig_counter + 1
 
 \newpage
 
-## Status of coral reefs in the sub-regions
+## Status of coral reefs in the subregions
 
 <div custom-style="explanations">
 **[Number of words of the section: ~700]**
@@ -453,7 +466,7 @@ fig_counter <- fig_counter + 1
 
 <div custom-style="text">
 
-**Figure 2.`r nb_chapter`.`r fig_counter`.** Modeled temporal trends of hard coral cover in `r region_i`’s sub-regions from 1980 to 2024. The bold line represents the estimated average benthic cover while darker and lighter ribbons represent 80% and 95% credible intervals, respectively.
+**Figure 2.`r nb_chapter`.`r fig_counter`.** Modeled temporal trends of hard coral cover in `r region_i`’s subregions from 1980 to 2024. The bold line represents the estimated average benthic cover while darker and lighter ribbons represent 80% and 95% credible intervals, respectively.
 
 </div>
 
@@ -473,7 +486,11 @@ fig_counter <- fig_counter + 1
 
 <div custom-style="text">
 
-**Figure 2.`r nb_chapter`.`r fig_counter`.** Modeled temporal trends of macroalgae cover in `r region_i`’s sub-regions from 1980 to 2024. The bold line represents the estimated average benthic cover while darker and lighter ribbons represent 80% and 95% credible intervals, respectively.
+**Figure 2.`r nb_chapter`.`r fig_counter`.** Modeled temporal trends of macroalgae cover in `r region_i`’s subregions from 1980 to 2024. The bold line represents the estimated average benthic cover while darker and lighter ribbons represent 80% and 95% credible intervals, respectively.
+
+\newpage
+
+`r paste(data_subregion$label_title, collapse = "\n\n")`
 
 </div>
 
@@ -544,7 +561,7 @@ max_sites_value <- surveys_sites_value %>%
 
 ```
 
-Temporal trends in the percentage cover of benthic categories from 1980 to 2024 were estimated using data from `r nb_datasets` datasets encompassing `r nb_sites` monitoring sites. These data were collected through `r nb_surveys` surveys conducted between `r first_year` and `r last_year`, with 90% of surveys taking place after `r surveys_90_perc` (**Supp. Figure 2**). Of all surveys carried out in the region between 1980 and 2024, `r max_surveys_value`% (representing `r max_sites_value`% of surveyed sites) were conducted in sub-region `r max_surveys_name`, whereas only `r min_surveys_value`% (`r min_sites_value`% of sites) were conducted in sub-region `r min_surveys_name` (**Supp. Table 4**).
+Temporal trends in the percentage cover of benthic categories from 1980 to 2024 were estimated using data from `r nb_datasets` datasets encompassing `r nb_sites` monitoring sites. These data were collected through `r nb_surveys` surveys conducted between `r first_year` and `r last_year`, with 90% of surveys taking place after `r surveys_90_perc` (**Supp. Figure 1**). Of all surveys carried out in the region between 1980 and 2024, `r max_surveys_value`% (representing `r max_sites_value`% of surveyed sites) were conducted in subregion `r max_surveys_name`, whereas only `r min_surveys_value`% (`r min_sites_value`% of sites) were conducted in subregion `r min_surveys_name` (**Supp. Table 4**).
 
 \
 
@@ -558,7 +575,7 @@ fig_counter <- fig_counter + 1
 
 ![](`r figure_path`){width=100%}
 
-**Figure 2.`r nb_chapter`.`r fig_counter`.** Spatio-temporal distribution of benthic cover monitoring sites across the `r region_i` region. Sites that were monitored for the longest period are represented at the top of the sites monitored for fewer years. The scale bar provides distance at the equator and may not accurately represent distance over the entire latitudinal range of the region. The borders and nomenclature represented on this map are not endorsed by the GCRMN.
+**Figure 2.`r nb_chapter`.`r fig_counter`.** Spatio-temporal distribution of benthic cover monitoring sites across the `r region_i` region. Sites that were monitored for the longest period are represented at the top of the sites monitored for fewer years. The scale bar provides distance at the equator and may not accurately represent distance over the entire latitudinal range of the region. The borders and nomenclature represented on this map are not endorsed by the GCRMN. `r paste(data_subregion$label_legend, collapse = ", ")`.
 
 </div>
 

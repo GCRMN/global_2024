@@ -113,7 +113,7 @@ Curabitur eu amet.
 * `plot_trends_model.R` Plot temporal trends from models.
 * `plot_trends_raw.R` Plot temporal trends from raw data.
 * `prepare_benthic_data.R` Prepare benthic cover data for models.
-* `styles.docx` Word documents styles
+* `styles.docx` Word document styles.
 * `theme_graph.R` Main ggplot theme for the plots of the reports.
 * `theme_map.R` Main ggplot theme for the maps of the reports.
 

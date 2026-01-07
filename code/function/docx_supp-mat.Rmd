@@ -84,7 +84,9 @@ tbl_counter <- tbl_counter + 1
 table <- read_xlsx("../../figs/06_supp-mat/sst.xlsx")
 
 table <- bind_rows(table %>% filter(row_number() != 1),
-                   table %>% filter(row_number() == 1))
+                   table %>% filter(row_number() == 1)) %>% 
+  mutate(warming_rate = round(as.numeric(warming_rate), 2),
+         warming_rate = as.character(warming_rate))
 
 flextable(table, cwidth = rep(1.26, 5)) %>%
   bold(part = "header") %>% 
