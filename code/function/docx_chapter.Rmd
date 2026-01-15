@@ -575,7 +575,7 @@ fig_counter <- fig_counter + 1
 
 ![](`r figure_path`){width=100%}
 
-**Figure 2.`r nb_chapter`.`r fig_counter`.** Spatio-temporal distribution of benthic cover monitoring sites across the `r region_i` region. Sites that were monitored for the longest period are represented at the top of the sites monitored for fewer years. The scale bar provides distance at the equator and may not accurately represent distance over the entire latitudinal range of the region. The borders and nomenclature represented on this map are not endorsed by the GCRMN. `r paste(data_subregion$label_legend, collapse = ", ")`.
+**Figure 2.`r nb_chapter`.`r fig_counter`.** Spatio-temporal distribution of benthic cover monitoring sites across the `r region_i` region. Sites that were monitored for the longest period are represented at the top of the sites monitored for fewer years. The scale bar provides distance at the equator and may not accurately represent distance over the entire latitudinal range of the region. The borders represented on this map are not endorsed by the GCRMN. `r paste(data_subregion$label_legend, collapse = ", ")`.
 
 </div>
 

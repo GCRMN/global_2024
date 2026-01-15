@@ -48,7 +48,9 @@ plot_trends_model <- function(region_i, level_i, category_i = NA, range = NA){
       theme_graph() +
       theme(legend.title.position = "top",
             strip.text = element_markdown(hjust = 0, size = 14),
-            legend.title = element_text(face = "bold", hjust = 0.5)) +
+            legend.title = element_text(face = "bold", hjust = 0.5),
+            panel.background = element_rect(fill = "transparent", colour = NA),
+            plot.background = element_rect(fill = "transparent", colour = NA)) +
       scale_x_continuous(breaks = c(1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020, 2025),
                          limits = c(1979, 2026),
                          labels = c("1980", "", "1990", "", "2000", "", "2010", "", "2020", "")) +
@@ -57,6 +59,9 @@ plot_trends_model <- function(region_i, level_i, category_i = NA, range = NA){
     
     ggsave(filename = paste0("figs/02_part-1/fig-3.png"),
            plot = plot_i, height = 4, width = 8.5, dpi = fig_resolution)
+    
+    ggsave(filename = paste0("figs/02_part-1/fig-3.pdf"),
+           plot = plot_i, height = 4, width = 8.5, bg = "transparent")
     
   # Region
     
@@ -85,7 +90,9 @@ plot_trends_model <- function(region_i, level_i, category_i = NA, range = NA){
       theme_graph() +
       theme(legend.title.position = "top",
             strip.text = element_markdown(hjust = 0, size = 14),
-            legend.title = element_text(face = "bold", hjust = 0.5)) +
+            legend.title = element_text(face = "bold", hjust = 0.5),
+            panel.background = element_rect(fill = "transparent", colour = NA),
+            plot.background = element_rect(fill = "transparent", colour = NA)) +
       scale_x_continuous(breaks = c(1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020, 2025),
                          limits = c(1979, 2026),
                          labels = c("1980", "", "1990", "", "2000", "", "2010", "", "2020", "")) +
@@ -95,6 +102,10 @@ plot_trends_model <- function(region_i, level_i, category_i = NA, range = NA){
     ggsave(filename = paste0("figs/03_part-2/fig-6/",
                              str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
            plot = plot_i, height = 4, width = 8.5, dpi = fig_resolution)
+    
+    ggsave(filename = paste0("figs/03_part-2/fig-6/",
+                             str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".pdf"),
+           plot = plot_i, height = 4, width = 8.5, bg = "transparent")
     
   # Subregion
     
@@ -134,7 +145,9 @@ plot_trends_model <- function(region_i, level_i, category_i = NA, range = NA){
       theme_graph() +
       theme(legend.title.position = "top",
             strip.text = element_markdown(hjust = 0, size = 12),
-            legend.title = element_text(face = "bold", hjust = 0.5)) +
+            legend.title = element_text(face = "bold", hjust = 0.5),
+            panel.background = element_rect(fill = "transparent", colour = NA),
+            plot.background = element_rect(fill = "transparent", colour = NA)) +
       scale_x_continuous(breaks = c(1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020, 2025),
                          limits = c(1979, 2026),
                          labels = c("1980", "", "", "", "2000", "", "", "", "2020", "")) +
@@ -158,6 +171,20 @@ plot_trends_model <- function(region_i, level_i, category_i = NA, range = NA){
                              nb_subregions == 6 ~ 9,
                              nb_subregions >= 7 ~ 11),
            dpi = fig_resolution)
+    
+    ggsave(filename = paste0("figs/03_part-2/", fig_i, "/",
+                             str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".pdf"),
+           plot = plot_i,
+           height = case_when(nb_subregions == 3 ~ 3.5,
+                              nb_subregions == 4 ~ 5.5,
+                              nb_subregions == 5 ~ 5.5,
+                              nb_subregions == 6 ~ 5.5,
+                              nb_subregions >= 7 ~ 7),
+           width = case_when(nb_subregions == 3 ~ 8,
+                             nb_subregions == 4 ~ 6.5,
+                             nb_subregions == 5 ~ 9,
+                             nb_subregions == 6 ~ 9,
+                             nb_subregions >= 7 ~ 11))
       
   # Ecoregion
     

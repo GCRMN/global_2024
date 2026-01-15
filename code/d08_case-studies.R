@@ -106,17 +106,17 @@ plot_a <- ggplot() +
   geom_sf(data = data_countries, fill = "#dadfe1", color = "black", linewidth = 0.15) +
   theme_map() +
   theme(panel.border = element_rect(fill = NA, color = "black"),
-        panel.background = element_rect(fill = "white"),
         panel.grid = element_blank(),
-        plot.background = element_rect(fill = "transparent", color = NA),
         axis.text = element_text(family = font_choose_map, color = "black"),
         axis.text.y = element_text(angle = 90, hjust = 0.5),
         axis.text.y.right = element_text(angle = -90, hjust = 0.5),
         legend.frame = element_rect(fill = "white"),
         legend.key = element_rect(fill = "white"),
         legend.text = element_text(family = font_choose_map, size = 6),
-        legend.background = element_rect(fill = "white", color = "black", linewidth = 0.2),
-        plot.title = element_markdown(hjust = 0)) + 
+        plot.title = element_markdown(hjust = 0),
+        panel.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA)) + 
   coord_sf(xlim = c(45, 65), ylim = c(15, 32),
            label_axes = list(left = "N", bottom = "E")) +
   annotation_scale(location = "br",
@@ -137,9 +137,7 @@ plot_b <- ggplot() +
   geom_sf(data = data_countries, fill = "#dadfe1", color = "black", linewidth = 0.15) +
   theme_map() +
   theme(panel.border = element_rect(fill = NA, color = "black"),
-        panel.background = element_rect(fill = "white"),
         panel.grid = element_blank(),
-        plot.background = element_rect(fill = "transparent", color = NA),
         axis.text = element_text(family = font_choose_map, color = "black"),
         axis.text.y = element_text(angle = 90, hjust = 0.5),
         axis.text.y.right = element_text(angle = -90, hjust = 0.5),
@@ -147,8 +145,10 @@ plot_b <- ggplot() +
         legend.key = element_rect(fill = "white"),
         legend.direction = "vertical",
         legend.text = element_text(family = font_choose_map, size = 6),
-        legend.background = element_rect(fill = "white", color = NA, linewidth = 0),
-        plot.title = element_markdown(hjust = 0)) + 
+        plot.title = element_markdown(hjust = 0),
+        panel.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA),
+        legend.background = element_rect(fill = "transparent", colour = NA)) + 
   coord_sf(xlim = c(45, 65), ylim = c(15, 32),
            label_axes = list(right = "N", bottom = "E")) +
   annotation_scale(location = "br",
@@ -160,7 +160,9 @@ plot_b <- ggplot() +
 
 ### 3.6.3 Combine the plots ----
 
-plot_full <- plot_a + plot_b + plot_layout(guides = "collect")
+plot_full <- plot_a + plot_b + plot_layout(guides = "collect") &
+  theme(plot.background = element_rect(fill = "transparent", colour = NA),
+        panel.background = element_rect(fill = "transparent", colour = NA))
 
 ### 3.6.4 Save the plot ----
 

@@ -51,14 +51,20 @@ plot_ssta <- function(region_i){
     geom_bar(aes(x = year, y = mean_sst_anom, fill = color), stat = "identity") +
     scale_fill_identity() +
     geom_hline(yintercept = 0) +
-    theme(plot.title = element_markdown(size = 17, face = "bold", family = "Open Sans Semibold"),
-          plot.subtitle = element_markdown(size = 12)) +
     labs(x = "Year", y = "SST anomaly (°C)") +
-    theme_graph()
+    theme_graph() +
+    theme(plot.title = element_markdown(size = 17, face = "bold", family = "Open Sans Semibold"),
+          plot.subtitle = element_markdown(size = 12),
+          panel.background = element_rect(fill = "transparent", colour = NA),
+          plot.background = element_rect(fill = "transparent", colour = NA))
 
   ggsave(filename = paste0("figs/03_part-2/fig-2/",
                            str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
-         plot = plot_i, height = 5, width = 9, dpi = fig_resolution)
+         plot = plot_i, height = 3.5, width = 9, dpi = fig_resolution)
+  
+  ggsave(filename = paste0("figs/03_part-2/fig-2/",
+                           str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".pdf"),
+         plot = plot_i, height = 3.5, width = 9, bg = "transparent")
   
 }
 
@@ -124,12 +130,21 @@ plot_dhw <- function(region_i){
                                  "Alert 5" = "black"),
                       name = "Heat stress level") +
     theme_graph() +
-    theme(legend.title.position = "top", legend.title = element_text(hjust = 0.5)) +
+    theme(legend.position = "right",
+          legend.direction = "vertical",
+          legend.title = element_text(hjust = 0.5),
+          panel.background = element_rect(fill = "transparent", colour = NA),
+          plot.background = element_rect(fill = "transparent", colour = NA),
+          legend.background = element_rect(fill = "transparent", colour = NA)) +
     labs(x = "Year", y = "Percentage of coral reefs")
   
   ggsave(filename = paste0("figs/03_part-2/fig-3/",
                            str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
-         plot = plot_i, height = 5.3, width = 7.2, dpi = fig_resolution)
+         plot = plot_i, height = 4, width = 10, dpi = fig_resolution)
+  
+  ggsave(filename = paste0("figs/03_part-2/fig-3/",
+                           str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".pdf"),
+         plot = plot_i, height = 4, width = 10)
   
   # Export the data
   

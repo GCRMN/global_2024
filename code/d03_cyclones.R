@@ -64,12 +64,12 @@ cyclone_intensity <- function(region_i){
     scale_fill_manual(breaks = c("1", "2", "3", "4", "5"),
                       labels = c("Cat. 1", "Cat. 2", "Cat. 3", "Cat. 4", "Cat. 5"),
                       values = c(palette_second[2:5], "black"),
-                      name = "Saffir-Simpson\ncategory",
+                      name = "Saffir\nSimpson\ncategory",
                       drop = FALSE) +
     scale_color_manual(breaks = c("1", "2", "3", "4", "5"),
                        labels = c("Cat. 1", "Cat. 2", "Cat. 3", "Cat. 4", "Cat. 5"),
                        values = c(palette_second[2:5], "black"),
-                       name = "Saffir-Simpson\ncategory",
+                       name = "Saffir\nSimpson\ncategory",
                        drop = FALSE) +
     guides(fill = guide_legend(override.aes = list(size = 4))) +
     labs(x = "Year", y = bquote("Wind speed (km."~h^-1*")")) +
@@ -78,13 +78,16 @@ cyclone_intensity <- function(region_i){
           legend.position = "right",
           legend.direction = "vertical",
           axis.title.x = element_text(size = 14),
-          axis.title.y = element_text(size = 14))
+          axis.title.y = element_text(size = 14),
+          panel.background = element_rect(fill = "transparent", colour = NA),
+          plot.background = element_rect(fill = "transparent", colour = NA),
+          legend.background = element_rect(fill = "transparent", colour = NA))
   
   # 3. Save the plot
   
   ggsave(filename = paste0("figs/03_part-2/fig-5/",
                            str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
-         plot = plot_i, height = 3.5, width = 9, dpi = fig_resolution)
+         plot = plot_i, height = 3.5, width = 9, dpi = fig_resolution, bg = "transparent")
   
 }
 
@@ -136,18 +139,22 @@ cyclone_frequency <- function(region_i){
     scale_fill_manual(breaks = c("1", "2", "3", "4", "5"),
                       labels = c("Cat. 1", "Cat. 2", "Cat. 3", "Cat. 4", "Cat. 5"),
                       values = c(palette_second[2:5], "black"),
-                      name = "Saffir-Simpson category",
+                      name = "Saffir\nSimpson\ncategory",
                       drop = FALSE) +
     scale_y_continuous(breaks = function(x) unique(floor(pretty(x)))) +
     theme(legend.title.position = "top",
-          legend.title = element_text(hjust = 0.5)) +
+          legend.position = "right",
+          legend.direction = "vertical",
+          panel.background = element_rect(fill = "transparent", colour = NA),
+          plot.background = element_rect(fill = "transparent", colour = NA),
+          legend.background = element_rect(fill = "transparent", colour = NA)) +
     lims(x = c(1979, 2026))
   
   # 3. Save the plot
   
   ggsave(filename = paste0("figs/03_part-2/fig-4/",
                            str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
-         plot = plot_i, height = 4, width = 8, dpi = fig_resolution)
+         plot = plot_i, height = 3.5, width = 9, dpi = fig_resolution, bg = "transparent")
   
 }
 
