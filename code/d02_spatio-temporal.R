@@ -302,10 +302,12 @@ plot_i <- data_benthic %>%
   labs(x = "Year", y = "Surveys (%)") +
   coord_cartesian(clip = "off") +
   theme_graph() +
+  theme(panel.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
   facet_wrap(~region, ncol = 2) +
   scale_x_continuous(expand = c(0, 0), limits = c(1969, 2026))
 
-ggsave("figs/06_supp-mat/surveys-year.png", width = 7, height = 10, dpi = fig_resolution)
+ggsave("figs/06_supp-mat/surveys-year.png", width = 7, height = 10, dpi = fig_resolution, bg = "transparent")
 
 # 8. Number of surveys per depth ----
 
@@ -322,9 +324,11 @@ data_benthic %>%
   labs(x = "Depth (m)", y = "Surveys (%)") +
   coord_cartesian(clip = "off") +
   theme_graph() +
+  theme(panel.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
   scale_x_continuous(expand = c(0, 0), limits = c(-1, 31))
 
-ggsave("figs/02_part-1/fig-3.png", width = 5, height = 4, dpi = fig_resolution)
+ggsave("figs/02_part-1/fig-3.png", width = 5, height = 4, dpi = fig_resolution, bg = "transparent")
 
 ## 8.2 Regional ----
 
@@ -369,10 +373,12 @@ plot_i <- data_benthic %>%
   labs(x = "Depth (m)", y = "Surveys (%)") +
   coord_cartesian(clip = "off") +
   theme_graph() +
+  theme(panel.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
   facet_wrap(~region, ncol = 2) +
   scale_x_continuous(expand = c(0, 0), limits = c(-1, 31))
 
-ggsave("figs/06_supp-mat/surveys-depth.png", width = 7, height = 10, dpi = fig_resolution)
+ggsave("figs/06_supp-mat/surveys-depth.png", width = 7, height = 10, dpi = fig_resolution, bg = "transparent")
 
 # 9. Number of sites per datasetID and year (per subregion) ----
 
@@ -620,15 +626,17 @@ ggplot(data = data_benthic_sites, aes(x = int_class, y = perc, fill = int_class,
   theme_graph() +
   theme(axis.text.x = element_text(size = 8, angle = 45)) +
   facet_wrap(~region, ncol = 2) +
+  theme(panel.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
   lims(y = c(0, 100))
 
-ggsave("figs/06_supp-mat/sites-range.png", width = 7, height = 10, dpi = fig_resolution)
+ggsave("figs/06_supp-mat/sites-range.png", width = 7, height = 10, dpi = fig_resolution, bg = "transparent")
 
 # 12 Monitoring descriptors per subregions ----
 
 load("data/02_misc/data-benthic.RData")
 
-data_benthic %>% 
+data_monitoring <- data_benthic %>% 
   group_by(region) %>% 
   data_descriptors() %>% 
   ungroup() %>% 
@@ -642,4 +650,31 @@ data_benthic %>%
               data_descriptors() %>% 
               mutate(region = "All", subregion = "All", .before = "nb_datasets")) %>% 
   select(-surveys_90_perc) %>% 
-  openxlsx::write.xlsx(., file = "figs/06_supp-mat/monitoring-descriptors.xlsx")
+  mutate(range = paste0(first_year, "-", last_year)) %>% 
+  select(-first_year, -last_year) %>% 
+  mutate(across(c(nb_sites, nb_surveys), ~format(.x, big.mark = ",", scientific = FALSE)))
+
+## 12.1 Export as .csv ----
+
+openxlsx::write.xlsx(data_monitoring, file = "figs/06_supp-mat/monitoring-descriptors.xlsx")
+
+## 12.2 Export as .tex ----
+
+writeLines(c("\\begin{tabularx}{\\textwidth}{C{2.1cm} C{2.1cm} C{2.1cm} C{2.1cm} C{2.1cm} C{2.1cm}}",
+             "\\rowcolor{firstcolor}",
+             "\\color{white}\\textbf{\\rule{0pt}{3ex}Region} &",
+             "\\color{white}\\textbf{\\rule{0pt}{3ex}Subregion} &",
+             "\\color{white}\\textbf{\\rule{0pt}{3ex}Datasets} &",
+             "\\color{white}\\textbf{\\rule{0pt}{3ex}Sites} &",
+             "\\color{white}\\textbf{\\rule{0pt}{3ex}Surveys} &",
+             "\\color{white}\\textbf{\\rule{0pt}{3ex}Range} \\\\",
+             map(1:nrow(data_monitoring), ~c(paste0(data_monitoring[.x,"region"], " & ",
+                                                    data_monitoring[.x,"subregion"], " & ",
+                                                    data_monitoring[.x,"nb_datasets"], " & ",
+                                                    data_monitoring[.x,"nb_sites"], " & ",
+                                                    data_monitoring[.x,"nb_surveys"], " & ",
+                                                    data_monitoring[.x,"range"],
+                                                    "\\\\"))) %>% unlist(),
+             "\\bottomrule",
+             "\\end{tabularx}"),
+           "figs/06_supp-mat/monitoring-descriptors.tex")
