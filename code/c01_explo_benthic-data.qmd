@@ -242,18 +242,18 @@ plot_trends_raw(level_i = "region")
 
 # Subregion ----
 
-map(unique(color_regions$region),
+map(unique(palette_regions$region),
     ~plot_trends_raw(level_i = "subregion", region_i = .x, category_i = "Hard coral"))
 
-map(unique(color_regions$region),
+map(unique(palette_regions$region),
     ~plot_trends_raw(level_i = "subregion", region_i = .x, category_i = "Macroalgae"))
 
 # Ecoregion ----
 
-map(unique(color_regions$region),
+map(unique(palette_regions$region),
     ~plot_trends_raw(level_i = "ecoregion", region_i = .x, category_i = "Hard coral"))
 
-map(unique(color_regions$region),
+map(unique(palette_regions$region),
     ~plot_trends_raw(level_i = "ecoregion", region_i = .x, category_i = "Macroalgae"))
 
 ```

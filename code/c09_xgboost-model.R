@@ -273,7 +273,7 @@ model_results <- future_map(1:20, ~model_xgboost(category_i = "Hard coral",
   map(., bind_rows) %>% 
   map(., ~distinct(.x))
 
-save(model_results, file = "data/12_model-output/model-results_hard-coral.RData")
+save(model_results, file = "data/12_model-output_ml/model-results_hard-coral.RData")
 
 ## 4.2 Macroalgae ----
 
@@ -284,7 +284,7 @@ model_results <- future_map(1:20, ~model_xgboost(category_i = "Macroalgae",
   map(., bind_rows) %>% 
   map(., ~distinct(.x))
 
-save(model_results, file = "data/12_model-output/model-results_macroalgae.RData")
+save(model_results, file = "data/12_model-output_ml/model-results_macroalgae.RData")
 
 ## 4.3 Turf algae ----
 
@@ -295,7 +295,7 @@ model_results <- future_map(1:20, ~model_xgboost(category_i = "Turf algae",
   map(., bind_rows) %>% 
   map(., ~distinct(.x))
 
-save(model_results, file = "data/12_model-output/model-results_turf-algae.RData")
+save(model_results, file = "data/12_model-output_ml/model-results_turf-algae.RData")
 
 ## 4.4 Coralline algae ----
 
@@ -306,7 +306,7 @@ model_results <- future_map(1:20, ~model_xgboost(category_i = "Coralline algae",
   map(., bind_rows) %>% 
   map(., ~distinct(.x))
 
-save(model_results, file = "data/12_model-output/model-results_coralline-algae.RData")
+save(model_results, file = "data/12_model-output_ml/model-results_coralline-algae.RData")
 
 ## 4.5 Other fauna ----
 
@@ -317,7 +317,7 @@ model_results <- future_map(1:20, ~model_xgboost(category_i = "Other fauna",
   map(., bind_rows) %>% 
   map(., ~distinct(.x))
 
-save(model_results, file = "data/12_model-output/model-results_other-fauna.RData")
+save(model_results, file = "data/12_model-output_ml/model-results_other-fauna.RData")
 
 ## 4.6 Algae ----
 
@@ -328,4 +328,4 @@ model_results <- future_map(1:20, ~model_xgboost(category_i = "Algae",
   map(., bind_rows) %>% 
   map(., ~distinct(.x))
 
-save(model_results, file = "data/12_model-output/model-results_algae.RData")
+save(model_results, file = "data/12_model-output_ml/model-results_algae.RData")

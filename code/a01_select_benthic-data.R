@@ -16,9 +16,11 @@ load("C:/Users/jerem/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benthos/gc
 # -------------------------------------------------------- #
 
 data_benthic <- synthetic_data %>% 
-  # Remove useless datasets
+  # Remove particular data based on experts advice
   filter(!(datasetID %in% c("0009"))) %>%
   filter(!(region == "Brazil" & datasetID == "0015")) %>% 
+  filter(!(datasetID == "0208" & locality == "TM4" & eventDate == as.Date("2002-03-18"))) %>% 
+  filter(!(region == "Brazil" & datasetID == "0038" & locality == "TIM2")) %>% 
   # Filter data on the period of interest
   filter(year >= 1970 & year <= 2025) %>% 
   # Filter depth of shallow coral reefs

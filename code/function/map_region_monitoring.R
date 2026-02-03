@@ -21,7 +21,7 @@ map_region_monitoring <- function(region_i, color_scalebar = "white"){
                        name = NULL) +
     guides(fill = guide_legend(override.aes = list(size = 3))) +
     theme(panel.border = element_rect(fill = NA, color = "black"),
-          panel.background = element_rect(fill = "white"),
+          panel.background = element_rect(fill = "transparent"),
           panel.grid = element_blank(),
           plot.background = element_rect(fill = "transparent", color = NA),
           axis.text = element_text(family = font_choose_map, color = "black"),

@@ -8,7 +8,7 @@ library(sf)
 data_hbm_global <- readRDS(file = "data/13_model-output_hbm/benthic_global.rds")
 
 data_hbm_global <- data_hbm_global %>% 
-  select(-name, -data_years, -xgboost) %>% 
+  select(-data_years) %>% 
   unnest(stan) %>% 
   select(-variable) %>% 
   mutate(across(c(median, lower, upper, lower_80, upper_80), ~.x*100)) %>% 
@@ -19,7 +19,7 @@ data_hbm_global <- data_hbm_global %>%
 data_hbm_region <- readRDS(file = "data/13_model-output_hbm/benthic_regions.rds")
 
 data_hbm_region <- data_hbm_region %>% 
-  select(-name, -data_years, -xgboost) %>% 
+  select(-data_years) %>% 
   unnest(stan) %>% 
   select(-variable) %>% 
   mutate(across(c(median, lower, upper, lower_80, upper_80), ~.x*100)) %>% 
@@ -30,7 +30,7 @@ data_hbm_region <- data_hbm_region %>%
 data_hbm_subregion <- readRDS(file = "data/13_model-output_hbm/benthic_subregions.rds")
 
 data_hbm_subregion <- data_hbm_subregion %>% 
-  select(-name, -data_years, -xgboost) %>% 
+  select(-data_years) %>% 
   unnest(stan) %>% 
   select(-variable) %>% 
   mutate(across(c(median, lower, upper, lower_80, upper_80), ~.x*100)) %>% 
@@ -41,7 +41,7 @@ data_hbm_subregion <- data_hbm_subregion %>%
 data_hbm_ecoregion <- readRDS(file = "data/13_model-output_hbm/benthic_ecoregions.rds")
 
 data_hbm_ecoregion <- data_hbm_ecoregion %>% 
-  select(-name, -data_years, -xgboost, -data) %>% 
+  select(-data_years) %>% 
   unnest(stan) %>% 
   select(-variable) %>% 
   mutate(across(c(median, lower, upper, lower_80, upper_80), ~.x*100)) %>% 
@@ -50,7 +50,7 @@ data_hbm_ecoregion <- data_hbm_ecoregion %>%
   mutate(level = "ecoregion")
 
 data_models <- bind_rows(data_hbm_global, data_hbm_region,
-                      data_hbm_subregion, data_hbm_ecoregion) %>% 
+                         data_hbm_subregion, data_hbm_ecoregion) %>% 
   mutate(across(c(mean, lower_ci_95, upper_ci_95, lower_ci_80, upper_ci_80), ~round(.x, 2))) %>% 
   select(category, level, region, subregion, ecoregion,
          year, mean, lower_ci_95, upper_ci_95, lower_ci_80, upper_ci_80)
