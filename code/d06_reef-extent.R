@@ -37,11 +37,30 @@ data_reef_extent <- data_reef_extent %>%
 
 # 3. Export the table for supplementary materials ----
 
+## 3.1 As .xlsx ----
+
 data_reef_extent %>% 
   select(region, subregion, reef_extent_abs, reef_extent_rel_region, reef_extent_rel_world) %>% 
   mutate(reef_extent_abs = format(round(reef_extent_abs, 0), big.mark = ",", scientific = FALSE),
          across(c(reef_extent_rel_region, reef_extent_rel_world), ~format(round(.x, 2)))) %>% 
   openxlsx::write.xlsx(., file = "figs/06_supp-mat/reef-extent.xlsx")
+
+## 3.2 As .tex ----
+
+data_reef_extent_tex <- data_reef_extent %>% 
+  select(region, subregion, reef_extent_abs, reef_extent_rel_region, reef_extent_rel_world) %>% 
+  mutate(reef_extent_abs = format(round(reef_extent_abs, 0), big.mark = ",", scientific = FALSE),
+         across(c(reef_extent_rel_region, reef_extent_rel_world), ~format(round(.x, 2))))
+
+writeLines(c(map(1:nrow(data_reef_extent_tex), ~c(paste0(data_reef_extent_tex[.x,"region"], " & ",
+                                                         data_reef_extent_tex[.x,"subregion"], " & ",
+                                                         data_reef_extent_tex[.x,"reef_extent_abs"], " & ",
+                                                         data_reef_extent_tex[.x,"reef_extent_rel_region"], " & ",
+                                                         data_reef_extent_tex[.x,"reef_extent_rel_world"],
+                                                         case_when(.x == nrow(data_reef_extent_tex) ~ "",
+                                                                   TRUE ~ "\\\\")))) %>%
+               unlist()),
+           "figs/06_supp-mat/reef-extent.tex")
 
 # 4. Export the table with all variables (additional) ----
 

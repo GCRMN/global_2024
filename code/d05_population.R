@@ -26,11 +26,30 @@ data_population <- data_population %>%
 
 # 3. Export the full table ----
 
+## 3.1 Export as .xlsx ----
+
 data_population %>% 
   select(-pop_2000) %>% 
   mutate(across(c(pop_2020, pop_change_abs), ~format(round(.x, 0), big.mark = ",", scientific = FALSE)),
          pop_change_rel = format(round(pop_change_rel, 2))) %>% 
   openxlsx::write.xlsx(., file = "figs/06_supp-mat/population.xlsx")
+
+## 3.2 Export as .tex ----
+
+data_population_tex <- data_population %>% 
+  select(-pop_2000) %>% 
+  mutate(across(c(pop_2020, pop_change_abs), ~format(round(.x, 0), big.mark = ",", scientific = FALSE)),
+         pop_change_rel = format(round(pop_change_rel, 2)))
+
+writeLines(c(map(1:nrow(data_population_tex), ~c(paste0(data_population_tex[.x,"region"], " & ",
+                                                        data_population_tex[.x,"subregion"], " & ",
+                                                        data_population_tex[.x,"pop_2020"], " & ",
+                                                        data_population_tex[.x,"pop_change_abs"], " & ",
+                                                        data_population_tex[.x,"pop_change_rel"],
+                                                        case_when(.x == nrow(data_population_tex) ~ "",
+                                                                  TRUE ~ "\\\\")))) %>%
+               unlist()),
+           "figs/06_supp-mat/population.tex")
 
 # 4. Export the table per region ----
 

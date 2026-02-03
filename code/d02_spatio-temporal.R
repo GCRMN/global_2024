@@ -654,27 +654,19 @@ data_monitoring <- data_benthic %>%
   select(-first_year, -last_year) %>% 
   mutate(across(c(nb_sites, nb_surveys), ~format(.x, big.mark = ",", scientific = FALSE)))
 
-## 12.1 Export as .csv ----
+## 12.1 Export as .xlsx ----
 
 openxlsx::write.xlsx(data_monitoring, file = "figs/06_supp-mat/monitoring-descriptors.xlsx")
 
 ## 12.2 Export as .tex ----
 
-writeLines(c("\\begin{tabularx}{\\textwidth}{C{2.1cm} C{2.1cm} C{2.1cm} C{2.1cm} C{2.1cm} C{2.1cm}}",
-             "\\rowcolor{firstcolor}",
-             "\\color{white}\\textbf{\\rule{0pt}{3ex}Region} &",
-             "\\color{white}\\textbf{\\rule{0pt}{3ex}Subregion} &",
-             "\\color{white}\\textbf{\\rule{0pt}{3ex}Datasets} &",
-             "\\color{white}\\textbf{\\rule{0pt}{3ex}Sites} &",
-             "\\color{white}\\textbf{\\rule{0pt}{3ex}Surveys} &",
-             "\\color{white}\\textbf{\\rule{0pt}{3ex}Range} \\\\",
-             map(1:nrow(data_monitoring), ~c(paste0(data_monitoring[.x,"region"], " & ",
+writeLines(c(map(1:nrow(data_monitoring), ~c(paste0(data_monitoring[.x,"region"], " & ",
                                                     data_monitoring[.x,"subregion"], " & ",
                                                     data_monitoring[.x,"nb_datasets"], " & ",
                                                     data_monitoring[.x,"nb_sites"], " & ",
                                                     data_monitoring[.x,"nb_surveys"], " & ",
                                                     data_monitoring[.x,"range"],
-                                                    "\\\\"))) %>% unlist(),
-             "\\bottomrule",
-             "\\end{tabularx}"),
+                                                    case_when(.x == nrow(data_monitoring) ~ "",
+                                                              TRUE ~ "\\\\")))) %>%
+               unlist()),
            "figs/06_supp-mat/monitoring-descriptors.tex")

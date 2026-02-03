@@ -227,10 +227,22 @@ data_sst_trends <- data_sst %>%
   mutate(across(c(sst_increase, mean_sst), ~format(round(.x, 2))),
          warming_rate = format(round(warming_rate, 3)))
 
-## 6.3. Export the full table ----
+## 6.3 Export the full table as .xlsx ----
 
 openxlsx::write.xlsx(data_sst_trends, file = "figs/06_supp-mat/sst.xlsx")
 
-## 6.4. Export the table per region ----
+## 6.4 Export as .tex ----
+
+writeLines(c(map(1:nrow(data_sst_trends), ~c(paste0(data_sst_trends[.x,"region"], " & ",
+                                                    data_sst_trends[.x,"subregion"], " & ",
+                                                    data_sst_trends[.x,"sst_increase"], " & ",
+                                                    data_sst_trends[.x,"warming_rate"], " & ",
+                                                    data_sst_trends[.x,"mean_sst"],
+                                                    case_when(.x == nrow(data_sst_trends) ~ "",
+                                                              TRUE ~ "\\\\")))) %>%
+               unlist()),
+           "figs/06_supp-mat/sst.tex")
+
+## 6.5 Export the table per region ----
 
 write.csv(data_sst_trends, file = "figs/08_text-gen/thermal_regime.csv", row.names = FALSE)
