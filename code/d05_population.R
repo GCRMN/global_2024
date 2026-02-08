@@ -2,6 +2,9 @@
 
 library(tidyverse)
 
+source("code/function/graphical_par.R")
+source("code/function/theme_graph.R")
+
 # 2. Load and transform data ----
 
 data_population <- read.csv("data/02_misc/ind_human-pop_5km_subregion.csv") %>% 
@@ -54,3 +57,22 @@ writeLines(c(map(1:nrow(data_population_tex), ~c(paste0(data_population_tex[.x,"
 # 4. Export the table per region ----
 
 write.csv(data_population, file = "figs/08_text-gen/human_population.csv", row.names = FALSE)
+
+# 5. Human population at the global scale ----
+
+read.csv("data/02_misc/ind_human-pop_5km_global.csv") %>% 
+  distinct() %>% 
+  rename(year = date, 
+         population = sum) %>% 
+  mutate(year = as.numeric(str_sub(year, 1, 4)),
+         population = round(population*1e-06, 0)) %>% 
+  ggplot(data = ., aes(x = year, y = population, label = population)) +
+  geom_line(color = "#2C5D96") +
+  geom_point(color = "white", shape = 21, fill = "#2C5D96", size = 5) +
+  geom_label(family = font_choose_graph, vjust = 2, linewidth = 0,
+             fill = "#74b9ff", text.color = "black", size = 4, alpha = 0.6) +
+  labs(x = "Year", y = "Inhabitants (millions)") +
+  theme_graph() +
+  lims(y = c(0, 120))
+
+ggsave("figs/02_part-1/fig-X.png", width = 6, height = 5, dpi = fig_resolution, bg = "transparent")
