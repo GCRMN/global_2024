@@ -246,9 +246,11 @@ data_benthic %>%
   labs(x = "Year", y = "Surveys (%)") +
   coord_cartesian(clip = "off") +
   theme_graph() +
+  theme(panel.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
   scale_x_continuous(expand = c(0, 0), limits = c(1969, 2026))
 
-ggsave("figs/02_part-1/fig-2.png", width = 5, height = 4, dpi = fig_resolution)
+ggsave("figs/02_part-1/fig-X.png", width = 5, height = 4, dpi = fig_resolution, bg = "transparent")
 
 ## 7.2 Regional ----
 
