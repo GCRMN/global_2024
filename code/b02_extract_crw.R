@@ -51,7 +51,7 @@ rm(data_regions, data_subregions)
 
 ## 3.1 List of files ----
 
-list_url <- data.frame(date = seq(from = ymd("1985-01-01"), to = ymd("2024-12-31"), by = "1 day")) %>% 
+list_url <- data.frame(date = seq(from = ymd("1985-01-01"), to = ymd("2025-12-31"), by = "1 day")) %>% 
   mutate(year = year(date),
          date = str_remove_all(date, "-"),
          url = paste0("https://www.star.nesdis.noaa.gov/pub/socd/mecb/crw/data/5km/v3.1_op/nc/v1.0/daily/sst/",
@@ -121,7 +121,7 @@ save(data_sst, file = "data/02_misc/data_sst.RData")
 
 ## 4.1 List of files ----
 
-list_url <- data.frame(year = seq(from = 1986, to = 2024, by = 1)) %>% 
+list_url <- data.frame(year = seq(from = 1986, to = 2025, by = 1)) %>% 
   mutate(url = paste0("https://www.star.nesdis.noaa.gov/pub/socd/mecb/crw/data/5km/v3.1_op/nc/v1.0/annual/ct5km_",
                       "dhw-max",
                       "_v3.1_",
