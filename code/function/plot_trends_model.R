@@ -78,12 +78,18 @@ plot_trends_model <- function(region_i, level_i, category_i = NA, range = NA){
         }
       } %>% 
       ungroup() %>% 
-      filter(category %in% c("Hard coral", "Macroalgae") & region == region_i)
+      filter(category %in% c("Hard coral", "Macroalgae") & region == region_i) %>% 
+      group_by(category) %>% 
+      transform_ribbons() %>% 
+      ungroup()
     
-    plot_i <- ggplot(data = data_i, aes(x = year, fill = color, color = color)) +
-      geom_ribbon(aes(ymin = lower_ci_95, ymax = upper_ci_95), alpha = 0.35, color = NA) +
-      geom_ribbon(aes(ymin = lower_ci_80, ymax = upper_ci_80), alpha = 0.45, color = NA) +
-      geom_line(aes(y = mean)) +
+    plot_i <- ggplot(data = data_i) +
+      geom_ribbon(aes(x = year, ymin = lower_ci_95, ymax = upper_ci_95, fill = color, group = group), 
+                  alpha = 0.25, show.legend = FALSE) +
+      geom_ribbon(aes(x = year, ymin = lower_ci_80, ymax = upper_ci_80, fill = color, group = group), 
+                  alpha = 0.5, show.legend = FALSE) +
+      geom_line(aes(x = year, y = mean, color = color, group = group), 
+                linewidth = 1, show.legend = FALSE) +
       facet_wrap(~text_title, scales = "free", ncol = 2) +
       scale_color_identity() +
       scale_fill_identity() +
@@ -129,12 +135,18 @@ plot_trends_model <- function(region_i, level_i, category_i = NA, range = NA){
     data_i <- tibble(subregion = sort(unique(data_i$subregion)),
                      letter = LETTERS[seq(from = 1, to = length(unique(data_i$subregion)))]) %>% 
       left_join(data_i, .) %>% 
-      mutate(text_title = glue("**{letter}.** {subregion}<br><span style='color:#636e72; font-size:12px'>{subregion_name}</span>"))
+      mutate(text_title = glue("**{letter}.** {subregion}<br><span style='color:#636e72; font-size:12px'>{subregion_name}</span>")) %>% 
+      group_by(category, subregion) %>% 
+      transform_ribbons() %>% 
+      ungroup()
     
-    plot_i <- ggplot(data = data_i, aes(x = year, fill = color, color = color)) +
-      geom_ribbon(aes(ymin = lower_ci_95, ymax = upper_ci_95), alpha = 0.35, color = NA) +
-      geom_ribbon(aes(ymin = lower_ci_80, ymax = upper_ci_80), alpha = 0.45, color = NA) +
-      geom_line(aes(y = mean)) +
+    plot_i <- ggplot(data = data_i) +
+      geom_ribbon(aes(x = year, ymin = lower_ci_95, ymax = upper_ci_95, fill = color, group = group), 
+                  alpha = 0.25, show.legend = FALSE) +
+      geom_ribbon(aes(x = year, ymin = lower_ci_80, ymax = upper_ci_80, fill = color, group = group), 
+                  alpha = 0.5, show.legend = FALSE) +
+      geom_line(aes(x = year, y = mean, color = color, group = group), 
+                linewidth = 1, show.legend = FALSE) +
       facet_wrap(~text_title, scales = "free", ncol = case_when(nb_subregions == 3 ~ 3,
                                                                nb_subregions == 4 ~ 2,
                                                                nb_subregions == 5 ~ 3,
@@ -152,7 +164,8 @@ plot_trends_model <- function(region_i, level_i, category_i = NA, range = NA){
                          limits = c(1979, 2026),
                          labels = c("1980", "", "", "", "2000", "", "", "", "2020", "")) +
       scale_y_continuous(limits = c(0, floor(max(data_i$upper_ci_95)/10)*10+10)) +
-      labs(x = "Year", y = "Benthic cover (%)")
+      labs(x = "Year", y = case_when(category_i == "Hard coral" ~ "Hard coral cover (%)",
+                                     category_i == "Macroalgae" ~ "Macroalgae cover (%)"))
     
     fig_i <- case_when(category_i == "Hard coral" ~ "fig-7",
                        category_i == "Macroalgae" ~ "fig-8")
