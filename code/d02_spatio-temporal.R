@@ -20,7 +20,8 @@ source("code/function/map_region_monitoring.R")
 
 data_land <- st_read("data/01_maps/01_raw/03_natural-earth/ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp")
 
-data_region <- st_read("data/01_maps/02_clean/04_subregions/gcrmn_subregions.shp")
+data_region <- st_read("data/01_maps/02_clean/04_subregions/gcrmn_subregions.shp") %>% 
+  rename(subregion = subregn)
 
 load("data/02_misc/data-benthic.RData")
 
@@ -127,7 +128,8 @@ data_benthic_sites <- data_benthic_sites %>%
 
 data_countries <- read_sf("data/01_maps/01_raw/03_natural-earth/ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp")
 
-data_subregions <- read_sf("data/01_maps/02_clean/04_subregions/gcrmn_subregions.shp")
+data_subregions <- read_sf("data/01_maps/02_clean/04_subregions/gcrmn_subregions.shp") %>% 
+  rename(subregion = subregn)
 
 data_tropics <- tibble(tropic = c("Cancer", "Cancer", "Equator", "Equator", "Capricorn", "Capricorn"),
                        lat = c(23.4366, 23.4366, 0, 0, -23.4366, -23.4366),

@@ -147,8 +147,7 @@ fig_counter <- fig_counter + 1
 
 ```{r echo=FALSE, message=FALSE}
 
-table <- read_xlsx("../../figs/06_supp-mat/monitoring-descriptors.xlsx") %>% 
-  mutate(across(c("first_year", "last_year"), ~as.character(.x)))
+table <- read_xlsx("../../figs/06_supp-mat/monitoring-descriptors.xlsx")
 
 flextable(table, cwidth = rep(0.9, 7)) %>%
   bold(part = "header") %>% 
@@ -157,8 +156,7 @@ flextable(table, cwidth = rep(0.9, 7)) %>%
                     nb_datasets = "Number of datasets",
                     nb_sites = "Number of sites",
                     nb_surveys = "Number of surveys",
-                    first_year = "First year\nwith data",
-                    last_year = "Last year\nwith data") %>% 
+                    range = "Time range") %>% 
   set_table_properties(opts_word = list(repeat_header = FALSE)) %>% 
   border(border = officer::fp_border())
 

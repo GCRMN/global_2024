@@ -78,7 +78,8 @@ plot_trends_model <- function(region_i, level_i, category_i = NA, range = NA){
         }
       } %>% 
       ungroup() %>% 
-      filter(category %in% c("Hard coral", "Macroalgae") & region == region_i) %>% 
+      filter(category %in% c("Hard coral", "Macroalgae", "Turf algae") & region == region_i) %>% 
+      filter(!(category == "Turf algae" & region %in% c("PERSGA", "South Asia"))) %>% 
       group_by(category) %>% 
       transform_ribbons() %>% 
       ungroup()
@@ -88,9 +89,8 @@ plot_trends_model <- function(region_i, level_i, category_i = NA, range = NA){
                   alpha = 0.25, show.legend = FALSE) +
       geom_ribbon(aes(x = year, ymin = lower_ci_80, ymax = upper_ci_80, fill = color, group = group), 
                   alpha = 0.5, show.legend = FALSE) +
-      geom_line(aes(x = year, y = mean, color = color, group = group), 
-                linewidth = 1, show.legend = FALSE) +
-      facet_wrap(~text_title, scales = "free", ncol = 2) +
+      geom_line(aes(x = year, y = mean, color = color, group = group), show.legend = FALSE) +
+      facet_wrap(~text_title, scales = "free", ncol = 3) +
       scale_color_identity() +
       scale_fill_identity() +
       theme_graph() +
@@ -105,13 +105,27 @@ plot_trends_model <- function(region_i, level_i, category_i = NA, range = NA){
       scale_y_continuous(limits = c(0, floor(max(data_i$upper_ci_95)/10)*10+10)) +
       labs(x = "Year", y = "Benthic cover (%)")
     
-    ggsave(filename = paste0("figs/03_part-2/fig-6/",
-                             str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
-           plot = plot_i, height = 4, width = 8.5, dpi = fig_resolution)
-    
-    ggsave(filename = paste0("figs/03_part-2/fig-6/",
-                             str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".pdf"),
-           plot = plot_i, height = 4, width = 8.5, bg = "transparent")
+    if(region_i %in% c("PERSGA", "South Asia")){
+      
+      ggsave(filename = paste0("figs/03_part-2/fig-6/",
+                               str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
+             plot = plot_i, height = 4, width = 8.5, dpi = fig_resolution)
+      
+      ggsave(filename = paste0("figs/03_part-2/fig-6/",
+                               str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".pdf"),
+             plot = plot_i, height = 4, width = 8.5, bg = "transparent")
+      
+    }else{
+      
+      ggsave(filename = paste0("figs/03_part-2/fig-6/",
+                               str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
+             plot = plot_i, height = 4, width = 11, dpi = fig_resolution)
+      
+      ggsave(filename = paste0("figs/03_part-2/fig-6/",
+                               str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".pdf"),
+             plot = plot_i, height = 4, width = 11, bg = "transparent")
+      
+    }
     
   # Subregion
     
@@ -135,7 +149,25 @@ plot_trends_model <- function(region_i, level_i, category_i = NA, range = NA){
     data_i <- tibble(subregion = sort(unique(data_i$subregion)),
                      letter = LETTERS[seq(from = 1, to = length(unique(data_i$subregion)))]) %>% 
       left_join(data_i, .) %>% 
-      mutate(text_title = glue("**{letter}.** {subregion}<br><span style='color:#636e72; font-size:12px'>{subregion_name}</span>")) %>% 
+      mutate(subregion_name = case_when(subregion_name == "Eastern Australian shelf / Great Barrier Reef" ~
+                                          "Eastern Australian shelf /<br>Great Barrier Reef",
+                                        subregion_name == "Tropical Southwestern Pacific" ~
+                                          "Tropical Southwestern<br>Pacific",
+                                        subregion_name == "Central West Australian Shelf" ~
+                                          "Central West<br>Australian Shelf",
+                                        subregion_name == "Tropical Northwestern Pacific" ~
+                                          "Tropical Northwestern<br>Pacific",
+                                        
+                                        subregion_name == "Lord Howe and Norfolk Islands" ~ 
+                                          "Lord Howe and<br>Norfolk Islands",
+                                        subregion_name == "Fernando de Noronha and Rocas Atoll" ~ 
+                                          "Fernando de Noronha<br>and Rocas Atoll",
+                                        subregion_name == "Marshall, Gilbert, and Ellis Islands" ~ 
+                                          "Marshall, Gilbert,<br>and Ellis Islands",
+                                        subregion_name == "Cocos Keeling and Christmas Island" ~ 
+                                          "Cocos Keeling and<br>Christmas Island",
+                                        TRUE ~ paste0(subregion_name, "<br>")),
+             text_title = glue("**{letter}.** {subregion}<br><span style='color:#636e72; font-size:12px'>{subregion_name}</span>")) %>% 
       group_by(category, subregion) %>% 
       transform_ribbons() %>% 
       ungroup()
@@ -145,8 +177,7 @@ plot_trends_model <- function(region_i, level_i, category_i = NA, range = NA){
                   alpha = 0.25, show.legend = FALSE) +
       geom_ribbon(aes(x = year, ymin = lower_ci_80, ymax = upper_ci_80, fill = color, group = group), 
                   alpha = 0.5, show.legend = FALSE) +
-      geom_line(aes(x = year, y = mean, color = color, group = group), 
-                linewidth = 1, show.legend = FALSE) +
+      geom_line(aes(x = year, y = mean, color = color, group = group), show.legend = FALSE) +
       facet_wrap(~text_title, scales = "free", ncol = case_when(nb_subregions == 3 ~ 3,
                                                                nb_subregions == 4 ~ 2,
                                                                nb_subregions == 5 ~ 3,

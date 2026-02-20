@@ -32,6 +32,8 @@ data_benthic <- synthetic_data %>%
   filter(!(subregion == "Caribbean 2" & subcategory == "Macroalgae" & year < 1985 & datasetID == "0092")) %>% 
   filter(!(subregion == "Caribbean 5" & subcategory == "Macroalgae" & year < 1990 & datasetID == "0133")) %>% 
   filter(!(ecoregion == "Bahamian" & year < 1990 & datasetID == "0133")) %>% 
+  filter(!(ecoregion == "Mascarene Islands" & year == 2023 & datasetID == "0230")) %>% 
+  filter(!(ecoregion == "Coral Sea" & year < 2010 & datasetID == "0015")) %>% 
   # Filter data on the period of interest
   filter(year >= 1970 & year <= 2025) %>% 
   # Filter depth of shallow coral reefs

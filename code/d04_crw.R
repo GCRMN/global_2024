@@ -57,7 +57,7 @@ plot_ssta <- function(region_i){
     labs(x = "Year", y = "SST anomaly (°C)") +
     scale_x_continuous(breaks = c(1990, 1995, 2000, 2005, 2010, 2015, 2020, 2025),
                        limits = c(1985, 2026),
-                       labels = c("1990", "", "2000", "", "2010", "", "2020", "")) +
+                       labels = c("1990", "1995", "2000", "2005", "2010", "2015", "2020", "2025")) +
     theme_graph() +
     theme(plot.title = element_markdown(size = 17, face = "bold", family = "Open Sans Semibold"),
           plot.subtitle = element_markdown(size = 12),
@@ -81,6 +81,9 @@ map(setdiff(unique(data_sst_anom$region), "All"), ~plot_ssta(region_i = .))
 load("data/02_misc/data_dhw_freq.RData")
 
 data_dhw_freq <- data_dhw_freq %>% 
+  mutate(subregion = case_when(is.na(subregion) ~ subregn,
+                               TRUE ~ subregion)) %>% 
+  select(-sbrgn_n, -subregn) %>% 
   complete(year, dhw, nesting(region, subregion), fill = list(nb_cells = 0)) %>% 
   # See https://coralreefwatch.noaa.gov/product/5km/index_5km_baa-max-7d.php
   mutate(heatstress = case_when(dhw < 1 ~ "No stress/Watch",
@@ -115,7 +118,7 @@ plot_i <- ggplot(data = data_dhw_freq %>% filter(region == "All")) +
                     name = "Heat stress level") +
   scale_x_continuous(breaks = c(1990, 1995, 2000, 2005, 2010, 2015, 2020, 2025),
                      limits = c(1985, 2026),
-                     labels = c("1990", "", "2000", "", "2010", "", "2020", "")) +
+                     labels = c("1990", "1995", "2000", "2005", "2010", "2015", "2020", "2025")) +
   theme_graph() +
   theme(legend.title.position = "top", legend.title = element_text(hjust = 0.5)) +
   labs(x = "Year", y = "Percentage of coral reefs")
@@ -140,7 +143,7 @@ plot_dhw <- function(region_i){
                       name = "Heat stress level") +
     scale_x_continuous(breaks = c(1990, 1995, 2000, 2005, 2010, 2015, 2020, 2025),
                        limits = c(1985, 2026),
-                       labels = c("1990", "", "2000", "", "2010", "", "2020", "")) +
+                       labels = c("1990", "1995", "2000", "2005", "2010", "2015", "2020", "2025")) +
     theme_graph() +
     theme(legend.position = "right",
           legend.direction = "vertical",

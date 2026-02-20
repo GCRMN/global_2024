@@ -7,7 +7,8 @@ library(sf)
 # 2. Load data ----
 
 data_subregion <- st_read("data/01_maps/02_clean/04_subregions/gcrmn_subregions.shp") %>% 
-  st_drop_geometry()
+  st_drop_geometry() %>% 
+  rename(subregion = subregn, subregion_name = sbrgn_n)
 
 data_region <- data_subregion %>% 
   select(region) %>% 
