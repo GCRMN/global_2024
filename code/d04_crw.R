@@ -38,9 +38,9 @@ plot_i <- ggplot(data = data_sst_anom %>% filter(region == "All")) +
   theme(plot.title = element_markdown(size = 17, face = "bold", family = "Open Sans Semibold"),
         plot.subtitle = element_markdown(size = 12)) +
   labs(x = "Year", y = "SST anomaly (°C)") +
-  scale_x_continuous(breaks = c(1990, 1995, 2000, 2005, 2010, 2015, 2020, 2025),
-                     limits = c(1985, 2026),
-                     labels = c("1990", "", "2000", "", "2010", "", "2020", "")) +
+  scale_x_continuous(breaks = c(1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020, 2025),
+                     limits = c(1984, 2026),
+                     labels = c("", "1990", "", "2000", "", "2010", "", "2020", "")) +
   theme_graph() +
   lims(y = c(-1.5, 1.5))
 
@@ -55,9 +55,9 @@ plot_ssta <- function(region_i){
     scale_fill_identity() +
     geom_hline(yintercept = 0) +
     labs(x = "Year", y = "SST anomaly (°C)") +
-    scale_x_continuous(breaks = c(1990, 1995, 2000, 2005, 2010, 2015, 2020, 2025),
-                       limits = c(1985, 2026),
-                       labels = c("1990", "1995", "2000", "2005", "2010", "2015", "2020", "2025")) +
+    scale_x_continuous(breaks = c(1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020, 2025),
+                       limits = c(1984, 2026),
+                       labels = c("1985", "1990", "1995", "2000", "2005", "2010", "2015", "2020", "2025")) +
     theme_graph() +
     theme(plot.title = element_markdown(size = 17, face = "bold", family = "Open Sans Semibold"),
           plot.subtitle = element_markdown(size = 12),
