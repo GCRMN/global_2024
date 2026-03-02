@@ -131,3 +131,34 @@ read_xlsx("C:/Users/jerem/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benth
   distinct() %>% 
   drop_na(last_name) %>% 
   openxlsx::write.xlsx(., file = "figs/07_additional/05_contributors/contributors_region_contacts.xlsx")
+
+# 9. List of acknowledgments and citations to include ----
+
+data_sources <- read_xlsx("C:/Users/jerem/Desktop/Recherche/03_projects/2022-02-10_gcrmndb_benthos/gcrmndb_benthos/data/05_data-sources.xlsx") %>% 
+  filter(datasetID %in% unique(data_benthic$datasetID))
+
+## 9.1 List of acknowledgments ----
+
+data_sources %>% 
+  select(citation) %>% 
+  distinct() %>% 
+  drop_na(citation) %>% 
+  mutate(citation = paste0("../../2022-02-10_gcrmndb_benthos/gcrmndb_benthos/data/00_citation/", citation, ".txt")) %>% 
+  pull(citation) %>% 
+  map(., ~readLines(.x)) %>% 
+  map(., ~c(.x, "")) %>%
+  flatten_chr() %>% 
+  writeLines(., "figs/07_additional/05_contributors/contributors_citations-to-include.txt")
+
+## 9.2 List of citations ----
+
+data_sources %>% 
+  select(acknowledgments) %>% 
+  distinct() %>% 
+  drop_na(acknowledgments) %>% 
+  mutate(acknowledgments = paste0("../../2022-02-10_gcrmndb_benthos/gcrmndb_benthos/data/00_acknowledgment/", acknowledgments, ".txt")) %>% 
+  pull(acknowledgments) %>% 
+  map(., ~readLines(.x)) %>% 
+  map(., ~c(.x, "")) %>%
+  flatten_chr() %>% 
+  writeLines(., "figs/07_additional/05_contributors/contributors_acknowledgments-to-include.txt")

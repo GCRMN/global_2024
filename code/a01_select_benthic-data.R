@@ -25,9 +25,10 @@ data_benthic <- synthetic_data %>%
   filter(!(ecoregion == "Samoa Islands" & year < 2000 & datasetID == "0015")) %>% 
   filter(!(ecoregion == "West Caroline Islands" & year < 1999 & datasetID == "0015")) %>% 
   filter(!(region == "Australia" & datasetID == "0003" & year == 1992)) %>% 
-  filter(!(ecoregion == "Cortezian" & year < 2006 & datasetID == "0015")) %>% 
+  filter(!(ecoregion == "Cortezian" & year < 2006)) %>% 
   filter(!(ecoregion == "Houtman" & year < 2000 & datasetID == "0015")) %>% 
   filter(!(ecoregion == "Bonaparte Coast" & year < 2010 & datasetID == "0015")) %>% 
+  filter(!(ecoregion == "Exmouth to Broome" & year < 1994 & datasetID == "0112")) %>% 
   filter(!(ecoregion == "Arnhem Coast to Gulf of Carpenteria" & year < 2010 & datasetID == "0015")) %>% 
   filter(!(subregion == "Caribbean 2" & subcategory == "Macroalgae" & year < 1985 & datasetID == "0092")) %>% 
   filter(!(subregion == "Caribbean 5" & subcategory == "Macroalgae" & year < 1990 & datasetID == "0133")) %>% 
