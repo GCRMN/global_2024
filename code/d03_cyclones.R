@@ -35,6 +35,18 @@ data_cyclones <- data_cyclones %>%
   group_by(region, ts_id) %>% 
   filter(windspeed == max(windspeed)) %>% 
   ungroup() %>% 
+  # Remove duplicated cyclones
+  group_by(region, ts_id) %>% 
+  mutate(n = n()) %>% 
+  ungroup() %>% 
+  arrange(-n) %>% 
+  # Remove duplicates when both dist values = 0
+  distinct() %>% 
+  # Remove duplicates when dist values are different
+  group_by(region, ts_id) %>% 
+  filter(dist == min(dist)) %>% 
+  ungroup() %>% 
+  select(-n) %>% 
   # Add cyclone position by wind_speed
   arrange(region, desc(windspeed)) %>% 
   group_by(region) %>% 
@@ -59,7 +71,8 @@ cyclone_intensity <- function(region_i){
                      label.r = unit(0.4, "lines"), show.legend = FALSE, family = font_choose_graph,
                      max.overlaps = getOption("ggrepel.max.overlaps", default = 15)) +
     scale_y_continuous(breaks = c(0, 50 ,100, 150, 200, 250, 300), limits = c(0, 325)) +
-    scale_x_date(limits = c(ymd("1980-01-01"), ymd("2025-01-01"))) +
+    scale_x_date(limits = c(ymd("1978-01-01"), ymd("2027-01-01")),
+                 date_breaks = "5 year", date_labels = "%Y") +
     coord_cartesian(ylim = c(14.25, 310)) +
     scale_fill_manual(breaks = c("1", "2", "3", "4", "5"),
                       labels = c("Cat. 1", "Cat. 2", "Cat. 3", "Cat. 4", "Cat. 5"),
@@ -142,13 +155,13 @@ cyclone_frequency <- function(region_i){
                       name = "Saffir\nSimpson\ncategory",
                       drop = FALSE) +
     scale_y_continuous(breaks = function(x) unique(floor(pretty(x)))) +
+    scale_x_continuous(breaks = seq(1980, 2025, 5), limits = c(1978, 2027)) +
     theme(legend.title.position = "top",
           legend.position = "right",
           legend.direction = "vertical",
           panel.background = element_rect(fill = "transparent", colour = NA),
           plot.background = element_rect(fill = "transparent", colour = NA),
-          legend.background = element_rect(fill = "transparent", colour = NA)) +
-    lims(x = c(1979, 2026))
+          legend.background = element_rect(fill = "transparent", colour = NA))
   
   # 3. Save the plot
   

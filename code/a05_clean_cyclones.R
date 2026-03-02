@@ -6,9 +6,9 @@ sf_use_s2(TRUE)
 
 # 2. Download data ----
 
-download_data <- TRUE
+download_data <- FALSE
 
-if(download_data == FALSE){
+if(download_data == TRUE){
   
   download.file(url = "https://www.ncei.noaa.gov/data/international-best-track-archive-for-climate-stewardship-ibtracs/v04r01/access/shapefile/IBTrACS.since1980.list.v04r01.points.zip",
                 destfile = "data/07_cyclones/IBTrACS.since1980.list.v04r01.points.zip", mode = "wb")
@@ -38,7 +38,7 @@ data_ts_points <- st_read("data/07_cyclones/IBTrACS.since1980.list.v04r01.points
   # Add max_windspeed and saffir simpson scale level
   group_by(ts_id) %>% 
   mutate(max_windspeed = max(windspeed, na.rm = TRUE)) %>% 
-  filter(time >= as.Date("1980-01-01") & time <= as.Date("2024-12-31")) %>% 
+  filter(time >= as.Date("1980-01-01") & time <= as.Date("2025-12-31")) %>% 
   filter(max_windspeed != -Inf) %>% 
   ungroup() %>% 
   mutate(saffir = case_when(max_windspeed < 119 ~ 0,

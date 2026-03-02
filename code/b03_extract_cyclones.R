@@ -2,7 +2,7 @@
 
 library(tidyverse)
 library(sf)
-sf_use_s2(FALSE)
+sf_use_s2(TRUE)
 
 # 2. Load data ----
 
@@ -83,7 +83,17 @@ extract_cyclone <- function(subregion_i){
 ## 3.2 Map over the function ----
 
 data_cyclones <- map(unique(data_reef$subregion), ~extract_cyclone(subregion_i = .)) %>% 
-  list_rbind()
+  list_rbind() %>% 
+  # Remove duplicated cyclones
+  group_by(subregion, ts_id) %>% 
+  mutate(n = n()) %>% 
+  ungroup() %>% 
+  arrange(-n) %>% 
+  # Remove duplicates when both dist values = 0
+  distinct() %>% 
+  # Remove duplicates when dist values are different
+  filter(!(n > 1 & dist > 0)) %>% 
+  select(-n)
 
 ## 3.3 Export the results ----
 
