@@ -338,7 +338,7 @@ data_cyclones_year <- data_cyclones %>%
   group_by(region, year) %>% 
   summarise(n = n_distinct(ts_id)) %>% 
   ungroup() %>% 
-  complete(region, year = seq(1980, 2024, 1), fill = list(n = 0)) %>% 
+  complete(region, year = seq(1980, 2025, 1), fill = list(n = 0)) %>% 
   group_by(region) %>% 
   summarise(nb_mean = round(mean(n), 1),
             nb_sd = round(sd(n), 1))
@@ -390,7 +390,7 @@ fig_counter <- fig_counter + 1
 
 ![](`r figure_path`){width=100%}
 
-**Figure 2.`r nb_chapter`.`r fig_counter`.** Number of tropical storms that passed within 100 km of the coral reefs of the `r region_i` region from 1980 to 2025. Colors correspond to the cyclone’s Saffir-Simpson category along the entire cyclone’s track.
+**Figure 2.`r nb_chapter`.`r fig_counter`.** Number of tropical storms that passed within 100 km of the coral reefs of the `r region_i` region from 1980 to 2025. Colors correspond to the `r str_sub(regional_cyclone_name, end = -2)`’s Saffir-Simpson category along the entire `r str_sub(regional_cyclone_name, end = -2)`’s track.
 
 \
 
@@ -406,7 +406,7 @@ fig_counter <- fig_counter + 1
 
 ![](`r figure_path`){width=100%}
 
-**Figure 2.`r nb_chapter`.`r fig_counter`.**  Maximum sustained wind speed of tropical storms passed within 100 km of a coral reef in the `r region_i` region between 1980 and 2025. Colors correspond to the cyclone’s Saffir-Simpson category along the entire cyclone’s track. However, the values of sustained wind speed are extracted from the nearest tropical storm position from a coral reef. For this reason, some sustained wind speed values are below the lower threshold of category 1 Saffir-Simpson scale (*i.e.* 119 km.h^-1^).
+**Figure 2.`r nb_chapter`.`r fig_counter`.**  Maximum sustained wind speed of tropical storms passed within 100 km of a coral reef in the `r region_i` region between 1980 and 2025. Colors correspond to the `r str_sub(regional_cyclone_name, end = -2)`’s Saffir-Simpson category along the entire `r str_sub(regional_cyclone_name, end = -2)`’s track. However, the values of sustained wind speed are extracted from the nearest tropical storm position from a coral reef. For this reason, some sustained wind speed values are below the lower threshold of category 1 Saffir-Simpson scale (*i.e.* 119 km.h^-1^).
 
 </div>
 
