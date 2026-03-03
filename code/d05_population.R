@@ -73,6 +73,9 @@ read.csv("data/02_misc/ind_human-pop_5km_global.csv") %>%
              fill = "#74b9ff", text.color = "black", size = 4, alpha = 0.6) +
   labs(x = "Year", y = "Inhabitants (millions)") +
   theme_graph() +
+  theme(plot.background = element_rect(fill = "transparent", color = NA)) +
   lims(y = c(0, 120))
 
-ggsave("figs/02_part-1/fig-X.png", width = 6, height = 5, dpi = fig_resolution, bg = "transparent")
+ggsave("figs/02_part-1/fig-4.png", width = 6, height = 5, dpi = fig_resolution, bg = "transparent")
+
+ggsave("figs/02_part-1/fig-4.pdf", width = 6, height = 5, dpi = fig_resolution, bg = "transparent")

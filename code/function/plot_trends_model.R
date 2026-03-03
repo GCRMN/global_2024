@@ -38,30 +38,39 @@ plot_trends_model <- function(region_i, level_i, category_i = NA, range = NA){
       } %>% 
       ungroup()
     
-    plot_i <- ggplot(data = data_i, aes(x = year, fill = color, color = color)) +
+    plot_i <- ggplot(data = data_i %>% filter(category == category_i),
+                     aes(x = year, fill = color, color = color)) +
       geom_ribbon(aes(ymin = lower_ci_95, ymax = upper_ci_95), alpha = 0.35, color = NA) +
       geom_ribbon(aes(ymin = lower_ci_80, ymax = upper_ci_80), alpha = 0.45, color = NA) +
       geom_line(aes(y = mean)) +
-      facet_wrap(~text_title, scales = "free", ncol = 2) +
       scale_color_identity() +
       scale_fill_identity() +
       theme_graph() +
-      theme(legend.title.position = "top",
-            strip.text = element_markdown(hjust = 0, size = 14),
-            legend.title = element_text(face = "bold", hjust = 0.5),
-            panel.background = element_rect(fill = "transparent", colour = NA),
+      theme(panel.background = element_rect(fill = "transparent", colour = NA),
             plot.background = element_rect(fill = "transparent", colour = NA)) +
-      scale_x_continuous(breaks = c(1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020, 2025),
+      scale_x_continuous(breaks = seq(1980, 2025, 5),
                          limits = c(1979, 2026),
-                         labels = c("1980", "", "1990", "", "2000", "", "2010", "", "2020", "")) +
-      scale_y_continuous(limits = c(0, floor(max(data_i$upper_ci_95)/10)*10+10)) +
-      labs(x = "Year", y = "Benthic cover (%)")
+                         labels = seq(1980, 2025, 5),) +
+      #scale_y_continuous(limits = c(0, floor(max(data_i$upper_ci_95)/10)*10+10)) +
+      labs(x = "Year", y = paste0(category_i, " cover (%)"))
     
-    ggsave(filename = paste0("figs/02_part-1/fig-3.png"),
-           plot = plot_i, height = 4, width = 8.5, dpi = fig_resolution)
-    
-    ggsave(filename = paste0("figs/02_part-1/fig-3.pdf"),
-           plot = plot_i, height = 4, width = 8.5, bg = "transparent")
+    if(category_i == "Hard coral"){
+      
+      ggsave(filename = paste0("figs/02_part-1/fig-1.png"),
+             plot = plot_i, height = 6, width = 8.5, dpi = fig_resolution)
+      
+      ggsave(filename = paste0("figs/02_part-1/fig-1.pdf"),
+             plot = plot_i, height = 6, width = 8.5, bg = "transparent")
+      
+    }else if(category_i == "Macroalgae"){
+      
+      ggsave(filename = paste0("figs/02_part-1/fig-3.png"),
+             plot = plot_i, height = 6, width = 8.5, dpi = fig_resolution)
+      
+      ggsave(filename = paste0("figs/02_part-1/fig-3.pdf"),
+             plot = plot_i, height = 6, width = 8.5, bg = "transparent")
+      
+    }
     
   # Region
     
@@ -193,7 +202,7 @@ plot_trends_model <- function(region_i, level_i, category_i = NA, range = NA){
             plot.background = element_rect(fill = "transparent", colour = NA)) +
       scale_x_continuous(breaks = c(1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020, 2025),
                          limits = c(1979, 2026),
-                         labels = c("1980", "", "", "", "2000", "", "", "", "2020", "")) +
+                         labels = c("1980", "", "1990", "", "2000", "", "2010", "", "2020", "")) +
       scale_y_continuous(limits = c(0, floor(max(data_i$upper_ci_95)/10)*10+10)) +
       labs(x = "Year", y = case_when(category_i == "Hard coral" ~ "Hard coral cover (%)",
                                      category_i == "Macroalgae" ~ "Macroalgae cover (%)"))
@@ -290,7 +299,7 @@ plot_trends_model <- function(region_i, level_i, category_i = NA, range = NA){
             legend.title = element_text(face = "bold", hjust = 0.5)) +
       scale_x_continuous(breaks = c(1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020, 2025),
                          limits = c(1979, 2026),
-                         labels = c("1980", "", "", "", "2000", "", "", "", "2020", "")) +
+                         labels = c("1980", "", "1990", "", "2000", "", "2010", "", "2020", "")) +
       scale_y_continuous(limits = c(0, floor(max(data_i$upper_ci_95)/10)*10+10)) +
       labs(x = "Year", y = "Benthic cover (%)")
     

@@ -24,7 +24,9 @@ load("data/model-results.RData")
 
 ## 4.1 Global - Hard coral and macroalgae ----
 
-plot_trends_model(level_i = "global", range = "obs")
+plot_trends_model(level_i = "global", range = "full", category_i = "Hard coral")
+
+plot_trends_model(level_i = "global", range = "full", category_i = "Macroalgae")
 
 ## 4.2 Regional - Hard coral and macroalgae ----
 
@@ -79,6 +81,61 @@ map(setdiff(unique(data_models$region), NA),
 map(setdiff(unique(data_models$region), NA),
     ~export_subplots(region_i = .x,
                      category_i = "Macroalgae"))
+
+## 4.3 Contrasts per region ----
+
+data_contrasts <- readxl::read_xlsx("data/02_misc/contrasts-global.xlsx") %>% 
+  mutate(region = str_replace_all(region, c("EAS" = "East Asian<br>Seas",
+                                            "ETP" = "Eastern Tropical<br>Pacific",
+                                            "WIO" = "Western Indian<br>Ocean")),
+         relative_change = case_when(is.na(relative_change) ~ 0,
+                                     TRUE ~ relative_change),
+         region = case_when(region == "Global" ~ "**Global**",
+                            TRUE ~ region),
+         region = fct_reorder(region, desc(relative_change)),
+         color = case_when(relative_change < 0 & evidence == "Strong evidence" ~ "#d63031",
+                           relative_change < 0 & evidence == "Evidence" ~ "#e17055",
+                           relative_change < 0 & evidence == "Weak evidence" ~ "#fab1a0",
+                           evidence == "No evidence" ~ NA,
+                           relative_change > 0 & evidence == "Weak evidence" ~ "#81ecec",
+                           relative_change > 0 & evidence == "Evidence" ~ "#74b9ff",
+                           relative_change > 0 & evidence == "Strong evidence" ~ "#0984e3"),
+         label = case_when(evidence == "No evidence" ~ NA,
+                           relative_change < 0 ~ paste0(relative_change, "%"),
+                           relative_change > 0 ~ paste0("+", relative_change, "%")),
+         color_label = case_when(relative_change < 0 ~ "#d63031",
+                           evidence == "No evidence" ~ NA,
+                           relative_change > 0 ~ "#0984e3"))
+
+ggplot(data = data_contrasts) +
+  geom_bar(aes(x = region, y = relative_change, fill = color), stat = "identity", width = 0.5) +
+  geom_hline(yintercept = 0, linewidth = 0.2) +
+  scale_fill_identity() +
+  geom_label(aes(x = region, y = 0, label = evidence,
+                vjust = ifelse(evidence == "No evidence", 0.5, -2.5),
+                hjust = case_when(relative_change < 0 ~ 1.05,
+                                  relative_change == 0 ~ 0.5,
+                                  relative_change > 0 ~ -0.05)),
+            color = "#576574", fontface = "italic", size = 3,
+            label.padding = unit(0.1, "lines"), border.color = NA) +
+  geom_label(aes(x = region, y = relative_change, label = label,
+                 color = color_label, hjust = ifelse(relative_change < 0, 1.2, -0.2)),
+                 fontface = "bold", size = 5, label.padding = unit(0.1, "lines"), border.color = NA) +
+  scale_color_identity() +
+  scale_y_continuous(limits = c(-70, 60),
+                     breaks = c(-50, -25, 0, 25, 50),
+                     labels = c("-50%", "-25%", "0%", "+25%", "+50%")) +
+  coord_flip() +
+  theme_graph() +
+  theme(axis.text.y = element_markdown(size = 16, lineheight = 0.75),
+        axis.text.x = element_markdown(size = 16),
+        axis.title.x = element_text(size = 20, lineheight = 0.6, vjust = -2),
+        plot.background = element_rect(fill = "transparent", color = NA)) +
+  labs(x = NULL, y = "Relative change in hard coral cover\nbetween 1980-2009 and 2020-2024")
+
+ggsave(filename = "figs/02_part-1/fig-5.png", bg = "transparent", height = 7, width = 4, dpi = 600)
+
+ggsave(filename = "figs/02_part-1/fig-5.pdf", bg = "transparent", height = 8, width = 5, dpi = 600)
 
 # 5. Figures for Part 2 ----
 
