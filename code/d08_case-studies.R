@@ -167,3 +167,64 @@ plot_full <- plot_a + plot_b + plot_layout(guides = "collect") &
 ### 3.6.4 Save the plot ----
 
 ggsave("figs/04_case-studies/case-study_6.png", height = 5.5, width = 10.5, bg = "transparent", dpi = 300)
+
+# 4. Comparison 2020 vs 2025 trends ----
+
+## 4.1 Load and transform data ----
+
+load("data/model-results.RData")
+
+data_2025 <- data_models %>% 
+  filter(level %in% c("global", "region") & category == "Hard coral") %>% 
+  mutate(source = "2025 GCRMN report",
+         color = "#c44569") %>% 
+  select(source, level, region, category, year, mean, lower_ci_80, upper_ci_80, lower_ci_95, upper_ci_95, color)
+
+data_2020 <- read.csv("../../2025-08-25_time-series/time_series/data/gcrmn_global_2021/ModelledTrends.all.sum.csv") %>% 
+  rename(category = "Var", region = "GCRMN_region", year = Year, mean = value,
+         lower_ci_80 = ".lower_0.8", upper_ci_80 = ".upper_0.8",
+         lower_ci_95 = ".lower_0.95", upper_ci_95 = ".upper_0.95") %>% 
+  mutate(category = str_replace_all(category, "Hard Coral Cover", "Hard coral"),
+         level = case_when(region == "Global" ~ "global",
+                           TRUE ~ "region"),
+         region = str_replace_all(region, c("East Asia" = "EAS",
+                                            "Global" = NA_character_)),
+         source = "2020 GCRMN report",
+         color = "#2d98da") %>% 
+  filter(category == "Hard coral") %>% 
+  select(source, level, region, category, year, mean, lower_ci_80, upper_ci_80, lower_ci_95, upper_ci_95, color)
+
+data_trends <- bind_rows(data_2020, data_2025)
+
+## 4.2 Make the plot ----
+
+ggplot(data = data_trends %>% filter(level == "global"), aes(x = year, fill = color, color = color, group  = source)) +
+  geom_ribbon(aes(ymin = lower_ci_95, ymax = upper_ci_95), alpha = 0.35, color = NA) +
+  geom_ribbon(aes(ymin = lower_ci_80, ymax = upper_ci_80), alpha = 0.45, color = NA) +
+  geom_line(aes(y = mean)) +
+  scale_fill_identity() +
+  scale_color_identity() +
+  theme_graph() +
+  theme(legend.title.position = "top",
+        legend.title = element_text(face = "bold", hjust = 0.5),
+        panel.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  labs(x = "Year", y = "Hard coral cover (%)")
+
+ggsave("figs/04_case-studies/case-study_1_raw.png", width = 7, height = 5)
+
+ggplot(data = data_trends %>% filter(level == "region"), aes(x = year, fill = color, color = color, group  = source)) +
+  geom_ribbon(aes(ymin = lower_ci_95, ymax = upper_ci_95), alpha = 0.35, color = NA) +
+  geom_ribbon(aes(ymin = lower_ci_80, ymax = upper_ci_80), alpha = 0.45, color = NA) +
+  geom_line(aes(y = mean)) +
+  scale_fill_identity() +
+  scale_color_identity() +
+  facet_wrap(~region, ncol = 2) +
+  theme_graph() +
+  theme(legend.title.position = "top",
+        legend.title = element_text(face = "bold", hjust = 0.5),
+        panel.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  labs(x = "Year", y = "Benthic cover (%)")
+
+ggsave("figs/07_additional/comparison_2020-2025_region.png", width = 7, height = 14)
