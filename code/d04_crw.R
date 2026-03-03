@@ -2,6 +2,7 @@
 
 library(tidyverse)
 library(ggtext)
+library(patchwork)
 
 # 2. Source functions ----
 
@@ -261,3 +262,144 @@ writeLines(c(map(1:nrow(data_sst_trends), ~c(paste0(data_sst_trends[.x,"region"]
 ## 6.5 Export the table per region ----
 
 write.csv(data_sst_trends, file = "figs/08_text-gen/thermal_regime.csv", row.names = FALSE)
+
+# 7. Figure for part 1 ----
+
+## 7.1 Plot for hard coral cover ----
+
+load("data/model-results.RData")
+
+data_models <- data_models %>% 
+  filter(level == "global" & category == "Hard coral" & year >= 1980) %>% 
+  mutate(abs_change = mean - lag(mean),
+         date = as.Date(paste0(year, "-06-01")),
+         color = case_when(abs_change < 0 ~ "#d64541",
+                           abs_change > 0 ~ "#2c82c9"))
+
+plot_a <- ggplot(data = data_models, aes(x = date, y = abs_change, fill = color)) +
+  geom_bar(stat = "identity") +
+  scale_fill_identity() +
+  geom_hline(yintercept = 0, linewidth = 0.3) +
+  scale_x_date(limits = as.Date(c("1983-01-01", "2025-12-31")), date_breaks = "5 years", date_labels = "%Y") +
+  theme_graph() +
+  theme(legend.title.position = "top",
+        legend.title = element_text(hjust = 0.5),
+        axis.title.y = element_markdown(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.line.x = element_blank(),
+        axis.title.x = element_blank(),
+        plot.background = element_blank()) +
+  labs(x = "Year", y = "Change in<br>hard coral cover")
+
+## 7.2 Plot of DHW ----
+
+load("data/02_misc/data_dhw_freq.RData")
+
+data_dhw_freq <- data_dhw_freq %>%
+  filter(region == "All") %>% 
+  complete(year, dhw, fill = list(nb_cells = 0)) %>% 
+  # See https://coralreefwatch.noaa.gov/product/5km/index_5km_baa-max-7d.php
+  mutate(heatstress = case_when(dhw < 1 ~ "No stress/Watch",
+                                dhw >= 1 & dhw < 4 ~ "Warning",
+                                dhw >= 4 & dhw < 8 ~ "Alert 1",
+                                dhw >= 8 & dhw < 12 ~ "Alert 2",
+                                dhw >= 12 & dhw < 16 ~ "Alert 3",
+                                dhw >= 16 & dhw < 20 ~ "Alert 4",
+                                dhw >= 20 ~ "Alert 5")) %>% 
+  group_by(year, heatstress) %>% 
+  summarise(nb_cells = sum(nb_cells)) %>% 
+  ungroup() %>% 
+  group_by(year) %>% 
+  mutate(total_nb_cells = sum(nb_cells)) %>% 
+  ungroup() %>% 
+  mutate(freq = (nb_cells*100)/total_nb_cells,
+         heatstress = as.factor(heatstress),
+         heatstress = factor(heatstress, levels = c("No stress/Watch", "Warning",
+                                                    "Alert 1", "Alert 2", "Alert 3", "Alert 4", "Alert 5"))) %>% 
+  mutate(date = as.Date(paste0(year, "-06-01")))
+
+plot_b <- ggplot(data = data_dhw_freq) +
+  geom_bar(aes(x = date, y = freq, fill = heatstress), stat = "identity") +
+  scale_fill_manual(values = c("No stress/Watch" = "lightgrey",
+                               "Warning" = palette_second[1],
+                               "Alert 1" = palette_second[2],
+                               "Alert 2" = palette_second[3],
+                               "Alert 3" = palette_second[4],
+                               "Alert 4" = palette_second[5],
+                               "Alert 5" = "black"),
+                    name = "Heat stress level") +
+  scale_x_date(limits = as.Date(c("1983-01-01", "2025-12-31")), date_breaks = "5 years", date_labels = "%Y") +
+  theme_graph() +
+  theme(legend.position = "right",
+        legend.title.position = "top",
+        legend.direction = "vertical",
+        legend.background = element_blank(),
+        legend.title = element_text(hjust = 0.5, size = 10),
+        legend.key.size = unit(0.5, "cm"),
+        legend.text = element_text(size = 8),
+        axis.title.y = element_markdown(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.line.x = element_blank(),
+        axis.title.x = element_blank(),
+        plot.background = element_blank()) +
+  labs(x = "Year", y = "Percentage<br>of coral reefs")
+
+plot_b
+
+## 7.3 Plot of ONI ----
+
+# https://psl.noaa.gov/data/timeseries/month/DS/ONI/
+
+data_oni <- read.csv("data/02_misc/oni.csv") %>% 
+  rename(date = Date, oni = 2) %>% 
+  mutate(date = as.Date(date),
+         oni = ifelse(oni < -9000, NA, oni)) %>% 
+  filter(date >= as.Date("1985-01-01"))
+
+plot_c <- ggplot(data = data_oni, aes(x = date, y = oni)) +
+  geom_hline(yintercept = 0, linewidth = 0.3) +
+  geom_hline(yintercept = 1.5, linewidth = 0.2, linetype = "dashed") +
+  geom_line(linewidth = 0.2) +
+  scale_x_date(limits = as.Date(c("1983-01-01", "2025-12-31")), date_breaks = "5 years", date_labels = "%Y") +
+  theme_graph() +
+  theme(axis.title.y = element_markdown(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.line.x = element_blank(),
+        axis.title.x = element_blank(),
+        plot.background = element_blank()) +
+  theme(axis.title.y = element_markdown()) +
+  labs(x = "Year", y = "Oceanic<br>Niño Index")
+
+## 7.4 Plot of SST ----
+
+load("data/02_misc/data_sst.RData")
+
+data_sst_anom <- data_sst %>% 
+  filter(region == "All") %>% 
+  group_by(region) %>% 
+  mutate(sst_mean = mean(sst)) %>% 
+  ungroup() %>% 
+  mutate(year = year(date),
+         sst_anom = sst - sst_mean)
+
+plot_d <- ggplot(data = data_sst_anom, aes(x = date, y = sst)) +
+  geom_line(linewidth = 0.2) +
+  scale_x_date(limits = as.Date(c("1983-01-01", "2025-12-31")), date_breaks = "5 years", date_labels = "%Y") +
+  theme_graph() +
+  theme(plot.background = element_blank()) +
+  theme(axis.title.y = element_markdown()) +
+  labs(x = "Year", y = "Sea Surface<br>Temperature (°C)")
+
+## 7.5 Combine the plots ----
+
+plot_a + plot_b + plot_c + plot_d +
+  patchwork::plot_layout(ncol = 1) +
+  plot_annotation(tag_levels = "A") &
+  theme(plot.background = element_blank(),
+        plot.tag = element_text(face = "bold"),
+        plot.margin = margin(20, 25, 10, 10))
+
+ggsave("figs/02_part-1/fig-2_raw.png", bg = "transparent", height = 12, width = 10, dpi = 300)
