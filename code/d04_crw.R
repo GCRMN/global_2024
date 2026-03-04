@@ -270,7 +270,7 @@ write.csv(data_sst_trends, file = "figs/08_text-gen/thermal_regime.csv", row.nam
 load("data/model-results.RData")
 
 data_models <- data_models %>% 
-  filter(level == "global" & category == "Hard coral" & year >= 1980) %>% 
+  filter(level == "global" & category == "Hard coral" & year >= 1985 & year < 2025) %>% 
   mutate(abs_change = mean - lag(mean),
          date = as.Date(paste0(year, "-06-01")),
          color = case_when(abs_change < 0 ~ "#d64541",
@@ -360,8 +360,15 @@ data_oni <- read.csv("data/02_misc/oni.csv") %>%
 
 plot_c <- ggplot(data = data_oni, aes(x = date, y = oni)) +
   geom_hline(yintercept = 0, linewidth = 0.3) +
-  geom_hline(yintercept = 1.5, linewidth = 0.2, linetype = "dashed") +
-  geom_line(linewidth = 0.2) +
+  geom_ribbon(data = data_oni %>% mutate(oni = if_else(oni < 0.5, 0.5, oni)),
+              aes(x = date, ymin = 0.5, ymax = oni), fill = "#d64541", alpha = 0.5) +
+  geom_ribbon(data = data_oni %>% mutate(oni = if_else(oni < 1.5, 1.5, oni)),
+              aes(x = date, ymin = 1.5, ymax = oni), fill = "#d64541", alpha = 1) +
+  geom_ribbon(data = data_oni %>% mutate(oni = if_else(oni > -0.5, -0.5, oni)),
+              aes(x = date, ymin = -0.5, ymax = oni), fill = "#2c82c9", alpha = 0.5) +
+  geom_ribbon(data = data_oni %>% mutate(oni = if_else(oni > -1.5, -1.5, oni)),
+              aes(x = date, ymin = -1.5, ymax = oni), fill = "#2c82c9", alpha = 1) +
+  geom_path(linewidth = 0.2) +
   scale_x_date(limits = as.Date(c("1983-01-01", "2025-12-31")), date_breaks = "5 years", date_labels = "%Y") +
   theme_graph() +
   theme(axis.title.y = element_markdown(),
@@ -371,7 +378,7 @@ plot_c <- ggplot(data = data_oni, aes(x = date, y = oni)) +
         axis.title.x = element_blank(),
         plot.background = element_blank()) +
   theme(axis.title.y = element_markdown()) +
-  labs(x = "Year", y = "Oceanic<br>Niño Index")
+  labs(x = "Year", y = "Oceanic<br>Niño index")
 
 ## 7.4 Plot of SST ----
 
@@ -391,7 +398,7 @@ plot_d <- ggplot(data = data_sst_anom, aes(x = date, y = sst)) +
   theme_graph() +
   theme(plot.background = element_blank()) +
   theme(axis.title.y = element_markdown()) +
-  labs(x = "Year", y = "Sea Surface<br>Temperature (°C)")
+  labs(x = "Year", y = "Sea surface<br>temperature (°C)")
 
 ## 7.5 Combine the plots ----
 
