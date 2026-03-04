@@ -109,7 +109,8 @@ data_models <- st_read("data/01_maps/02_clean/04_subregions/gcrmn_subregions.shp
   select(subregion, subregion_name) %>% 
   distinct() %>% 
   left_join(data_models, .) %>% 
-  relocate("subregion_name", .after = "subregion")
+  relocate("subregion_name", .after = "subregion") %>% 
+  filter(year < 2025)
 
 # 5. Export the results ----
 

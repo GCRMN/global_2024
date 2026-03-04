@@ -88,7 +88,7 @@ plot_trends_model <- function(region_i, level_i, category_i = NA, range = NA){
       } %>% 
       ungroup() %>% 
       filter(category %in% c("Hard coral", "Macroalgae", "Turf algae") & region == region_i) %>% 
-      filter(!(category == "Turf algae" & region %in% c("PERSGA", "South Asia"))) %>% 
+      filter(!(category == "Turf algae" & region %in% c("PERSGA", "South Asia", "EAS"))) %>% 
       group_by(category) %>% 
       transform_ribbons() %>% 
       ungroup()
@@ -114,7 +114,7 @@ plot_trends_model <- function(region_i, level_i, category_i = NA, range = NA){
       scale_y_continuous(limits = c(0, floor(max(data_i$upper_ci_95)/10)*10+10)) +
       labs(x = "Year", y = "Benthic cover (%)")
     
-    if(region_i %in% c("PERSGA", "South Asia")){
+    if(region_i %in% c("PERSGA", "South Asia", "EAS")){
       
       ggsave(filename = paste0("figs/03_part-2/fig-6/",
                                str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
@@ -202,7 +202,7 @@ plot_trends_model <- function(region_i, level_i, category_i = NA, range = NA){
             plot.background = element_rect(fill = "transparent", colour = NA)) +
       scale_x_continuous(breaks = c(1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020, 2025),
                          limits = c(1979, 2026),
-                         labels = c("1980", "", "1990", "", "2000", "", "2010", "", "2020", "")) +
+                         labels = c("1980", "", "", "", "2000", "", "", "", "2020", "")) +
       scale_y_continuous(limits = c(0, floor(max(data_i$upper_ci_95)/10)*10+10)) +
       labs(x = "Year", y = case_when(category_i == "Hard coral" ~ "Hard coral cover (%)",
                                      category_i == "Macroalgae" ~ "Macroalgae cover (%)"))
