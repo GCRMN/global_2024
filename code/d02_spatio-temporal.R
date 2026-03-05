@@ -308,8 +308,8 @@ plot_i <- data_benthic %>%
   theme_graph() +
   theme(panel.background = element_rect(fill = "transparent", colour = NA),
         plot.background = element_rect(fill = "transparent", colour = NA)) +
-  facet_wrap(~region, ncol = 2) +
-  scale_x_continuous(expand = c(0, 0), limits = c(1969, 2026))
+  facet_wrap(~region, ncol = 2, scales = "free_y") +
+  scale_x_continuous(expand = c(0, 0), limits = c(1979, 2026))
 
 ggsave("figs/06_supp-mat/surveys-year.png", width = 7, height = 10, dpi = fig_resolution, bg = "transparent")
 
@@ -379,7 +379,7 @@ plot_i <- data_benthic %>%
   theme_graph() +
   theme(panel.background = element_rect(fill = "transparent", colour = NA),
         plot.background = element_rect(fill = "transparent", colour = NA)) +
-  facet_wrap(~region, ncol = 2) +
+  facet_wrap(~region, ncol = 2, scales = "free_y") +
   scale_x_continuous(expand = c(0, 0), limits = c(-1, 31))
 
 ggsave("figs/06_supp-mat/surveys-depth.png", width = 7, height = 10, dpi = fig_resolution, bg = "transparent")
