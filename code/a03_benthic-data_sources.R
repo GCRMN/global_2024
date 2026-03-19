@@ -22,7 +22,7 @@ data_sources <- read_xlsx("C:/Users/jerem/Desktop/Recherche/03_projects/2022-02-
 
 # 3. DatasetID per region ----
 
-data_benthic %>% 
+data_dataset_region <- data_benthic %>% 
   select(region, datasetID) %>% 
   distinct() %>% 
   arrange(region, datasetID) %>% 
@@ -34,8 +34,21 @@ data_benthic %>%
   summarise(datasetID = paste0(datasetID, collapse = ", ")) %>% 
   ungroup() %>% 
   left_join(data_region, .) %>%
-  arrange(region) %>% 
-  openxlsx::write.xlsx(., file = "figs/06_supp-mat/datasetid-region.xlsx")
+  arrange(region)
+
+openxlsx::write.xlsx(data_dataset_region, file = "figs/06_supp-mat/datasetid-region.xlsx")
+
+data_dataset_region <- data_dataset_region %>% 
+  mutate(datasetID = str_replace_all(datasetID, "\\_", "\\\\_"))
+
+writeLines(c(map(1:nrow(data_dataset_region), ~c(paste0(data_dataset_region[.x,"region"], " & ",
+                                                        data_dataset_region[.x,"datasetID"],
+                                                    case_when(.x == nrow(data_dataset_region) ~ "",
+                                                              TRUE ~ "\\\\")))) %>%
+               unlist()),
+           "figs/06_supp-mat/datasetid-region.tex")
+
+rm(data_dataset_region)
 
 # 4. DatasetID per subregion ----
 

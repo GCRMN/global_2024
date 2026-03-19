@@ -101,7 +101,7 @@ data_obs <-
 
 data_models <- left_join(data_models, data_obs)
 
-# 4. Add subregion names ----
+# 4. Add subregion names and filter data ----
 
 data_models <- st_read("data/01_maps/02_clean/04_subregions/gcrmn_subregions.shp") %>% 
   st_drop_geometry() %>% 

@@ -166,7 +166,7 @@ plot_full <- plot_a + plot_b + plot_layout(guides = "collect") &
 
 ### 3.6.4 Save the plot ----
 
-ggsave("figs/04_case-studies/case-study_6.png", height = 5.5, width = 10.5, bg = "transparent", dpi = 300)
+ggsave("figs/04_case-studies/case-study_ropme.png", height = 5.5, width = 10.5, bg = "transparent", dpi = 300)
 
 # 4. Comparison 2020 vs 2025 trends ----
 
@@ -228,3 +228,33 @@ ggplot(data = data_trends %>% filter(level == "region"), aes(x = year, fill = co
   labs(x = "Year", y = "Benthic cover (%)")
 
 ggsave("figs/07_additional/comparison_2020-2025_region.png", width = 7, height = 14)
+
+# 5. Box X ----
+
+data_box <- tibble(year = seq(2000, 2010, 1),
+                   cover = c(38, 39, 35, 37, 38, 39, 42, 38, 37,
+                             41, 19),
+                   position = seq(1,11,1)) %>% 
+  mutate(color = case_when(position == max(position) ~ "#2d98da",
+                           position == max(position-1) ~ "#c44569",
+                           TRUE ~ "#bdc3c7"))
+
+plot_a <- ggplot(data = data_box, aes(x = year, y = cover, fill = color, group = 1)) +
+  geom_line() +
+  geom_point(size = 3.5, shape = 21, color = "white") +
+  scale_fill_identity() +
+  scale_y_continuous(limits = c(0, 50)) +
+  scale_x_continuous(limits = c(2000, 2020)) +
+  theme_graph() +
+  theme(panel.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA),
+        plot.title = element_markdown()) +
+  labs(x = "Year", y = "Hard coral cover (%)")
+
+(plot_a + labs(title = "**A.** Absolute change")) + 
+  (plot_a + labs(title = "**B.** Relative change")) &
+  theme(plot.background = element_rect(fill = "transparent", colour = NA),
+        panel.background = element_rect(fill = "transparent", colour = NA))
+
+ggsave("figs/04_case-studies/case-study_X_raw.png", width = 8, height = 4, dpi = 300)
+ggsave("figs/04_case-studies/case-study_X_raw.pdf", width = 8, height = 4)

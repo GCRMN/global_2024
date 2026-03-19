@@ -240,8 +240,9 @@ data_sst_trends <- data_sst %>%
   ungroup() %>% 
   select(region, subregion, sst_increase, warming_rate, mean_sst) %>% 
   distinct() %>% 
-  mutate(across(c(sst_increase, mean_sst), ~format(round(.x, 2))),
-         warming_rate = format(round(warming_rate, 3)))
+  mutate(across(c(sst_increase, mean_sst, warming_rate), ~format(round(.x, 2))))
+
+data_sst_trends <- bind_rows(data_sst_trends[-1,], data_sst_trends[1,]) # Move first row as the last
 
 ## 6.3 Export the full table as .xlsx ----
 
