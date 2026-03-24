@@ -258,3 +258,52 @@ plot_a <- ggplot(data = data_box, aes(x = year, y = cover, fill = color, group =
 
 ggsave("figs/04_case-studies/case-study_X_raw.png", width = 8, height = 4, dpi = 300)
 ggsave("figs/04_case-studies/case-study_X_raw.pdf", width = 8, height = 4)
+
+# 6. Turf algae case study ----
+
+## 6.1 Figure B ----
+
+data_turf_length <- read.csv("data/14_case-studies/b_TurfLength.csv")
+
+plot_b <- ggplot(data = data_turf_length, aes(x = TurfLength.mm.)) +
+  geom_density(fill = "#7393C9", color = "#013C5E") +
+  theme_graph() +
+  theme(plot.background = element_rect(fill = "transparent", colour = NA),
+        panel.background = element_rect(fill = "transparent", colour = NA)) +
+  annotate("segment", y = 0, yend = 0.23, x = 20, xend = 20, colour = "black", linetype = "dashed", linewidth = 0.2) +
+  annotate("text", x = 20, y = 0.2275, label = "Macroalgae", hjust = -0.175, color = "black") +
+  annotate("segment", x = 20.75, y = 0.2175, xend = 24, yend = 0.2175,
+           arrow = arrow(length = unit(0.015, "npc")), color = "#576574") +
+  annotate("text", x = 20, y = 0.2275, label = "Turf algae", hjust = 1.2, color = "#013C5E") +
+  annotate("segment", x = 19.25, y = 0.2175, xend = 16, yend = 0.2175,
+           arrow = arrow(length = unit(0.015, "npc")), color = "#576574") +
+  annotate("segment", y = 0, yend = 0.21, x = 3, xend = 3, colour = "black", linetype = "dashed", linewidth = 0.2) +
+  annotate("text", x = 3, y = 0.2075, label = "LSATs", hjust = -0.2, color = "#013C5E") +
+  annotate("segment", x = 3.5, y = 0.20, xend = 5.5, yend = 0.20,
+           arrow = arrow(length = unit(0.015, "npc")), color = "#576574") +
+  annotate("text", x = 3, y = 0.2075, label = "SPATs", hjust = 1.2, color = "#013C5E") +
+  annotate("segment", x = 2.5, y = 0.20, xend = 0.5, yend = 0.20,
+           arrow = arrow(length = unit(0.015, "npc")), color = "#576574") +
+  labs(x = "Turf length (mm)", y = "Relative frequency density") +
+  lims(x = c(0, 25))
+
+ggsave("figs/04_case-studies/case-study_turf_plot-b.png", width = 6, height = 6, dpi = 300)
+ggsave("figs/04_case-studies/case-study_turf_plot-b.pdf", width = 6, height = 6)
+
+## 6.2 Figure C ----
+
+data_turf_sed <- read.csv("data/14_case-studies/c_TurfVsSediment.csv") %>% 
+  mutate(TurfLength.mm. = log10(TurfLength.mm.),
+         SedimentLoad.g_m2. = log10(SedimentLoad.g_m2.))
+
+plot_c <- ggplot(data = data_turf_sed, aes(x = TurfLength.mm., y = SedimentLoad.g_m2.)) +
+  geom_point(color = "#7393C9") +
+  geom_smooth(method = "lm", se = FALSE, color = "#013C5E") +
+  theme_graph() +
+  theme(plot.background = element_rect(fill = "transparent", colour = NA),
+        panel.background = element_rect(fill = "transparent", colour = NA)) +
+  labs(x = bquote("Turf length (mm; " ~ log[10] * ")"),
+       y = bquote("Sediment load (g." ~ m^{-2} * ";" ~ log[10] * ")"))
+
+ggsave("figs/04_case-studies/case-study_turf_plot-c.png", width = 6, height = 6, dpi = 300)
+ggsave("figs/04_case-studies/case-study_turf_plot-c.pdf", width = 6, height = 6)
