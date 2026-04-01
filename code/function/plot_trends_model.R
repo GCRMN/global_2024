@@ -205,10 +205,12 @@ plot_trends_model <- function(region_i, level_i, category_i = NA, range = NA){
                          labels = c("1980", "", "", "", "2000", "", "", "", "2020", "")) +
       scale_y_continuous(limits = c(0, floor(max(data_i$upper_ci_95)/10)*10+10)) +
       labs(x = "Year", y = case_when(category_i == "Hard coral" ~ "Hard coral cover (%)",
-                                     category_i == "Macroalgae" ~ "Macroalgae cover (%)"))
+                                     category_i == "Macroalgae" ~ "Macroalgae cover (%)",
+                                     category_i == "Turf algae" ~ "Turf algae cover (%)"))
     
     fig_i <- case_when(category_i == "Hard coral" ~ "fig-7",
-                       category_i == "Macroalgae" ~ "fig-8")
+                       category_i == "Macroalgae" ~ "fig-8",
+                       category_i == "Turf algae" ~ "fig-10")
     
     ggsave(filename = paste0("figs/03_part-2/", fig_i, "/",
                              str_replace_all(str_replace_all(str_to_lower(region_i), " ", "-"), "---", "-"), ".png"),
