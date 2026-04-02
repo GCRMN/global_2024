@@ -60,7 +60,8 @@ Curabitur eu amet.
   [GEE](https://earthengine.google.com/).
 - `b02_extract_crw.R` Extract SST indicators.
 - `b03_extract_cyclones.R` Extract cyclones indicators.
-- `b04_region-characteristics.R` Extract region characteristics.
+- `b04_region-characteristics.R` Extract region's characteristics.
+- `b05_region-maritime-area.js` Extract region's maritime areas.
 
 ### Models (benthic cover) (`c_`)
 

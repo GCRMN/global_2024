@@ -101,8 +101,9 @@ color_scalebar <- "black"
 plot_a <- ggplot() +
   geom_sf(data = data_all %>% filter(report == "nb_surveys_2020"),
           aes(fill = colors), color = "#747d8c", show.legend = FALSE) +
-  scale_fill_manual(breaks = c("0", "1-5", "6-10", "11-20", "21-45", "46-70", "71-120"),
-                    values = c("#ecf0f1", "#82ccdd", "#3498db", "#fa983a", "#e74c3c", "#c0392b", "#B53471")) +
+  scale_fill_manual(breaks = rev(c("0", "1-5", "6-10", "11-20", "21-45", "46-70", "71-120")),
+                    values = rev(c("#ecf0f1", "#82ccdd", "#3498db", "#fa983a", "#e74c3c", "#c0392b", "#B53471")),
+                    name = "Number of\nsurveys") +
   geom_sf(data = data_countries, fill = "#dadfe1", color = "black", linewidth = 0.15) +
   theme_map() +
   theme(panel.border = element_rect(fill = NA, color = "black"),
@@ -121,7 +122,7 @@ plot_a <- ggplot() +
            label_axes = list(left = "N", bottom = "E")) +
   annotation_scale(location = "br",
                    width_hint = 0.25, text_family = font_choose_map, text_col = color_scalebar,
-                   text_cex = 0.7, style = "bar", line_width = 1, height = unit(0.04, "cm"),
+                   text_cex = 0.8, style = "bar", line_width = 1, height = unit(0.04, "cm"),
                    line_col = color_scalebar, pad_x = unit(0.5, "cm"), pad_y = unit(0.5, "cm"),
                    bar_cols = c(color_scalebar, color_scalebar)) +
   labs(title = "**A.** <span style='color:#2980b9'>2020</span> GCRMN report")
@@ -131,8 +132,8 @@ plot_a <- ggplot() +
 plot_b <- ggplot() +
   geom_sf(data = data_all %>% filter(report == "nb_surveys_2025"),
           aes(fill = colors), color = "#747d8c", show.legend = TRUE) +
-  scale_fill_manual(breaks = c("0", "1-5", "6-10", "11-20", "21-45", "46-70", "71-120"),
-                    values = c("#ecf0f1", "#82ccdd", "#3498db", "#fa983a", "#e74c3c", "#c0392b", "#B53471"),
+  scale_fill_manual(breaks = rev(c("0", "1-5", "6-10", "11-20", "21-45", "46-70", "71-120")),
+                    values = rev(c("#ecf0f1", "#82ccdd", "#3498db", "#fa983a", "#e74c3c", "#c0392b", "#B53471")),
                     name = "Number of\nsurveys") +
   geom_sf(data = data_countries, fill = "#dadfe1", color = "black", linewidth = 0.15) +
   theme_map() +
@@ -153,7 +154,7 @@ plot_b <- ggplot() +
            label_axes = list(right = "N", bottom = "E")) +
   annotation_scale(location = "br",
                    width_hint = 0.25, text_family = font_choose_map, text_col = color_scalebar,
-                   text_cex = 0.7, style = "bar", line_width = 1, height = unit(0.04, "cm"),
+                   text_cex = 0.8, style = "bar", line_width = 1, height = unit(0.04, "cm"),
                    line_col = color_scalebar, pad_x = unit(0.5, "cm"), pad_y = unit(0.5, "cm"),
                    bar_cols = c(color_scalebar, color_scalebar)) +
   labs(title = "**B.** <span style='color:#2980b9'>2025</span> GCRMN report")
@@ -162,7 +163,9 @@ plot_b <- ggplot() +
 
 plot_full <- plot_a + plot_b + plot_layout(guides = "collect") &
   theme(plot.background = element_rect(fill = "transparent", colour = NA),
-        panel.background = element_rect(fill = "transparent", colour = NA))
+        panel.background = element_rect(fill = "transparent", colour = NA),
+        legend.text = element_text(size = 11),
+        legend.title = element_text(hjust = 0))
 
 ### 3.6.4 Save the plot ----
 
@@ -198,7 +201,7 @@ data_trends <- bind_rows(data_2020, data_2025)
 
 ## 4.2 Make the plot ----
 
-ggplot(data = data_trends %>% filter(level == "global"), aes(x = year, fill = color, color = color, group  = source)) +
+plot_a <- ggplot(data = data_trends %>% filter(level == "global"), aes(x = year, fill = color, color = color, group  = source)) +
   geom_ribbon(aes(ymin = lower_ci_95, ymax = upper_ci_95), alpha = 0.35, color = NA) +
   geom_ribbon(aes(ymin = lower_ci_80, ymax = upper_ci_80), alpha = 0.45, color = NA) +
   geom_line(aes(y = mean)) +
@@ -209,9 +212,11 @@ ggplot(data = data_trends %>% filter(level == "global"), aes(x = year, fill = co
         legend.title = element_text(face = "bold", hjust = 0.5),
         panel.background = element_rect(fill = "transparent", colour = NA),
         plot.background = element_rect(fill = "transparent", colour = NA)) +
-  labs(x = "Year", y = "Hard coral cover (%)")
-
-ggsave("figs/04_case-studies/case-study_1_raw.png", width = 7, height = 5)
+  annotate("label", x = 2002, y = 24, label = "2025 GCRMN report",
+           family = font_choose_graph, fill = "#c44569", color = "white") +
+  annotate("label", x = 2015, y = 37.5, label = "2020 GCRMN report",
+           family = font_choose_graph, fill = "#2d98da", color = "white") +
+  labs(x = "Year", y = "Hard coral cover (%)", title = "A")
 
 ggplot(data = data_trends %>% filter(level == "region"), aes(x = year, fill = color, color = color, group  = source)) +
   geom_ribbon(aes(ymin = lower_ci_95, ymax = upper_ci_95), alpha = 0.35, color = NA) +
@@ -229,14 +234,83 @@ ggplot(data = data_trends %>% filter(level == "region"), aes(x = year, fill = co
 
 ggsave("figs/07_additional/comparison_2020-2025_region.png", width = 7, height = 14)
 
-# 5. Box X ----
+## 4.3 Plots of number of sites per year ----
+
+load("data/02_misc/data-benthic.RData")
+
+data_sites_2025 <- data_benthic %>% 
+  select(decimalLatitude, decimalLongitude, year) %>% 
+  st_drop_geometry() %>% 
+  distinct() %>% 
+  group_by(year) %>% 
+  count() %>% 
+  ungroup() %>% 
+  mutate(report = "report 2025")
+
+rm(data_benthic)
+
+data_sites_2020 <- read.csv2("data/02_misc/03-merge_all_all_all_benthos_NA.csv") %>% 
+  filter(!(DatasetID %in% c("XLCA1", "XLCA2", "XLCA3", "XLCA4", "XLCA5",
+                            "PACN1.1", "PACN1.2", "PACN1.3", "PACN1.4",
+                            "TIAH1", "RFCK1"))) %>% # Remove datasets unused by Murray for the analyses
+  select(Latitude, Longitude, Year) %>% 
+  drop_na(Latitude, Longitude, Year) %>% 
+  distinct() %>% 
+  group_by(Year) %>% 
+  count() %>% 
+  ungroup() %>% 
+  rename(year = Year) %>% 
+  mutate(report = "report 2020")
+
+data_sites <- bind_rows(data_sites_2020, data_sites_2025) %>% 
+  mutate(color = case_when(report == "report 2025" ~ "#c44569",
+                           report == "report 2020" ~ "#2d98da"))
+
+plot_b <- ggplot(data = data_sites %>% filter(report == "report 2020"),
+                 aes(x = year, y = n/1000, fill = color)) +
+  geom_bar(stat = "identity", show.legend = FALSE, width = 1, alpha = 0.8) +
+  scale_fill_identity() +
+  labs(x = "Year", y = "Sites", title = "B") +
+  coord_cartesian(clip = "off") +
+  theme_graph() +
+  theme(axis.title.x = element_blank(),
+        panel.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  scale_x_continuous(expand = c(0, 0), limits = c(1979, 2026),
+                     breaks = c(1980, 1990, 2000, 2010, 2020), labels = c("1980", "", "2000", "", "2020")) +
+  scale_y_continuous(limits = c(0, 6.5))
+
+plot_c <- ggplot(data = data_sites %>% filter(report == "report 2025"),
+                 aes(x = year, y = n/1000, fill = color)) +
+  geom_bar(stat = "identity", show.legend = FALSE, width = 1, alpha = 0.8) +
+  scale_fill_identity() +
+  labs(x = "Year", y = "Sites", title = "C") +
+  coord_cartesian(clip = "off") +
+  theme_graph() +
+  theme(panel.background = element_rect(fill = "transparent", colour = NA),
+        plot.background = element_rect(fill = "transparent", colour = NA)) +
+  scale_x_continuous(expand = c(0, 0), limits = c(1979, 2026),
+                     breaks = c(1980, 1990, 2000, 2010, 2020), labels = c("1980", "", "2000", "", "2020")) +
+  scale_y_continuous(limits = c(0, 6.5))
+
+## 4.4 Combine and export the plot ----
+
+plot_a + (plot_b / plot_c) + plot_layout(widths = c(2.5, 1)) &
+  theme(plot.background = element_rect(fill = "transparent", colour = NA),
+        panel.background = element_rect(fill = "transparent", colour = NA))
+
+ggsave("figs/04_case-studies/case-study_2020-2025.png", width = 9, height = 5)
+
+rm(data_models, data_2020, data_2025, data_sites_2020, data_sites_2025, data_sites)
+
+# 5. Box absolute vs relative values ----
 
 data_box <- tibble(year = seq(2000, 2010, 1),
                    cover = c(38, 39, 35, 37, 38, 39, 42, 38, 37,
                              41, 19),
                    position = seq(1,11,1)) %>% 
-  mutate(color = case_when(position == max(position) ~ "#2d98da",
-                           position == max(position-1) ~ "#c44569",
+  mutate(color = case_when(position == max(position) ~ "#013C5E",
+                           position == max(position-1) ~ "#C44D56",
                            TRUE ~ "#bdc3c7"))
 
 plot_a <- ggplot(data = data_box, aes(x = year, y = cover, fill = color, group = 1)) +
@@ -248,7 +322,13 @@ plot_a <- ggplot(data = data_box, aes(x = year, y = cover, fill = color, group =
   theme_graph() +
   theme(panel.background = element_rect(fill = "transparent", colour = NA),
         plot.background = element_rect(fill = "transparent", colour = NA),
-        plot.title = element_markdown()) +
+        plot.title = element_markdown(size = 13),
+        axis.title.x = element_text(size = 12),
+        axis.title.y = element_text(size = 12),
+        axis.text.x = element_text(size = 11),
+        axis.text.y = element_text(size = 11),
+        panel.grid = element_blank(),
+        axis.ticks.y = element_blank()) +
   labs(x = "Year", y = "Hard coral cover (%)")
 
 (plot_a + labs(title = "**A.** Absolute change")) + 
@@ -256,8 +336,8 @@ plot_a <- ggplot(data = data_box, aes(x = year, y = cover, fill = color, group =
   theme(plot.background = element_rect(fill = "transparent", colour = NA),
         panel.background = element_rect(fill = "transparent", colour = NA))
 
-ggsave("figs/04_case-studies/case-study_X_raw.png", width = 8, height = 4, dpi = 300)
-ggsave("figs/04_case-studies/case-study_X_raw.pdf", width = 8, height = 4)
+ggsave("figs/04_case-studies/case-study_abs-rel.png", width = 8, height = 4, dpi = 300)
+ggsave("figs/04_case-studies/case-study_abs-rel.pdf", width = 8, height = 4)
 
 # 6. Turf algae case study ----
 
@@ -287,17 +367,17 @@ plot_b <- ggplot(data = data_turf_length, aes(x = TurfLength.mm.)) +
   labs(x = "Turf length (mm)", y = "Relative frequency density") +
   lims(x = c(0, 25))
 
-ggsave("figs/04_case-studies/case-study_turf_plot-b.png", width = 6, height = 6, dpi = 300)
-ggsave("figs/04_case-studies/case-study_turf_plot-b.pdf", width = 6, height = 6)
+ggsave("figs/04_case-studies/case-study_turf_plot-b.png", width = 6, height = 5, dpi = 300)
+ggsave("figs/04_case-studies/case-study_turf_plot-b.pdf", width = 6, height = 5)
 
 ## 6.2 Figure C ----
 
-data_turf_sed <- read.csv("data/14_case-studies/c_TurfVsSediment.csv") %>% 
-  mutate(TurfLength.mm. = log10(TurfLength.mm.),
-         SedimentLoad.g_m2. = log10(SedimentLoad.g_m2.))
+data_turf_sed <- read.csv("data/14_case-studies/c_TurfVsSediment.csv")
 
 plot_c <- ggplot(data = data_turf_sed, aes(x = TurfLength.mm., y = SedimentLoad.g_m2.)) +
   geom_point(color = "#7393C9") +
+  scale_x_log10() +
+  scale_y_log10() +
   geom_smooth(method = "lm", se = FALSE, color = "#013C5E") +
   theme_graph() +
   theme(plot.background = element_rect(fill = "transparent", colour = NA),
@@ -305,5 +385,9 @@ plot_c <- ggplot(data = data_turf_sed, aes(x = TurfLength.mm., y = SedimentLoad.
   labs(x = bquote("Turf length (mm; " ~ log[10] * ")"),
        y = bquote("Sediment load (g." ~ m^{-2} * ";" ~ log[10] * ")"))
 
-ggsave("figs/04_case-studies/case-study_turf_plot-c.png", width = 6, height = 6, dpi = 300)
-ggsave("figs/04_case-studies/case-study_turf_plot-c.pdf", width = 6, height = 6)
+ggsave("figs/04_case-studies/case-study_turf_plot-c.png", width = 6, height = 5, dpi = 300)
+ggsave("figs/04_case-studies/case-study_turf_plot-c.pdf", width = 6, height = 5)
+
+# 7. Beyond hard coral case study ----
+
+
