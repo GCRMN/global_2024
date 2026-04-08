@@ -267,7 +267,7 @@ data_sites <- bind_rows(data_sites_2020, data_sites_2025) %>%
                            report == "report 2020" ~ "#2d98da"))
 
 plot_b <- ggplot(data = data_sites %>% filter(report == "report 2020"),
-                 aes(x = year, y = n/1000, fill = color)) +
+                 aes(x = year, y = n, fill = color)) +
   geom_bar(stat = "identity", show.legend = FALSE, width = 1, alpha = 0.8) +
   scale_fill_identity() +
   labs(x = "Year", y = "Sites", title = "B") +
@@ -278,10 +278,10 @@ plot_b <- ggplot(data = data_sites %>% filter(report == "report 2020"),
         plot.background = element_rect(fill = "transparent", colour = NA)) +
   scale_x_continuous(expand = c(0, 0), limits = c(1979, 2026),
                      breaks = c(1980, 1990, 2000, 2010, 2020), labels = c("1980", "", "2000", "", "2020")) +
-  scale_y_continuous(limits = c(0, 6.5))
+  scale_y_continuous(limits = c(0, 6500), labels = scales::label_number(scale = 1/1000, suffix = "K"))
 
 plot_c <- ggplot(data = data_sites %>% filter(report == "report 2025"),
-                 aes(x = year, y = n/1000, fill = color)) +
+                 aes(x = year, y = n, fill = color)) +
   geom_bar(stat = "identity", show.legend = FALSE, width = 1, alpha = 0.8) +
   scale_fill_identity() +
   labs(x = "Year", y = "Sites", title = "C") +
@@ -291,7 +291,7 @@ plot_c <- ggplot(data = data_sites %>% filter(report == "report 2025"),
         plot.background = element_rect(fill = "transparent", colour = NA)) +
   scale_x_continuous(expand = c(0, 0), limits = c(1979, 2026),
                      breaks = c(1980, 1990, 2000, 2010, 2020), labels = c("1980", "", "2000", "", "2020")) +
-  scale_y_continuous(limits = c(0, 6.5))
+  scale_y_continuous(limits = c(0, 6500), labels = scales::label_number(scale = 1/1000, suffix = "K"))
 
 ## 4.4 Combine and export the plot ----
 
@@ -300,6 +300,7 @@ plot_a + (plot_b / plot_c) + plot_layout(widths = c(2.5, 1)) &
         panel.background = element_rect(fill = "transparent", colour = NA))
 
 ggsave("figs/04_case-studies/case-study_2020-2025.png", width = 9, height = 5)
+ggsave("figs/04_case-studies/case-study_2020-2025.pdf", width = 9, height = 5)
 
 rm(data_models, data_2020, data_2025, data_sites_2020, data_sites_2025, data_sites)
 

@@ -20,12 +20,16 @@ data_population <- read.csv("data/02_misc/ind_human-pop_5km_subregion.csv") %>%
          pop_change_rel = ((pop_2020-pop_2000)/pop_2000)*100,
          pop_change_rel = ifelse(is.nan(pop_change_rel), 0, pop_change_rel)) %>% 
   select(-pop_2005, -pop_2010, -pop_2015) %>% 
-  arrange(region)
+  arrange(region, subregion)
 
 data_population <- data_population %>% 
   filter(row_number() != 1) %>% 
   bind_rows(., data_population %>% 
-              slice(1))
+              slice(1)) %>% 
+  mutate(subregion = case_when(region == "All" & subregion == "All" ~ "",
+                               TRUE ~ subregion),
+         region = case_when(region == "All" ~ "Global",
+                            TRUE ~ region))
 
 # 3. Export the full table ----
 

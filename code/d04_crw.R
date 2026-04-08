@@ -244,6 +244,12 @@ data_sst_trends <- data_sst %>%
 
 data_sst_trends <- bind_rows(data_sst_trends[-1,], data_sst_trends[1,]) # Move first row as the last
 
+data_sst_trends <- data_sst_trends %>% 
+  mutate(subregion = case_when(region == "All" & subregion == "All" ~ "",
+                               TRUE ~ subregion),
+       region = case_when(region == "All" ~ "Global",
+                          TRUE ~ region))
+
 ## 6.3 Export the full table as .xlsx ----
 
 openxlsx::write.xlsx(data_sst_trends, file = "figs/06_supp-mat/sst.xlsx")

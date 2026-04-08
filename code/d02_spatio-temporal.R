@@ -300,6 +300,11 @@ plot_i <- data_benthic %>%
   group_by(region) %>%
   mutate(percent = n*100/sum(n)) %>% 
   ungroup() %>% 
+  mutate(region = str_replace_all(region, c("ROPME" = "ROPME Sea Area",
+                                            "EAS" = "East Asian Seas",
+                                            "ETP" = "Eastern Tropical Pacific",
+                                            "PERSGA" = "Red Sea and Gulf of Aden",
+                                            "WIO" = "Western Indian Ocean"))) %>% 
   ggplot(data = ., aes(x = year, y = percent)) +
   geom_bar(stat = "identity", show.legend = FALSE, width = 1,
            color = palette_first[4], fill = palette_first[3]) +
@@ -307,11 +312,17 @@ plot_i <- data_benthic %>%
   coord_cartesian(clip = "off") +
   theme_graph() +
   theme(panel.background = element_rect(fill = "transparent", colour = NA),
-        plot.background = element_rect(fill = "transparent", colour = NA)) +
+        plot.background = element_rect(fill = "transparent", colour = NA),
+        axis.title.x = element_text(size = 13, family = font_choose_graph),
+        axis.title.y = element_text(size = 13, family = font_choose_graph),
+        axis.text.x = element_text(size = 11, family = font_choose_graph),
+        axis.text.y = element_text(size = 11, family = font_choose_graph),
+        strip.text = element_text(size = 11, hjust = 0, family = font_choose_graph)) +
   facet_wrap(~region, ncol = 2, scales = "free_y") +
   scale_x_continuous(expand = c(0, 0), limits = c(1979, 2026))
 
 ggsave("figs/06_supp-mat/surveys-year.png", width = 7, height = 10, dpi = fig_resolution, bg = "transparent")
+ggsave("figs/06_supp-mat/surveys-year.pdf", width = 7, height = 10, dpi = fig_resolution, bg = "transparent")
 
 # 8. Number of surveys per depth ----
 
@@ -371,6 +382,11 @@ plot_i <- data_benthic %>%
   st_drop_geometry() %>% 
   drop_na(verbatimDepth) %>% 
   distinct() %>% 
+  mutate(region = str_replace_all(region, c("ROPME" = "ROPME Sea Area",
+                                            "EAS" = "East Asian Seas",
+                                            "ETP" = "Eastern Tropical Pacific",
+                                            "PERSGA" = "Red Sea and Gulf of Aden",
+                                            "WIO" = "Western Indian Ocean"))) %>% 
   ggplot(data = ., aes(x = verbatimDepth)) +
   geom_histogram(binwidth = 1, aes(y = after_stat(width * density * 100)),
                  color = palette_first[4], fill = palette_first[3]) +
@@ -378,11 +394,17 @@ plot_i <- data_benthic %>%
   coord_cartesian(clip = "off") +
   theme_graph() +
   theme(panel.background = element_rect(fill = "transparent", colour = NA),
-        plot.background = element_rect(fill = "transparent", colour = NA)) +
+        plot.background = element_rect(fill = "transparent", colour = NA),
+        axis.title.x = element_text(size = 13, family = font_choose_graph),
+        axis.title.y = element_text(size = 13, family = font_choose_graph),
+        axis.text.x = element_text(size = 11, family = font_choose_graph),
+        axis.text.y = element_text(size = 11, family = font_choose_graph),
+        strip.text = element_text(size = 11, hjust = 0, family = font_choose_graph)) +
   facet_wrap(~region, ncol = 2, scales = "free_y") +
   scale_x_continuous(expand = c(0, 0), limits = c(-1, 31))
 
 ggsave("figs/06_supp-mat/surveys-depth.png", width = 7, height = 10, dpi = fig_resolution, bg = "transparent")
+ggsave("figs/06_supp-mat/surveys-depth.pdf", width = 7, height = 10, dpi = fig_resolution, bg = "transparent")
 
 # 9. Number of sites per datasetID and year (per subregion) ----
 
@@ -616,25 +638,35 @@ data_benthic_sites <- data_benthic %>%
   group_by(int_class, region) %>% 
   count() %>% 
   group_by(region) %>% 
-  mutate(perc = (n*100)/sum(n))
+  mutate(perc = (n*100)/sum(n)) %>% 
+  mutate(region = str_replace_all(region, c("ROPME" = "ROPME Sea Area",
+                                            "EAS" = "East Asian Seas",
+                                            "ETP" = "Eastern Tropical Pacific",
+                                            "PERSGA" = "Red Sea and Gulf of Aden",
+                                            "WIO" = "Western Indian Ocean")))
 
 ## 11.2 Make the plot ----
 
-ggplot(data = data_benthic_sites, aes(x = int_class, y = perc, fill = int_class,
-                                      label = paste0(round(perc, 1), "%\n(n = ", n, ")"))) +
-  geom_bar(stat = "identity", width = 0.5, show.legend = FALSE) +
-  geom_text(vjust = -0.3, size = 2.5, family = font_choose_graph) +
+ggplot(data = data_benthic_sites, aes(x = int_class, y = perc,
+       label = paste0(round(perc, 1), "%<br>(", "<i>n</i> = ", format(n, big.mark = ","),")"))) +
+  geom_bar(aes(fill = int_class), stat = "identity", width = 0.5, show.legend = FALSE) +
+  geom_richtext(vjust = 0, size = 2.5, family = font_choose_graph, label.colour = NA, fill = NA) +
   scale_fill_manual(values = palette_second) +
   labs(y = "Percentage of sites", x = "Number of years surveyed") +
   coord_cartesian(clip = "off") +
   theme_graph() +
-  theme(axis.text.x = element_text(size = 8, angle = 45)) +
   facet_wrap(~region, ncol = 2) +
   theme(panel.background = element_rect(fill = "transparent", colour = NA),
-        plot.background = element_rect(fill = "transparent", colour = NA)) +
-  lims(y = c(0, 100))
+        plot.background = element_rect(fill = "transparent", colour = NA),
+        axis.title.x = element_text(size = 13, family = font_choose_graph),
+        axis.title.y = element_text(size = 13, family = font_choose_graph),
+        axis.text.x = element_text(size = 10, angle = 45, family = font_choose_graph),
+        axis.text.y = element_text(size = 11, family = font_choose_graph),
+        strip.text = element_text(size = 11, hjust = 0, family = font_choose_graph)) +
+  scale_y_continuous(limits = c(0, 125), breaks = c(0, 25, 50, 75, 100))
 
-ggsave("figs/06_supp-mat/sites-range.png", width = 7, height = 10, dpi = fig_resolution, bg = "transparent")
+ggsave("figs/06_supp-mat/sites-range.png", width = 7, height = 10.5, dpi = fig_resolution, bg = "transparent")
+ggsave("figs/06_supp-mat/sites-range.pdf", width = 7, height = 10.5, dpi = fig_resolution, bg = "transparent")
 
 # 12 Monitoring descriptors per subregions ----
 
@@ -656,7 +688,11 @@ data_monitoring <- data_benthic %>%
   select(-surveys_90_perc) %>% 
   mutate(range = paste0(first_year, "-", last_year)) %>% 
   select(-first_year, -last_year) %>% 
-  mutate(across(c(nb_sites, nb_surveys), ~format(.x, big.mark = ",", scientific = FALSE)))
+  mutate(across(c(nb_sites, nb_surveys), ~format(.x, big.mark = ",", scientific = FALSE))) %>% 
+  mutate(subregion = case_when(region == "All" & subregion == "All" ~ "",
+                               TRUE ~ subregion),
+         region = case_when(region == "All" ~ "Global",
+                            TRUE ~ region))
 
 ## 12.1 Export as .xlsx ----
 

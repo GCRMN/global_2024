@@ -33,7 +33,11 @@ data_reef_extent <- data_reef_extent %>%
   arrange(region, subregion) %>% 
   bind_rows(., data_reef_extent %>%
               summarise(reef_extent_abs = sum(reef_extent_abs)) %>%
-              mutate(region = "All", subregion = "All"))
+              mutate(region = "All", subregion = "All")) %>% 
+  mutate(subregion = case_when(region == "All" & subregion == "All" ~ "",
+                               TRUE ~ subregion),
+         region = case_when(region == "All" ~ "Global",
+                            TRUE ~ region))
 
 # 3. Export the table for supplementary materials ----
 
