@@ -6,6 +6,7 @@ sf_use_s2(FALSE)
 library(ggspatial) # For annotation_scale function
 library(patchwork)
 library(ggtext)
+library(ggsflabel)
 
 # 2. Source functions ----
 
@@ -392,3 +393,173 @@ ggsave("figs/04_case-studies/case-study_turf_plot-c.pdf", width = 6, height = 5)
 # 7. Beyond hard coral case study ----
 
 
+
+# 8. WIO case study ----
+
+## 8.1 Maps ----
+
+color_scalebar <- "black"
+
+color_country <- tibble(country = c("Kenya", "Tanzania", "Madagascar"),
+                        color = c("#f8a07e", "#ce6693", "#5c53a5"))
+
+data_countries <- read_sf("data/01_maps/01_raw/03_natural-earth/ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp")
+
+data_sites <- readxl::read_xlsx("data/14_case-studies/wio_fig-1.xlsx") %>% 
+  drop_na(latitude, longitude) %>% 
+  filter(Country != "Mozambique") %>% 
+  rename(country = Country, site = `Site Name (English)`) %>%
+  select(country, site, latitude, longitude) %>% 
+  distinct() %>% 
+  left_join(., color_country) %>% 
+  mutate(site = str_remove_all(site, c("TsimipaikaBay_|Tsimipaika Bay_|Nosy Be Bay_|Ambaro Bay_")),
+         site = str_replace_all(site, "Kanamai- mradi", "Kanamai-Mradi"),
+         label = case_when(site %in% c("Wasini", "Munje", "Mapasi", "Jimbo", "Kuruwitu", "Antsatrana", "Kanamai-Mradi",
+                                       "Ampondrabe", "Ampanakana", "Ambatozavavy", "Nosy Be Bay", "Djamandjar") ~ site,
+                           TRUE ~ NA)) %>% 
+  st_as_sf(coords = c("longitude", "latitude"), crs = 4326)
+
+data_bboxes <- tibble(country = c("Kenya", "Tanzania", "Madagascar"),
+                      xmin = c(38.2, 37.5, 47),
+                      xmax = c(42.8, 42.2, 49.35),
+                      ymin = c(-4.9, -10.8, -13.95),
+                      ymax = c(-1.4, -4.5, -11.6)) %>% 
+  left_join(., color_country)
+
+geom <- pmap(list(data_bboxes$xmin, data_bboxes$xmax, data_bboxes$ymin, data_bboxes$ymax),
+             \(xmin, xmax, ymin, ymax) {
+               st_polygon(list(matrix(
+                 c(xmin, ymin,
+                   xmax, ymin,
+                   xmax, ymax,
+                   xmin, ymax,
+                   xmin, ymin),
+                 ncol = 2,
+                 byrow = TRUE)))}) %>%
+  st_sfc(crs = 4326)
+
+data_bboxes <- st_sf(data_bboxes, geometry = geom)
+
+rm(geom)
+
+plot_region <- ggplot() +
+  geom_sf(data = data_countries) +
+  geom_sf(data = data_sites, aes(color = color), show.legend = FALSE) +
+  scale_color_identity() +
+  geom_sf(data = data_bboxes, fill = NA, linewidth = 0.25, color = "black") +
+  theme_map() +
+  theme(panel.background = element_rect(fill = "transparent"),
+        plot.background = element_rect(fill = "transparent"),
+        axis.text.x = element_text(hjust = 0.5, size = 10),
+        axis.text.y = element_text(hjust = 0.5, size = 10)) +
+  coord_sf(xlim = c(28, 65), ylim = c(-28, 8),
+           label_axes = list(top = "E", left = "N")) +
+  scale_x_continuous(breaks = c(30, 40, 50, 60)) +
+  scale_y_continuous(breaks = c(-25, -15, -5, 5))
+
+plot_kenya <- ggplot() +
+  geom_sf(data = data_countries) +
+  geom_sf(data = data_sites %>% filter(country == "Kenya"), aes(color = color), show.legend = FALSE, size = 3) +
+  geom_sf_text_repel(data = data_sites %>% filter(country == "Kenya"),
+                     aes(label = label), family = font_choose_graph, size = 3, nudge_x = 0.5, seed = 1) +
+  scale_color_identity() +
+  theme_map() +
+  theme(panel.background = element_rect(fill = "transparent"),
+        plot.background = element_rect(fill = "transparent"),
+        axis.text.x = element_text(hjust = 0.5, size = 10),
+        axis.text.y.right = element_text(hjust = 0.5, size = 10, angle = -90)) +
+  coord_sf(xlim = c(38.2, 42.8), ylim = c(-4.9, -1.4),
+           label_axes = list(top = "E", right = "N")) +
+  scale_x_continuous(breaks = c(39, 40, 41, 42)) +
+  scale_y_continuous(breaks = c(-4.5, -3.5, -2.5, -1.5)) +
+  annotation_scale(location = "br",
+                   width_hint = 0.25, text_family = font_choose_map, text_col = color_scalebar,
+                   text_cex = 0.8, style = "bar", line_width = 1, height = unit(0.04, "cm"),
+                   line_col = color_scalebar, pad_x = unit(0.5, "cm"), pad_y = unit(0.5, "cm"),
+                   bar_cols = c(color_scalebar, color_scalebar))  +
+  geom_label(data = tibble(x = 38.2, y = -1.4), aes(x = x, y = y, label = "Kenya"),
+             family = font_choose_graph, hjust = 0, vjust = 1, size = 4,
+             fill = "#f8a07e", color = "white", linewidth = 0, label.r = unit(0, "lines"))
+
+plot_tanzania <- ggplot() +
+  geom_sf(data = data_countries) +
+  geom_sf_text_repel(data = data_sites %>% filter(country == "Tanzania"),
+                     aes(label = label), family = font_choose_graph, size = 3) +
+  geom_sf(data = data_sites %>% filter(country == "Tanzania"), aes(color = color), show.legend = FALSE, size = 3) +
+  scale_color_identity() +
+  theme_map() +
+  theme(panel.background = element_rect(fill = "transparent"),
+        plot.background = element_rect(fill = "transparent"),
+        axis.text.x = element_text(hjust = 0.5, size = 10),
+        axis.text.y = element_text(hjust = 0.5, size = 10)) +
+  coord_sf(xlim = c(37.5, 42.2), ylim = c(-10.8, -4.5),
+           label_axes = list(bottom = "E", left = "N")) +
+  scale_x_continuous(breaks = c(38, 40, 42)) +
+  scale_y_continuous(breaks = c(-10, -8, -6)) +
+  annotation_scale(location = "bl",
+                   width_hint = 0.25, text_family = font_choose_map, text_col = color_scalebar,
+                   text_cex = 0.8, style = "bar", line_width = 1, height = unit(0.04, "cm"),
+                   line_col = color_scalebar, pad_x = unit(0.5, "cm"), pad_y = unit(0.5, "cm"),
+                   bar_cols = c(color_scalebar, color_scalebar))  +
+  geom_label(data = tibble(x = 42.2, y = -4.5), aes(x = x, y = y, label = "Tanzania"),
+             family = font_choose_graph, hjust = 1, vjust = 1, size = 4,
+             fill = "#ce6693", color = "white", linewidth = 0, label.r = unit(0, "lines"))
+
+plot_mada <- ggplot() +
+  geom_sf(data = data_countries) +
+  geom_sf(data = data_sites %>% filter(country == "Madagascar"), aes(color = color),
+          show.legend = FALSE, size = 3) +
+  geom_sf_text_repel(data = data_sites %>% filter(country == "Madagascar" & site == "Djamandjar"),
+                     aes(label = label), family = font_choose_graph, size = 3, seed = 5, nudge_x = -0.3) +
+  geom_sf_text_repel(data = data_sites %>% filter(country == "Madagascar" & site %in% c("Nosy Be Bay", "Ambatozavavy")),
+                     aes(label = label), family = font_choose_graph, size = 3, seed = 5, nudge_y = 0.3) +
+  geom_sf_text_repel(data = data_sites %>% filter(country == "Madagascar" & site %in% c("Ampondrabe", "Antsatrana", "Ampanakana")),
+                     aes(label = label), family = font_choose_graph, size = 3, seed = 5, nudge_y = -0.3, nudge_x = 0.1) +
+  scale_color_identity() +
+  theme_map() +
+  theme(panel.background = element_rect(fill = "transparent"),
+        plot.background = element_rect(fill = "transparent"),
+        axis.text.x = element_text(hjust = 0.5, size = 10),
+        axis.text.y.right = element_text(hjust = 0.5, size = 10, angle = -90)) +
+  coord_sf(xlim = c(47, 49.3), ylim = c(-13.95, -11.6),
+           label_axes = list(bottom = "E", right = "N")) +
+  scale_x_continuous(breaks = c(47, 48, 49)) +
+  scale_y_continuous(breaks = c(-14, -13, -12)) +
+  annotation_scale(location = "tr",
+                   width_hint = 0.25, text_family = font_choose_map, text_col = color_scalebar,
+                   text_cex = 0.8, style = "bar", line_width = 1, height = unit(0.04, "cm"),
+                   line_col = color_scalebar, pad_x = unit(0.5, "cm"), pad_y = unit(0.5, "cm"),
+                   bar_cols = c(color_scalebar, color_scalebar)) +
+  geom_label(data = tibble(x = 47, y = -11.6), aes(x = x, y = y, label = "Madagascar"),
+             family = font_choose_graph, hjust = 0, vjust = 1, size = 4,
+             fill = "#5c53a5", color = "white", linewidth = 0, label.r = unit(0, "lines"))
+
+plot_region + plot_kenya + plot_tanzania + plot_mada & 
+  theme(plot.background = element_rect(fill = "transparent", colour = NA),
+        panel.background = element_rect(fill = "transparent", colour = NA))
+
+ggsave("figs/04_case-studies/case-study_wio-a.png", width = 6.8, height = 7, dpi = 300, bg = "transparent")
+
+data_oecm <- readxl::read_xlsx("data/14_case-studies/wio_fig-2.xlsx") %>% 
+  mutate(criteria = str_replace_all(criteria, "Criterion ", "C"),
+         site = str_remove_all(site, c("TsimipaikaBay_|Tsimipaika Bay_|Nosy Be Bay_|Ambaro Bay_")),
+         color = case_when(compliance == 0 ~ "black",
+                           TRUE ~ "white"))
+
+ggplot(data = data_oecm, aes(x = criteria, y = site, fill = compliance)) +
+  geom_tile(width = 0.9, height = 0.9, show.legend = FALSE) +
+  scale_fill_gradient(low = "#E4F1FE", high = "#013C5E") +
+  geom_text(aes(label = compliance, color = color), family = font_choose_graph) +
+  scale_color_identity() +
+  theme_graph() +
+  theme(panel.background = element_rect(fill = "transparent", color = NA),
+        plot.background = element_rect(fill = "transparent", color = NA),
+        panel.grid = element_blank(),
+        axis.ticks = element_blank()) +
+  scale_y_discrete(limits = rev) +
+  theme(axis.ticks.x = element_blank(),
+        axis.line.x = element_blank()) +
+  labs(x = "Assessment criteria", y = NULL)
+
+ggsave("figs/04_case-studies/case-study_wio-b.png", width = 4.5, height = 7.5, dpi = 300, bg = "transparent")
+ggsave("figs/04_case-studies/case-study_wio-b.pdf", width = 4.5, height = 7.5, bg = "transparent")
