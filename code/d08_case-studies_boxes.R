@@ -392,7 +392,42 @@ ggsave("figs/04_case-studies/case-study_turf_plot-c.pdf", width = 6, height = 5)
 
 # 7. Beyond hard coral case study ----
 
+## 7.1 Temporal trends ----
 
+data <- tibble(plot = "a",
+               year = c(1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020),
+               mean_cover = c(32, 38, 42, 35, 34, 15, 12, 8, 18),
+               upper_cover = c(34, 40, 44, 37, 37, 18, 13, 10, 22),
+               lower_cover = c(30, 36, 40, 31, 32, 10, 11, 4, 17),
+               color = c(rep("black", 6), rep("grey", 3)))
+
+ggplot(data = data) +
+  geom_line(aes(x = year, y = mean_cover, color = color)) +
+  # Add the grey segment after the last black point
+  geom_segment(data = data %>% 
+                 arrange(year) %>%
+                 slice(6:7) %>%
+                 summarise(x = first(year),
+                           xend = last(year),
+                           y = first(mean_cover),
+                           yend = last(mean_cover)),
+               aes(x = x, xend = xend, y = y, yend = yend),
+               color = "grey") +
+  geom_linerange(aes(x = year, ymin = lower_cover, ymax = upper_cover, color = color),
+             show.legend = FALSE) +
+  geom_point(aes(x = year, y = mean_cover, fill = color),
+             shape = 21, color = "white", show.legend = FALSE, size = 3) +
+  scale_fill_identity() +
+  scale_color_identity() +
+  theme_graph() +
+  theme(plot.background = element_rect(fill = "transparent", colour = NA),
+        panel.background = element_rect(fill = "transparent", colour = NA)) +
+  lims(y = c(0, NA)) +
+  labs(x = "Year", y = "Hard coral cover (%)")
+
+ggsave("figs/04_case-studies/case-study_beyong-coral.pdf", width = 5, height = 4, bg = "transparent")
+
+## 7.2 Radar chart ----
 
 # 8. WIO case study ----
 
@@ -415,7 +450,8 @@ data_sites <- readxl::read_xlsx("data/14_case-studies/wio_fig-1.xlsx") %>%
   mutate(site = str_remove_all(site, c("TsimipaikaBay_|Tsimipaika Bay_|Nosy Be Bay_|Ambaro Bay_")),
          site = str_replace_all(site, "Kanamai- mradi", "Kanamai-Mradi"),
          label = case_when(site %in% c("Wasini", "Munje", "Mapasi", "Jimbo", "Kuruwitu", "Antsatrana", "Kanamai-Mradi",
-                                       "Ampondrabe", "Ampanakana", "Ambatozavavy", "Nosy Be Bay", "Djamandjar") ~ site,
+                                       "Ampondrabe", "Ampanakana", "Ambatozavavy", "Nosy Be Bay", "Djamandjar",
+                                       "Chipopo", "Magengeni", "Makoongwe", "Somanga") ~ site,
                            TRUE ~ NA)) %>% 
   st_as_sf(coords = c("longitude", "latitude"), crs = 4326)
 
@@ -459,9 +495,11 @@ plot_region <- ggplot() +
 
 plot_kenya <- ggplot() +
   geom_sf(data = data_countries) +
+  geom_sf_text_repel(data = data_sites %>% filter(country == "Kenya" & site %in% c("Chipopo", "Kuruwitu", "Kanamai-Mradi", "Munje")),
+                     aes(label = label), family = font_choose_graph, size = 3, nudge_x = 0.75, seed = 1) +
+  geom_sf_text_repel(data = data_sites %>% filter(country == "Kenya" & !(site %in% c("Chipopo", "Kuruwitu", "Kanamai-Mradi", "Munje"))),
+                     aes(label = label), family = font_choose_graph, size = 3, nudge_x = -0.5, seed = 1) +
   geom_sf(data = data_sites %>% filter(country == "Kenya"), aes(color = color), show.legend = FALSE, size = 3) +
-  geom_sf_text_repel(data = data_sites %>% filter(country == "Kenya"),
-                     aes(label = label), family = font_choose_graph, size = 3, nudge_x = 0.5, seed = 1) +
   scale_color_identity() +
   theme_map() +
   theme(panel.background = element_rect(fill = "transparent"),
@@ -483,8 +521,10 @@ plot_kenya <- ggplot() +
 
 plot_tanzania <- ggplot() +
   geom_sf(data = data_countries) +
-  geom_sf_text_repel(data = data_sites %>% filter(country == "Tanzania"),
-                     aes(label = label), family = font_choose_graph, size = 3) +
+  geom_sf_text_repel(data = data_sites %>% filter(country == "Tanzania" & site != "Somanga"),
+                     aes(label = label), family = font_choose_graph, size = 3, nudge_x = 1.2, linewidth = 0.1) +
+  geom_sf_text_repel(data = data_sites %>% filter(country == "Tanzania" & site == "Somanga"),
+                     aes(label = label), family = font_choose_graph, size = 3, nudge_x = -1, linewidth = 0.1) +
   geom_sf(data = data_sites %>% filter(country == "Tanzania"), aes(color = color), show.legend = FALSE, size = 3) +
   scale_color_identity() +
   theme_map() +
@@ -507,14 +547,16 @@ plot_tanzania <- ggplot() +
 
 plot_mada <- ggplot() +
   geom_sf(data = data_countries) +
-  geom_sf(data = data_sites %>% filter(country == "Madagascar"), aes(color = color),
-          show.legend = FALSE, size = 3) +
   geom_sf_text_repel(data = data_sites %>% filter(country == "Madagascar" & site == "Djamandjar"),
                      aes(label = label), family = font_choose_graph, size = 3, seed = 5, nudge_x = -0.3) +
   geom_sf_text_repel(data = data_sites %>% filter(country == "Madagascar" & site %in% c("Nosy Be Bay", "Ambatozavavy")),
-                     aes(label = label), family = font_choose_graph, size = 3, seed = 5, nudge_y = 0.3) +
-  geom_sf_text_repel(data = data_sites %>% filter(country == "Madagascar" & site %in% c("Ampondrabe", "Antsatrana", "Ampanakana")),
+                     aes(label = label), family = font_choose_graph, size = 3, seed = 5, nudge_y = 0.5) +
+  geom_sf_text_repel(data = data_sites %>% filter(country == "Madagascar" & site %in% c("Antsatrana", "Ampanakana")),
                      aes(label = label), family = font_choose_graph, size = 3, seed = 5, nudge_y = -0.3, nudge_x = 0.1) +
+  geom_sf_text_repel(data = data_sites %>% filter(country == "Madagascar" & site %in% c("Ampondrabe")),
+                     aes(label = label), family = font_choose_graph, size = 3, seed = 5, nudge_y = -0.3, nudge_x = -0.6) +
+  geom_sf(data = data_sites %>% filter(country == "Madagascar"), aes(color = color),
+          show.legend = FALSE, size = 3) +
   scale_color_identity() +
   theme_map() +
   theme(panel.background = element_rect(fill = "transparent"),
@@ -540,6 +582,8 @@ plot_region + plot_kenya + plot_tanzania + plot_mada &
 
 ggsave("figs/04_case-studies/case-study_wio-a.png", width = 6.8, height = 7, dpi = 300, bg = "transparent")
 
+## 8.2 Heatmap ----
+
 data_oecm <- readxl::read_xlsx("data/14_case-studies/wio_fig-2.xlsx") %>% 
   mutate(criteria = str_replace_all(criteria, "Criterion ", "C"),
          site = str_remove_all(site, c("TsimipaikaBay_|Tsimipaika Bay_|Nosy Be Bay_|Ambaro Bay_")),
@@ -563,3 +607,37 @@ ggplot(data = data_oecm, aes(x = criteria, y = site, fill = compliance)) +
 
 ggsave("figs/04_case-studies/case-study_wio-b.png", width = 4.5, height = 7.5, dpi = 300, bg = "transparent")
 ggsave("figs/04_case-studies/case-study_wio-b.pdf", width = 4.5, height = 7.5, bg = "transparent")
+
+# 9. Reef maps case study ----
+
+data_countries <- read_sf("data/01_maps/01_raw/03_natural-earth/ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp")
+
+data_subregions <- read_sf("data/01_maps/02_clean/04_subregions/gcrmn_subregions.shp") %>% 
+  filter(region == "Australia")
+
+data_reefs <- read_sf("data/01_maps/02_clean/02_reefs-buffer/reefs_buffer_20.shp") %>% 
+  filter(region == "Australia")
+
+data_reefs <- st_intersection(data_reefs, data_subregions)
+
+plot_i <- ggplot() +
+  geom_sf(data = data_reefs, fill = "#ad5fad", color = "#ad5fad") +
+  geom_sf(data = data_subregions, color = "lightgrey", fill = NA, linewidth = 0.3) +
+  geom_sf(data = data_countries, color = "black", linewidth = 0.15) +
+  theme(panel.border = element_rect(fill = NA, color = "black"),
+        panel.background = element_rect(fill = "transparent"),
+        panel.grid = element_blank(),
+        plot.background = element_rect(fill = "transparent", color = NA),
+        axis.text = element_text(family = font_choose_map, color = "black"),
+        axis.text.y = element_text(angle = 90, hjust = 0.5),
+        axis.text.y.right = element_text(angle = -90, hjust = 0.5)) + 
+  coord_sf(xlim = c(91, 170), ylim = c(-37, -7),
+           label_axes = list(top = "E", left = "N", right = "N")) +
+  annotation_scale(location = "bl",
+                   width_hint = 0.25, text_family = font_choose_map, text_col = "black",
+                   text_cex = 0.7, style = "bar", line_width = 1, height = unit(0.04, "cm"),
+                   line_col = "black", pad_x = unit(0.5, "cm"), pad_y = unit(0.5, "cm"),
+                   bar_cols = c("black", "black"))
+
+ggsave("figs/04_case-studies/case-study_reef-maps.png",
+       height = 4.2, width = 8.5, bg = "transparent", dpi = fig_resolution)
