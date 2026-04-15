@@ -110,7 +110,8 @@ data_models <- st_read("data/01_maps/02_clean/04_subregions/gcrmn_subregions.shp
   distinct() %>% 
   left_join(data_models, .) %>% 
   relocate("subregion_name", .after = "subregion") %>% 
-  filter(year >= 1980 & year <= 2024)
+  filter(year >= 1980 & year <= 2024) %>% 
+  mutate(across(c(region, subregion), ~str_replace_all(., "PERSGA", "RSGA")))
 
 # 5. Export the results ----
 

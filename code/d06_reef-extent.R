@@ -30,6 +30,8 @@ data_reef_extent <- data_reef_extent %>%
   mutate(pos_world = row_number(),
          reef_extent_rel_world = (100*reef_extent_abs)/sum(reef_extent_abs)) %>% 
   bind_rows(data_reef_extent, .) %>% 
+  mutate(region = str_replace_all(region, "PERSGA", "RSGA"),
+         subregion = str_replace_all(subregion, "PERSGA", "RSGA")) %>% 
   arrange(region, subregion) %>% 
   bind_rows(., data_reef_extent %>%
               summarise(reef_extent_abs = sum(reef_extent_abs)) %>%

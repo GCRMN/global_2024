@@ -34,6 +34,7 @@ data_dataset_region <- data_benthic %>%
   summarise(datasetID = paste0(datasetID, collapse = ", ")) %>% 
   ungroup() %>% 
   left_join(data_region, .) %>%
+  mutate(region = str_replace_all(region, "PERSGA", "RSGA")) %>% 
   arrange(region)
 
 openxlsx::write.xlsx(data_dataset_region, file = "figs/06_supp-mat/datasetid-region.xlsx")

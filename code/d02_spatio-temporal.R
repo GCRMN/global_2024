@@ -681,6 +681,8 @@ data_monitoring <- data_benthic %>%
                 group_by(region, subregion) %>% 
                 data_descriptors() %>% 
                 ungroup()) %>% 
+  mutate(region = str_replace_all(region, "PERSGA", "RSGA"),
+         subregion = str_replace_all(subregion, "PERSGA", "RSGA")) %>% 
   arrange(region, subregion) %>% 
   bind_rows(., data_benthic %>% 
               data_descriptors() %>% 

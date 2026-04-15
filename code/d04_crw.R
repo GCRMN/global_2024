@@ -230,6 +230,8 @@ gls_trends <- function(data){
 load("data/02_misc/data_sst.RData")
 
 data_sst_trends <- data_sst %>% 
+  mutate(region = str_replace_all(region, "PERSGA", "RSGA"),
+         subregion = str_replace_all(subregion, "PERSGA", "RSGA")) %>% 
   group_by(region, subregion) %>% 
   group_modify(~gls_trends(.x)) %>% 
   ungroup() %>% 
