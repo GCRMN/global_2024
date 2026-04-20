@@ -155,7 +155,9 @@ map(setdiff(unique(data_models$region), NA),
     ~plot_trends_model(region_i = .x,
                  level_i = "subregion", category_i = "Macroalgae", range = "obs"))
 
-plot_trends_model(region_i = "ETP", level_i = "subregion", category_i = "Turf algae", range = "obs")
+map(c("Brazil", "ETP"),
+    ~plot_trends_model(region_i = .x,
+                       level_i = "subregion", category_i = "Turf algae", range = "obs"))
 
 ## 5.3 Trends (ecoregions) ----
 

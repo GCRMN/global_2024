@@ -85,3 +85,47 @@ read.csv("data/02_misc/ind_human-pop_5km_global.csv") %>%
 ggsave("figs/02_part-1/fig-4.png", width = 6, height = 5, dpi = fig_resolution, bg = "transparent")
 
 ggsave("figs/02_part-1/fig-4.pdf", width = 6, height = 5, dpi = fig_resolution, bg = "transparent")
+
+# 6. Human population at the regional scale ----
+
+data_pop_global <- read.csv("data/02_misc/ind_human-pop_5km_global.csv") %>% 
+  distinct() %>% 
+  rename(year = date, 
+         population = sum) %>% 
+  mutate(year = as.numeric(str_sub(year, 1, 4)),
+         population = round(population*1e-06, 0)) %>% 
+  filter(year %in% c(2000, 2020))
+
+data_pop <- read.csv("data/02_misc/ind_human-pop_5km_region.csv") %>% 
+  distinct() %>% 
+  rename(year = date, 
+         population = sum) %>% 
+  mutate(year = as.numeric(str_sub(year, 1, 4)),
+         population = round(population*1e-06, 3),
+         region = case_when(region == "PERSGA" ~ "RSGA",
+                            TRUE ~ region)) %>% 
+  arrange(region) %>% 
+  mutate(region = as.factor(region))
+
+data_pop_label <- data_pop %>% 
+  filter(year == 2020) %>% 
+  arrange(desc(region)) %>% 
+  mutate(ymax = cumsum(population),
+         ymin = lag(ymax, default = 0),
+         y = ymin + (ymax - ymin)/2) %>% 
+  filter(population > 1)
+
+ggplot(data = data_pop, aes(x = year, y = population, fill = region)) +
+  geom_area(color = "white", show.legend = FALSE) +
+  scale_fill_manual(values = colorRampPalette(c("#82ccdd", "#0c2461"))(10)) +
+  geom_text(data = data_pop_label, aes(x = 2020.5, y = y, label = region),
+                 family = font_choose_graph, size = 2, hjust = 0) +
+  geom_text(data = data_pop_global, aes(x = year, y = population, label = population),
+            family = font_choose_graph, size = 2, hjust = 0.5, vjust = -1) +
+  labs(x = "Year", y = "Inhabitants (millions)") +
+  theme_graph() +
+  theme(plot.background = element_rect(fill = "transparent", color = NA),
+        plot.margin = unit(c(0.2,3,0.2,0.2), "cm")) +
+  lims(y = c(0, 120), x = c(1999, 2025))
+
+ggsave("figs/02_part-1/fig-population_raw.pdf", width = 8, height = 5, dpi = fig_resolution, bg = "transparent")

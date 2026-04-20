@@ -610,6 +610,8 @@ ggsave("figs/04_case-studies/case-study_wio-b.pdf", width = 4.5, height = 7.5, b
 
 # 9. Reef maps case study ----
 
+## 9.1 Map ----
+
 data_countries <- read_sf("data/01_maps/01_raw/03_natural-earth/ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp")
 
 data_subregions <- read_sf("data/01_maps/02_clean/04_subregions/gcrmn_subregions.shp") %>% 
@@ -622,7 +624,7 @@ data_reefs <- st_intersection(data_reefs, data_subregions)
 
 plot_i <- ggplot() +
   geom_sf(data = data_reefs, fill = "#ad5fad", color = "#ad5fad") +
-  geom_sf(data = data_subregions, color = "lightgrey", fill = NA, linewidth = 0.3) +
+  geom_sf(data = data_subregions, color = "lightgrey", fill = NA, linewidth = 0.1) +
   geom_sf(data = data_countries, color = "black", linewidth = 0.15) +
   theme(panel.border = element_rect(fill = NA, color = "black"),
         panel.background = element_rect(fill = "transparent"),
@@ -639,5 +641,38 @@ plot_i <- ggplot() +
                    line_col = "black", pad_x = unit(0.5, "cm"), pad_y = unit(0.5, "cm"),
                    bar_cols = c("black", "black"))
 
-ggsave("figs/04_case-studies/case-study_reef-maps.png",
+ggsave("figs/04_case-studies/case-study_reef-maps_a.png",
        height = 4.2, width = 8.5, bg = "transparent", dpi = fig_resolution)
+
+## 9.2 Barplot ----
+
+data_extent <- tibble(region = paste0("Australia ", sort(rep(seq(1,7), times = 3))),
+                      source = rep(c("WRI", "ACA", "NESP"), 7),
+                      color = case_when(source == "WRI" ~ "#ad5fad",
+                                        source == "ACA" ~ "#7BA894",
+                                        source == "NESP" ~ "#6798C5"),
+                      label = case_when(region == "Australia 5" & source == "WRI" ~ "86%",
+                                        region == "Australia 5" & source == "ACA" ~ "56%",
+                                        region == "Australia 5" & source == "NESP" ~ "44%"),
+                      extent = c(500, 500, 500, 800, 1000, 5200, 800, 1000, 5200,
+                                 500, 5400, 5400, 25000, 20000, 28000,
+                                 800, 600, 10000, 200, 200, 400))
+
+ggplot(data = data_extent, aes(x = source, y = extent, fill = color)) +
+  geom_bar(stat = "identity", show.legend = FALSE, width = 0.8) +
+  geom_text(aes(label = label), family = font_choose_graph, size = 4, vjust = -1, hjust = 0.5) +
+  scale_fill_identity() +
+  facet_wrap(~region, nrow = 1, strip.position = "bottom") +
+  scale_y_continuous(limits = c(0, 30000)) +
+  theme_graph() +
+  theme(panel.grid = element_blank(),
+        panel.background = element_rect(fill = "transparent", color = NA),
+        plot.background = element_rect(fill = "transparent", color = NA),
+        strip.text = element_text(family = font_choose_graph),
+        axis.line.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank()) +
+  labs(x = NULL, y = "Coral reef extent (km²)")
+
+ggsave("figs/04_case-studies/case-study_reef-maps_b.pdf",
+       height = 4, width = 11, bg = "transparent")
