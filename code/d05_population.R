@@ -96,6 +96,13 @@ data_pop_global <- read.csv("data/02_misc/ind_human-pop_5km_global.csv") %>%
          population = round(population*1e-06, 0)) %>% 
   filter(year %in% c(2000, 2020))
 
+data_pop_global_all <- read.csv("data/02_misc/ind_human-pop_5km_global.csv") %>% 
+  distinct() %>% 
+  rename(year = date, 
+         population = sum) %>% 
+  mutate(year = as.numeric(str_sub(year, 1, 4)),
+         population = round(population*1e-06, 0))
+
 data_pop <- read.csv("data/02_misc/ind_human-pop_5km_region.csv") %>% 
   distinct() %>% 
   rename(year = date, 
@@ -117,6 +124,9 @@ data_pop_label <- data_pop %>%
 
 ggplot(data = data_pop, aes(x = year, y = population, fill = region)) +
   geom_area(color = "white", show.legend = FALSE) +
+  geom_line(data = data_pop_global_all, aes(x = year, y = population), linewidth = 0.5, color = "black") +
+  geom_point(data = data_pop_global, aes(x = year, y = population), size = 2,
+             shape = 21, color = "white", fill = "black") +
   scale_fill_manual(values = colorRampPalette(c("#82ccdd", "#0c2461"))(10)) +
   geom_text(data = data_pop_label, aes(x = 2020.5, y = y, label = region),
                  family = font_choose_graph, size = 2, hjust = 0) +

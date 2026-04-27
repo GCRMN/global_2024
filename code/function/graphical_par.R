@@ -7,12 +7,19 @@ library(showtextdb)
 
 # 2. Set the default font family ----
 
-# To list the available fonts: systemfonts::system_fonts()
-font_add(family = "pagella",
-         regular = "report/fonts/tex-gyre-pagella/texgyrepagella-regular.otf",
-         bold = "report/fonts/tex-gyre-pagella/texgyrepagella-bold.otf",
-         italic = "report/fonts/tex-gyre-pagella/texgyrepagella-italic.otf",
-         bolditalic = "report/fonts/tex-gyre-pagella/texgyrepagella-bolditalic.otf")
+if(FALSE){
+  
+  # To list the available fonts: systemfonts::system_fonts()
+  font_add(family = "pagella",
+           regular = "report/fonts/tex-gyre-pagella/texgyrepagella-regular.otf",
+           bold = "report/fonts/tex-gyre-pagella/texgyrepagella-bold.otf",
+           italic = "report/fonts/tex-gyre-pagella/texgyrepagella-italic.otf",
+           bolditalic = "report/fonts/tex-gyre-pagella/texgyrepagella-bolditalic.otf")
+  
+  font_choose_graph <- "pagella"
+  font_choose_map <- "pagella"
+  
+}
 
 font_add_google("Open Sans", "opsan") # Add a font from Google Font
 

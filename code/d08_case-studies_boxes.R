@@ -676,3 +676,96 @@ ggplot(data = data_extent, aes(x = source, y = extent, fill = color)) +
 
 ggsave("figs/04_case-studies/case-study_reef-maps_b.pdf",
        height = 4, width = 11, bg = "transparent")
+
+# 10. Traditional stewardship of coral reefs ----
+
+## 10.1 Load and transform data ----
+
+data_dca <- read_sf("data/14_case-studies/Approved_DCA.shp") %>% 
+  st_transform(crs = 4326)
+
+data_countries <- read_sf("data/01_maps/01_raw/03_natural-earth/ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp")
+
+data_calamianes <- read_sf("data/14_case-studies/calamianes_land_boundaries.shp")
+
+color_scalebar <- "black"
+
+data_bboxes <- tibble(plot = c("plot_a", "plot_b"),
+                      xmin = c(119.5, 119.86),
+                      xmax = c(120.7, 119.96),
+                      ymin = c(11.5, 12.26),
+                      ymax = c(12.6, 12.34))
+
+geom <- pmap(list(data_bboxes$xmin, data_bboxes$xmax, data_bboxes$ymin, data_bboxes$ymax),
+             \(xmin, xmax, ymin, ymax) {
+               st_polygon(list(matrix(
+                 c(xmin, ymin,
+                   xmax, ymin,
+                   xmax, ymax,
+                   xmin, ymax,
+                   xmin, ymin),
+                 ncol = 2,
+                 byrow = TRUE)))}) %>%
+  st_sfc(crs = 4326)
+
+data_bboxes <- st_sf(data_bboxes, geometry = geom)
+
+rm(geom)
+
+## 10.2 Plot a ----
+
+plot_a <- ggplot() +
+  geom_sf(data = data_countries) +
+  geom_sf(data = data_bboxes %>% filter(plot == "plot_a"), color = "#ce6693", fill = NA, linewidth = 0.5) +
+  coord_sf(xlim = c(114.9, 129.8), ylim = c(3.8, 20.2),
+           label_axes = list(top = "E", left = "N")) +
+  scale_x_continuous(breaks = c(116, 122, 127)) +
+  theme_map() +
+  theme(panel.background = element_rect(fill = "transparent"),
+        plot.background = element_rect(fill = "transparent"),
+        axis.text.x = element_text(hjust = 0.5, size = 10),
+        axis.text.y = element_text(hjust = 0.5, size = 10, angle = 90))
+
+## 10.3 Plot b ----
+
+plot_b <- ggplot() +
+  geom_sf(data = data_calamianes) +
+  geom_sf(data = data_bboxes %>% filter(plot == "plot_b"), color = "#ce6693", fill = NA, linewidth = 0.5) +
+  coord_sf(xlim = c(119.5, 120.7), ylim = c(11.5, 12.6),
+           label_axes = list(bottom = "E", left = "N")) +
+  scale_x_continuous(breaks = c(119.6, 120.1, 120.6)) +
+  scale_y_continuous(breaks = c(11.6, 12.1, 12.6)) +
+  theme_map() +
+  theme(panel.background = element_rect(fill = "transparent"),
+        plot.background = element_rect(fill = "transparent"),
+        axis.text.x = element_text(hjust = 0.5, size = 10),
+        axis.text.y = element_text(hjust = 0.5, size = 10, angle = 90))
+
+## 10.4 Plot c ----
+
+plot_c <- ggplot() +
+  geom_sf(data = data_dca, color = "#013C5E", fill = "#013C5E", alpha = 0.3) +
+  geom_sf(data = data_calamianes) +
+  annotation_scale(location = "tl",
+                   width_hint = 0.25, text_family = font_choose_map, text_col = color_scalebar,
+                   text_cex = 0.8, style = "bar", line_width = 1, height = unit(0.04, "cm"),
+                   line_col = color_scalebar, pad_x = unit(0.5, "cm"), pad_y = unit(0.5, "cm"),
+                   bar_cols = c(color_scalebar, color_scalebar)) +
+  coord_sf(xlim = c(119.84, 119.96), ylim = c(12.26, 12.36),
+           label_axes = list(bottom = "E", right = "N", top = "E")) +
+  scale_x_continuous(breaks = c(119.85, 119.90, 119.95)) +
+  scale_y_continuous(breaks = c(12.26, 12.31, 12.36)) +
+  theme_map() +
+  theme(panel.background = element_rect(fill = "transparent"),
+        plot.background = element_rect(fill = "transparent"),
+        axis.text.x = element_text(hjust = 0.5, size = 10),
+        axis.text.y.right = element_text(hjust = 0.5, size = 10, angle = -90))
+
+## 10.5 Combine and export ----
+
+((plot_a / plot_b) | plot_c) + plot_layout(widths = c(1, 2.525)) & 
+  theme(plot.background = element_rect(fill = "transparent", colour = NA),
+        panel.background = element_rect(fill = "transparent", colour = NA))
+
+ggsave("figs/04_case-studies/case-study_traditional.png",
+       height = 5, width = 8, bg = "transparent", dpi = fig_resolution)
