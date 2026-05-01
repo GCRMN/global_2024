@@ -38,6 +38,12 @@ plot_trends_model <- function(region_i, level_i, category_i = NA, range = NA){
       } %>% 
       ungroup()
     
+    data_hist_ref <- data_i %>% 
+      filter(year >= 1980 & year <= 2009) %>% 
+      group_by(category) %>% 
+      summarise(across(c(mean, lower_ci_95, upper_ci_95), ~round(mean(.x), 2))) %>% 
+      ungroup()
+    
     plot_i <- ggplot(data = data_i %>% filter(category == category_i),
                      aes(x = year, fill = color, color = color)) +
       geom_ribbon(aes(ymin = lower_ci_95, ymax = upper_ci_95), alpha = 0.35, color = NA) +
@@ -50,25 +56,122 @@ plot_trends_model <- function(region_i, level_i, category_i = NA, range = NA){
             plot.background = element_rect(fill = "transparent", colour = NA)) +
       scale_x_continuous(breaks = seq(1980, 2025, 5),
                          limits = c(1979, 2026),
-                         labels = seq(1980, 2025, 5),) +
+                         labels = seq(1980, 2025, 5)) +
+      #scale_y_continuous(limits = c(0, floor(max(data_i$upper_ci_95)/10)*10+10)) +
+      labs(x = "Year", y = paste0(category_i, " cover (%)"))
+    
+    plot_i_ref <- ggplot(data = data_i %>% filter(category == category_i),
+                     aes(x = year, fill = color, color = color)) +
+      geom_ribbon(aes(ymin = lower_ci_95, ymax = upper_ci_95), alpha = 0.35, color = NA) +
+      geom_ribbon(aes(ymin = lower_ci_80, ymax = upper_ci_80), alpha = 0.45, color = NA) +
+      geom_line(aes(y = mean)) +
+      geom_segment(data = data_hist_ref %>% filter(category == category_i), linetype = "dashed",
+                   aes(x = 1980, xend = 2025, y = mean, yend = mean), inherit.aes = FALSE, color = "#747d8c") +
+      geom_text(data = data_hist_ref %>% filter(category == category_i),
+                aes(x = 2025, y = mean), label = "Historical reference",
+                hjust = 1, size = 4.5, vjust = -1, color = "#747d8c",
+                family = font_choose_graph, inherit.aes = FALSE) +
+      scale_color_identity() +
+      scale_fill_identity() +
+      theme_graph() +
+      theme(panel.background = element_rect(fill = "transparent", colour = NA),
+            plot.background = element_rect(fill = "transparent", colour = NA)) +
+      scale_x_continuous(breaks = seq(1980, 2025, 5),
+                         limits = c(1979, 2026),
+                         labels = seq(1980, 2025, 5)) +
+      #scale_y_continuous(limits = c(0, floor(max(data_i$upper_ci_95)/10)*10+10)) +
+      labs(x = "Year", y = paste0(category_i, " cover (%)"))
+    
+    data_labels_plot <- tibble(type = c("decline", "decline", "decline", "decline",
+                                   "recovery", "recovery", "recovery"),
+                          x = c(1999, 2010.5, 2016.25, 2023,
+                                1992, 2005, 2019),
+                          label = c("1<sup>st</sup> GBE<br><span style='color:#d73027;'>-6.5%</span>",
+                                    "2<sup>nd</sup> GBE<br><span style='color:#d73027;'>-12.1%</span>",
+                                    "3<sup>rd</sup> GBE<br><span style='color:#d73027;'>-6.7%</span>",
+                                    "4<sup>th</sup> GBE<br><span style='color:#d73027;'>-7.4%</span>",
+                                    "<span style='color:#03a678;'>+5.1%</span><br><span style='font-size:8pt;'>Weak evidence</span>",
+                                    "<span style='color:#03a678;'>+4.8%</span><br><span style='font-size:8pt;'>Weak evidence</span>",
+                                    "<span style='color:#03a678;'>+13.9%</span><br><span style='font-size:8pt;'>Strong evidence</span>"))
+    
+    plot_i_b <- ggplot(data = data_i %>% filter(category == category_i), aes(x = year)) +
+      annotate("rect", xmin = 1998, xmax = 2000, ymin = 22, ymax = 34, fill = "#c44d56", alpha = 0.4) +
+      geom_richtext(data = data_labels_plot %>% filter(type == "decline"), aes(x = x, y = 35, label = label),
+                    hjust = 0.5, inherit.aes = FALSE, label.color = NA,
+                    fill = "transparent", family = font_choose_graph, size = 4) +
+      annotate("rect", xmin = 2009, xmax = 2012, ymin = 22, ymax = 34, fill = "#c44d56", alpha = 0.4) +
+      annotate("rect", xmin = 2015, xmax = 2017.5, ymin = 22, ymax = 34, fill = "#c44d56", alpha = 0.4) +
+      annotate("rect", xmin = 2021, xmax = 2025, ymin = 22, ymax = 34, fill = "#c44d56", alpha = 0.4) +
+      geom_ribbon(aes(ymin = lower_ci_95, ymax = upper_ci_95), alpha = 0.35, color = NA, fill = "#747d8c") +
+      geom_ribbon(aes(ymin = lower_ci_80, ymax = upper_ci_80), alpha = 0.45, color = NA, fill = "#747d8c") +
+      geom_line(aes(y = mean), color = "#747d8c") +
+      theme_graph() +
+      theme(panel.background = element_rect(fill = "transparent", colour = NA),
+            plot.background = element_rect(fill = "transparent", colour = NA)) +
+      scale_x_continuous(breaks = seq(1980, 2025, 5),
+                         limits = c(1979, 2026),
+                         labels = seq(1980, 2025, 5)) +
+      #scale_y_continuous(limits = c(0, floor(max(data_i$upper_ci_95)/10)*10+10)) +
+      labs(x = "Year", y = paste0(category_i, " cover (%)"))
+    
+    plot_i_c <- ggplot(data = data_i %>% filter(category == category_i), aes(x = year)) +
+      annotate("rect", xmin = 1987, xmax = 1996, ymin = 22, ymax = 34, fill = "#03a678", alpha = 0.4) +
+      geom_richtext(data = data_labels_plot %>% filter(type == "recovery"), aes(x = x, y = 35, label = label),
+                    hjust = 0.5, inherit.aes = FALSE, label.color = NA,
+                    fill = "transparent", family = font_choose_graph, size = 4) +
+      annotate("rect", xmin = 2000, xmax = 2009, ymin = 22, ymax = 34, fill = "#03a678", alpha = 0.4) +
+      annotate("rect", xmin = 2017, xmax = 2021, ymin = 22, ymax = 34, fill = "#03a678", alpha = 0.4) +
+      geom_ribbon(aes(ymin = lower_ci_95, ymax = upper_ci_95), alpha = 0.35, color = NA, fill = "#747d8c") +
+      geom_ribbon(aes(ymin = lower_ci_80, ymax = upper_ci_80), alpha = 0.45, color = NA, fill = "#747d8c") +
+      geom_line(aes(y = mean), color = "#747d8c") +
+      theme_graph() +
+      theme(panel.background = element_rect(fill = "transparent", colour = NA),
+            plot.background = element_rect(fill = "transparent", colour = NA)) +
+      scale_x_continuous(breaks = seq(1980, 2025, 5),
+                         limits = c(1979, 2026),
+                         labels = seq(1980, 2025, 5)) +
       #scale_y_continuous(limits = c(0, floor(max(data_i$upper_ci_95)/10)*10+10)) +
       labs(x = "Year", y = paste0(category_i, " cover (%)"))
     
     if(category_i == "Hard coral"){
       
-      ggsave(filename = paste0("figs/02_part-1/fig-1.png"),
+      ggsave(filename = paste0("figs/02_part-1/fig_hard-coral.png"),
              plot = plot_i, height = 6, width = 8.5, dpi = fig_resolution)
       
-      ggsave(filename = paste0("figs/02_part-1/fig-1.pdf"),
+      ggsave(filename = paste0("figs/02_part-1/fig_hard-coral.pdf"),
              plot = plot_i, height = 6, width = 8.5, bg = "transparent")
+      
+      ggsave(filename = paste0("figs/02_part-1/fig_hard-coral_dec.png"),
+             plot = plot_i_b, height = 6, width = 8.5, dpi = fig_resolution)
+      
+      ggsave(filename = paste0("figs/02_part-1/fig_hard-coral_dec.pdf"),
+             plot = plot_i_b, height = 6, width = 8.5, bg = "transparent")
+      
+      ggsave(filename = paste0("figs/02_part-1/fig_hard-coral_rec.png"),
+             plot = plot_i_c, height = 6, width = 8.5, dpi = fig_resolution)
+      
+      ggsave(filename = paste0("figs/02_part-1/fig_hard-coral_rec.pdf"),
+             plot = plot_i_c, height = 6, width = 8.5, bg = "transparent")
+      
+      ggsave(filename = paste0("figs/02_part-1/fig_hard-coral_ref.png"),
+             plot = plot_i_ref, height = 6, width = 8.5, dpi = fig_resolution)
+      
+      ggsave(filename = paste0("figs/02_part-1/fig_hard-coral_ref.pdf"),
+             plot = plot_i_ref, height = 6, width = 8.5, bg = "transparent")
       
     }else if(category_i == "Macroalgae"){
       
-      ggsave(filename = paste0("figs/02_part-1/fig-3.png"),
+      ggsave(filename = paste0("figs/02_part-1/fig_macroalgae.png"),
              plot = plot_i, height = 6, width = 8.5, dpi = fig_resolution)
       
-      ggsave(filename = paste0("figs/02_part-1/fig-3.pdf"),
+      ggsave(filename = paste0("figs/02_part-1/fig_macroalgae.pdf"),
              plot = plot_i, height = 6, width = 8.5, bg = "transparent")
+      
+      ggsave(filename = paste0("figs/02_part-1/fig_macroalgae_ref.png"),
+             plot = plot_i_ref, height = 6, width = 8.5, dpi = fig_resolution)
+      
+      ggsave(filename = paste0("figs/02_part-1/fig_macroalgae_ref.pdf"),
+             plot = plot_i_ref, height = 6, width = 8.5, bg = "transparent")
       
     }
     
