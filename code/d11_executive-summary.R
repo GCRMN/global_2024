@@ -6,6 +6,9 @@ library(ggtext)
 library(sf)
 sf_use_s2(FALSE)
 library(colorspace)
+library(deSolve)
+library(tidybayes)
+library(xkcd)
 
 # 2. Source functions ----
 
@@ -143,7 +146,7 @@ data_arrow <- tibble(region = c("Australia", "Brazil", "Caribbean", "EAS", "ETP"
                      position = c("Bottom", "Bottom", "Top", "Top", "Bottom", "Bottom", "Top", "Top", "Top", "Bottom", "Bottom"),
                      x = 1,
                      y = 1,
-                     change = c(-10.9, 0, -43.4, 0, 0, -18.3, -12.5, -48.7, 16.2, 31.0, -9.5),
+                     change = c(-10.9, 0, -43.4, 0, 0, -18.3, 0, -48.7, 16.2, 31.0, -9.5),
                      color = pal[pmax(1, pmin(101, round(change) + 51))],
                      change_label = case_when(change == 0 ~ "NC",
                                               change < 0 ~ paste0(change, "%"),
@@ -530,3 +533,32 @@ ggplot() +
 ggsave("figs/00_misc/fig_map-regions_raw.png", bg = "transparent", height = 4, width = 8, dpi = 300)
 
 ggsave("figs/00_misc/fig_map-regions_raw.pdf", bg = "transparent", height = 4, width = 8)
+
+# 9. Map of coral reefs distribution ----
+
+data_reefs <- st_read("data/01_maps/02_clean/02_reefs-buffer/reefs_buffer_100.shp") %>%
+  st_transform(4326) %>%
+  st_wrap_dateline(
+    options = c("WRAPDATELINE=YES", "DATELINEOFFSET=180"),
+    quiet = TRUE
+  ) %>%
+  st_make_valid() %>%
+  st_break_antimeridian(lon_0 = 160) %>%
+  st_transform(crs = crs_pacific)
+
+ggplot() +
+  geom_sf(data = data_graticules, color = "#ecf0f1", linewidth = 0.25) +
+  geom_sf(data = background_map_border, fill = NA, color = "grey30", linewidth = 0.25) +
+  geom_sf(data = data_reefs, color = "#40A6AA", fill = "#40A6AA", show.legend = FALSE) +
+  geom_sf(data = data_land, color = "#24252a", fill = "#dadfe1") +
+  theme(text = element_text(family = font_choose_graph),
+        axis.ticks = element_blank(),
+        axis.text = element_blank(),
+        legend.position = "bottom",
+        legend.background = element_rect(fill = "transparent", color = NA),
+        legend.title = element_blank(),
+        panel.background = element_blank(),
+        plot.background = element_rect(fill = "transparent", color = NA)) +
+  guides(fill = guide_legend(override.aes = list(size = 5, color = NA)))
+
+ggsave("figs/00_misc/fig_map-reef-distribution.png", bg = "transparent", height = 4, width = 8, dpi = 300)

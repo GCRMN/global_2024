@@ -174,6 +174,7 @@ plot_full <- plot_a + plot_b + plot_layout(guides = "collect") &
 ### 3.6.4 Save the plot ----
 
 ggsave("figs/04_case-studies/case-study_ropme.png", height = 5.5, width = 10.5, bg = "transparent", dpi = 300)
+ggsave("figs/04_case-studies/case-study_ropme.pdf", height = 5.5, width = 10.5, bg = "transparent")
 
 # 4. Comparison 2020 vs 2025 trends ----
 
