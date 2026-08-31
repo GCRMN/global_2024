@@ -146,7 +146,7 @@ data_arrow <- tibble(region = c("Australia", "Brazil", "Caribbean", "EAS", "ETP"
                      position = c("Bottom", "Bottom", "Top", "Top", "Bottom", "Bottom", "Top", "Top", "Top", "Bottom", "Bottom"),
                      x = 1,
                      y = 1,
-                     change = c(-10.9, 0, -43.4, 0, 0, -18.3, 0, -48.7, 16.2, 31.0, -9.5),
+                     change = c(-10.9, 0, -43.4, 0, 0, -18.3, 0, -48.7, 16.2, 43.0, -9.5),
                      color = pal[pmax(1, pmin(101, round(change) + 51))],
                      change_label = case_when(change == 0 ~ "NC",
                                               change < 0 ~ paste0(change, "%"),
